@@ -19,7 +19,6 @@ fun HomeTopBar(
             Text(
                 text = title.uppercase(),
                 style = MaterialTheme.typography.headlineMedium,
-                // Best Practice: Text on a 'surface' color should use the 'onSurface' color from the theme.
                 color = MaterialTheme.colorScheme.primary
             )
         },
@@ -45,14 +44,11 @@ fun AppTopBar( // 1. Renamed for better reusability and convention
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.headlineMedium,
-                // Best Practice: Text on a 'primary' color should use the 'onPrimary' color
                 color = MaterialTheme.colorScheme.onPrimary
             )
         },
-        // NOTE: There is no 'navigationIcon' here, so no back button will be shown. This is correct per your request.
         actions = { actions() },
         colors = TopAppBarDefaults.topAppBarColors(
-            // Correctly uses the main brand color for other screens
             containerColor = MaterialTheme.colorScheme.primary
         )
     )
