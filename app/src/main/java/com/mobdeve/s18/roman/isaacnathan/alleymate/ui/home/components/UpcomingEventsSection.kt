@@ -18,17 +18,29 @@ import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 
 @Composable
-fun UpcomingEventsSection(modifier: Modifier = Modifier, events: List<Event>) {
+fun UpcomingEventsSection(
+    modifier: Modifier = Modifier,
+    events: List<Event>
+) {
     val pagerState = rememberPagerState(pageCount = { events.size })
+
+    // ─── Colors ───────────────────────────────────────────────
     val purpleBackgroundColor = Color(0xFF9A31BB)
     val indicatorActiveColor = Color(0xFFff8a65)
     val indicatorInactiveColor = Color(0xFFc4c4c4)
 
+    // ─── Section Container ────────────────────────────────────
     Column(
-        modifier = modifier.fillMaxWidth().background(purpleBackgroundColor).padding(vertical = 24.dp)
+        modifier = modifier
+            .fillMaxWidth()
+            .background(purpleBackgroundColor)
+            .padding(vertical = 24.dp)
     ) {
+        // ─── Section Header ───────────────────────────────────
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -44,7 +56,10 @@ fun UpcomingEventsSection(modifier: Modifier = Modifier, events: List<Event>) {
                 modifier = Modifier.size(28.dp)
             )
         }
+
         Spacer(modifier = Modifier.height(20.dp))
+
+        // ─── Events Pager ─────────────────────────────────────
         HorizontalPager(
             state = pagerState,
             contentPadding = PaddingValues(horizontal = 40.dp),
@@ -52,13 +67,17 @@ fun UpcomingEventsSection(modifier: Modifier = Modifier, events: List<Event>) {
         ) { page ->
             EventCard(event = events[page])
         }
+
         Spacer(modifier = Modifier.height(20.dp))
+
+        // ─── Page Indicators ──────────────────────────────────
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            repeat(pagerState.pageCount) { iteration ->
-                val color = if (pagerState.currentPage == iteration) indicatorActiveColor else indicatorInactiveColor
+            repeat(pagerState.pageCount) { index ->
+                val color = if (pagerState.currentPage == index) indicatorActiveColor else indicatorInactiveColor
+
                 Box(
                     modifier = Modifier
                         .padding(horizontal = 4.dp)

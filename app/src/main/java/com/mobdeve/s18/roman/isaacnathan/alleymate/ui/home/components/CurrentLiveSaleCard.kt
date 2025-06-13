@@ -20,59 +20,70 @@ fun CurrentLiveSaleCard() {
     AppCard(
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        // Main layout column
+        Column(
+            modifier = Modifier.padding(16.dp)
         ) {
 
-            // Left Side
-            Column(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.Start
+            // ─── TOP SECTION ─────────────────────────────────────
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // REFACTORED: Use titleLarge for the event title
-                Text(
-                    text = "Paskomiket '24",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color.Black
-                )
-                // REFACTORED: Use bodyMedium for the date
-                Text(
-                    text = "December 24 - December 26",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+
+                // Title and date
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = "Paskomiket '24",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = "December 24 - December 26",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Continue button
                 Button(
                     onClick = { /* TODO: Handle continue click */ },
                     shape = MaterialTheme.shapes.extraLarge,
                     colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
                 ) {
-                    Icon(Icons.Default.PlayArrow, contentDescription = "Continue", modifier = Modifier.size(18.dp))
+                    Icon(
+                        Icons.Default.PlayArrow,
+                        contentDescription = "Continue",
+                        modifier = Modifier.size(18.dp)
+                    )
                     Spacer(modifier = Modifier.width(4.dp))
-                    // REFACTORED: Use bodyMedium for the button text
                     Text(
                         text = "Continue",
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold // Override to bold
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
 
-            VerticalDivider(
-                modifier = Modifier.height(80.dp).padding(horizontal = 8.dp),
+            // ─── DIVIDER ─────────────────────────────────────────
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 16.dp),
                 color = Color.LightGray.copy(alpha = 0.5f)
             )
 
-            // Right Side
+            // ─── BOTTOM STATS SECTION ───────────────────────────
             Row(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 StatColumn(value = "₱450", label = "Revenue")
                 StatColumn(value = "214x", label = "Sold")
-                StatColumn(value = "102x", label = "Trans.")
+                StatColumn(value = "102x", label = "Transactions")
             }
         }
     }
@@ -85,7 +96,6 @@ private fun StatColumn(value: String, label: String, modifier: Modifier = Modifi
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // REFACTORED: Use bodyMedium for the stat value, overriding to bold
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
@@ -93,7 +103,6 @@ private fun StatColumn(value: String, label: String, modifier: Modifier = Modifi
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(2.dp))
-        // REFACTORED: Use labelSmall for the stat label
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,

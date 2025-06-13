@@ -14,6 +14,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 
 @Composable
 fun EventCard(event: Event) {
+    // ─── Card Container ─────────────────────────────────────
     Card(
         modifier = Modifier
             .width(280.dp)
@@ -24,6 +25,8 @@ fun EventCard(event: Event) {
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
+
+        // ─── Card Content ─────────────────────────────────────
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -31,22 +34,26 @@ fun EventCard(event: Event) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
+            // Title
             Text(
                 text = event.title,
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.Black
-
             )
+
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Date
             Text(
                 text = event.date,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.DarkGray
+                style = MaterialTheme.typography.bodyMedium
             )
+
+            // Location
             Text(
                 text = event.location,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.DarkGray
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }

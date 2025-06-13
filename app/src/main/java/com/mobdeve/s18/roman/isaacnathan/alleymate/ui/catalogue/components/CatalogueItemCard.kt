@@ -20,13 +20,17 @@ import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
 
+// ===========================
+// Catalogue Item Card Layout
+// ===========================
+
 @Composable
 fun CatalogueItemCard(item: CatalogueItem) {
 
-    AppCard(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
+    AppCard(modifier = Modifier.fillMaxWidth()) {
         Column {
+
+            // --- Image Placeholder with Action Button ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -34,32 +38,39 @@ fun CatalogueItemCard(item: CatalogueItem) {
                     .background(Color(0xFFECE6F0)),
                 contentAlignment = Alignment.Center
             ) {
-
                 Icon(
                     imageVector = Icons.Outlined.Image,
                     contentDescription = "Image Placeholder",
                     modifier = Modifier.size(64.dp),
                     tint = Color(0xFFC9C3CD)
                 )
+
                 IconButton(
                     onClick = { /* TODO: Handle more options */ },
                     modifier = Modifier.align(Alignment.TopEnd)
                 ) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "More options", tint = Color.Gray)
+                    Icon(
+                        Icons.Default.MoreVert,
+                        contentDescription = "More options",
+                        tint = Color.Gray
+                    )
                 }
             }
 
+            // --- Item Details Section ---
             Column(modifier = Modifier.padding(12.dp)) {
-                // ITEM NAME
+
+                // Item Name
                 Text(
                     text = item.name,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
+
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // CATEGORY
+                // Category Tag
                 Surface(
                     shape = MaterialTheme.shapes.small,
                     border = BorderStroke(1.dp, Color.LightGray),
@@ -75,19 +86,22 @@ fun CatalogueItemCard(item: CatalogueItem) {
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
+
+                // --- Bottom Info Row: Price & Stock ---
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    // PRICE
+                    // Price
                     Text(
                         text = "₱${item.price}",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         color = Color.Gray
                     )
-                    // STOCK
+
+                    // Stock Count
                     Text(
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -95,16 +109,18 @@ fun CatalogueItemCard(item: CatalogueItem) {
                             }
                             append(" in Stock")
                         },
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.labelSmall,
                         color = Color.Gray
                     )
-
                 }
             }
         }
     }
-
 }
+
+// ==================
+// Preview Composable
+// ==================
 
 @Preview
 @Composable

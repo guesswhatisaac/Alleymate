@@ -32,10 +32,9 @@ fun HomeTopBar(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppTopBar( // 1. Renamed for better reusability and convention
+fun AppTopBar(
     title: String,
     actions: @Composable () -> Unit = {}
-    // 2. The onNavigateUp parameter is removed since there's no back button
 ) {
     TopAppBar(
         title = {

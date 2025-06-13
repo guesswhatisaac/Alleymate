@@ -15,16 +15,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+// ============================
+// Category Filter Chip Row
+// ============================
+
 @Composable
 fun CategoryFilters() {
-    val categories = listOf("ALL", "STICKERS", "PRINTS", "JEWELLRY")
+    // --- State & Config ---
+    val categories = listOf("ALL", "STICKERS", "PRINTS", "JEWELLERY", "SHIRT")
     var selectedCategory by remember { mutableStateOf("ALL") }
     val selectedColor = Color(0xFFEF6C42)
 
+    // --- Filter Chips Scrollable Row ---
     LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp), // inner padding
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // --- Category Chips ---
         items(categories) { category ->
             val isSelected = selectedCategory == category
 
@@ -34,9 +43,7 @@ fun CategoryFilters() {
                 label = {
                     Text(
                         text = category,
-
                         style = MaterialTheme.typography.labelSmall,
-
                         fontWeight = FontWeight.Normal
                     )
                 },
@@ -51,12 +58,13 @@ fun CategoryFilters() {
                     borderColor = Color.LightGray,
                     selectedBorderColor = Color.Transparent,
                     borderWidth = 1.dp,
-                    enabled = false,
+                    enabled = true,
                     selected = false
                 )
             )
         }
 
+        // --- Add Category Button ---
         item {
             OutlinedButton(
                 onClick = { /* TODO: Handle Add Category */ },
@@ -65,11 +73,19 @@ fun CategoryFilters() {
                 contentPadding = PaddingValues(0.dp),
                 border = BorderStroke(1.dp, Color.LightGray)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Category", tint = Color.Gray)
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Add Category",
+                    tint = Color.Gray
+                )
             }
         }
     }
 }
+
+// ==================
+// Preview Composable
+// ==================
 
 @Preview
 @Composable

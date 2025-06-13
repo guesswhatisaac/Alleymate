@@ -18,23 +18,29 @@ fun OverviewStatCard(
     label: String,
     modifier: Modifier = Modifier
 ) {
+    // ─── Card Container ───────────────────────────────────────
     AppCard(
         modifier = modifier.height(80.dp),
     ) {
+        // ─── Content Layout ────────────────────────────────────
         Column(
-            modifier = Modifier.fillMaxSize().padding(10.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // REFACTORED: Use bodyMedium for the value, overriding fontWeight
+            // ── Value Text ──
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
+
             Spacer(modifier = Modifier.height(2.dp))
-            // REFACTORED: Use labelSmall for the label
+
+            // ── Label Text ──
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,

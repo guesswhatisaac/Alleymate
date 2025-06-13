@@ -1,5 +1,3 @@
-// MainScreen.kt
-
 package com.mobdeve.s18.roman.isaacnathan.alleymate.ui
 
 import androidx.compose.animation.EnterTransition

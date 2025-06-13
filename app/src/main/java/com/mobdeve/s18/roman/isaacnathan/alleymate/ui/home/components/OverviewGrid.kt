@@ -10,8 +10,15 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun OverviewGrid() {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    // ─── Main Grid Layout ─────────────────────────────────────
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+
+        // ── First Row ──
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             OverviewStatCard(
                 value = "₱4500",
                 label = "Last Event Sales",
@@ -23,7 +30,11 @@ fun OverviewGrid() {
                 modifier = Modifier.weight(1f)
             )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+
+        // ── Second Row ──
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             OverviewStatCard(
                 value = "10 Items",
                 label = "Products in Catalogue",
