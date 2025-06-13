@@ -1,29 +1,28 @@
-package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home
+package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 
 @Composable
 fun EventCard(event: Event) {
     Card(
         modifier = Modifier
-            .width(280.dp) // Set a fixed width for the card
+            .width(280.dp)
             .height(140.dp),
-        shape = RoundedCornerShape(20.dp), // Nicely rounded corners
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) // Gives that nice shadow
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
             modifier = Modifier
@@ -34,19 +33,19 @@ fun EventCard(event: Event) {
         ) {
             Text(
                 text = event.title,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
                 color = Color.Black
+
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = event.date,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 color = Color.DarkGray
             )
             Text(
                 text = event.location,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 color = Color.DarkGray
             )
         }

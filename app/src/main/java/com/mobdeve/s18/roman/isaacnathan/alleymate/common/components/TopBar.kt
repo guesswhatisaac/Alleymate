@@ -24,9 +24,9 @@ fun HomeTopBar(
         },
         actions = { actions() },
         colors = TopAppBarDefaults.topAppBarColors(
-            // Correctly uses a neutral background for the home screen
             containerColor = MaterialTheme.colorScheme.surface
-        )
+        ),
+        windowInsets = TopAppBarDefaults.windowInsets
     )
 }
 
@@ -50,6 +50,7 @@ fun AppTopBar( // 1. Renamed for better reusability and convention
         actions = { actions() },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary
-        )
+        ),
+        windowInsets = TopAppBarDefaults.windowInsets
     )
 }

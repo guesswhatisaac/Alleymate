@@ -1,4 +1,4 @@
-package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home
+package com.mobdeve.s18.roman.isaacnathan.alleymate.data.model
 
 data class Event(
     val id: Int,

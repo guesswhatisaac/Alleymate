@@ -20,6 +20,8 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.CatalogueScreen
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventsScreen
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.HomeScreen
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.reports.ReportsScreen
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun MainScreen() {
@@ -41,14 +43,15 @@ fun MainScreen() {
                         }
                     }
                 )
-            }
+
+            },
+            contentWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
         ) { innerPadding ->
             NavHost(
                 navController = navController,
                 startDestination = Screen.Home.route,
                 modifier = Modifier.padding(innerPadding)
             ) {
-                // To make transitions instant, set enter and exit transitions to None
                 val noEnterTransition: EnterTransition = EnterTransition.None
                 val noExitTransition: ExitTransition = ExitTransition.None
 

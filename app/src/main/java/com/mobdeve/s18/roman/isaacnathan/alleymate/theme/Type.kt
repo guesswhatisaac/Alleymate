@@ -8,14 +8,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.R
 
-// 1. Define the FontFamily by referencing the font files in res/font
 val Righteous = FontFamily(
     Font(R.font.righteous, FontWeight.Normal),
     Font(R.font.righteous, FontWeight.Bold)
-
 )
 
-// 2. Define the Material Design type scale using your custom font family
+val Alexandria = FontFamily(
+    Font(R.font.alexandriaextralight, FontWeight.Thin),
+    Font(R.font.alexandriaregular, FontWeight.Normal)
+)
+
 val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = Righteous,
@@ -31,22 +33,22 @@ val Typography = Typography(
         lineHeight = 36.sp
     ),
     titleLarge = TextStyle(
-        fontFamily = Righteous,
+        fontFamily = Alexandria,
         fontWeight = FontWeight.Bold,
         fontSize = 22.sp,
         lineHeight = 28.sp
     ),
-    bodyLarge = TextStyle(
-        fontFamily = Righteous,
+    bodyMedium = TextStyle(
+        fontFamily = Alexandria,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
+        fontSize = 14.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = Righteous,
+        fontFamily = Alexandria,
         fontWeight = FontWeight.Normal,
-        fontSize = 11.sp,
+        fontSize = 12.sp,
         lineHeight = 16.sp,
         letterSpacing = 0.5.sp
     )
