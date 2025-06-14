@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TimeFilterChips(modifier: Modifier = Modifier) {
+fun TimeFilterChips() {
     val categories = listOf("ALL TIME", "LAST 5", "FIRST 5")
     var selectedTime by remember { mutableStateOf("ALL TIME") }
     val selectedColor = Color(0xFFEF6C42)
