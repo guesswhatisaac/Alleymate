@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -40,7 +41,7 @@ fun ReportsScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(top = 16.dp, bottom = 80.dp)
         ) {
             // --- EVENT SELECTOR BAR ---
@@ -50,6 +51,11 @@ fun ReportsScreen() {
                     eventDate = "October 25 - October 27",
                     onSelectorClick = { /* TODO: Show event dropdown */ },
                     modifier = Modifier.padding(horizontal = 16.dp)
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant
                 )
             }
 
@@ -63,6 +69,7 @@ fun ReportsScreen() {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     SectionHeader(
                         title = "Report for ALL TIME",
+                        showDivider = true,
                         isSubtle = true
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -78,12 +85,14 @@ fun ReportsScreen() {
             }
 
             // --- STOCK HISTORY ---
+            /*
             item {
                 Column {
                     SectionHeader(
                         title = "ALL-TIME Stock History",
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        showDivider = true
+                        showDivider = true,
+                        isSubtle = true
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     LazyRow(
@@ -92,6 +101,7 @@ fun ReportsScreen() {
                     ) { }
                 }
             }
+            */
 
             // --- BEST SELLERS ---
             item {
@@ -99,7 +109,8 @@ fun ReportsScreen() {
                     SectionHeader(
                         title = "ALL-TIME Best Sellers",
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        showDivider = true
+                        showDivider = true,
+                        isSubtle = true
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     LazyRow(
