@@ -16,11 +16,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
+import androidx.compose.foundation.clickable
 
 @Composable
 fun UpcomingEventsSection(
     modifier: Modifier = Modifier,
-    events: List<Event>
+    events: List<Event>,
+    onViewAllClick: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { events.size })
 
@@ -40,7 +42,8 @@ fun UpcomingEventsSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp)
+                .clickable { onViewAllClick() },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -53,7 +56,8 @@ fun UpcomingEventsSection(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = "View all events",
                 tint = Color.White,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(28.dp),
+
             )
         }
 

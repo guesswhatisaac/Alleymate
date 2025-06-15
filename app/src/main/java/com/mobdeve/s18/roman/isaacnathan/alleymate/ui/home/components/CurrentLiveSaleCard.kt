@@ -14,7 +14,9 @@ import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
 
 @Composable
-fun CurrentLiveSaleCard() {
+fun CurrentLiveSaleCard(
+    onContinueClick: () -> Unit
+) {
     val buttonColor = Color(0xFFEF6C42)
 
     AppCard(
@@ -51,7 +53,7 @@ fun CurrentLiveSaleCard() {
 
                 // Continue button
                 Button(
-                    onClick = { /* TODO: Handle continue click */ },
+                    onClick = onContinueClick,
                     shape = MaterialTheme.shapes.extraLarge,
                     colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
                 ) {
@@ -114,5 +116,5 @@ private fun StatColumn(value: String, label: String, modifier: Modifier = Modifi
 @Preview
 @Composable
 private fun CurrentLiveSaleCardPreview() {
-    CurrentLiveSaleCard()
+    CurrentLiveSaleCard(onContinueClick = {})
 }

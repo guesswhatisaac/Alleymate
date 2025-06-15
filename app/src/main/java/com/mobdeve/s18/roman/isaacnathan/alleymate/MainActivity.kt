@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.MainScreen
+import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.AppNavigation
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,7 +14,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MainScreen()
+            AlleyMateTheme {
+                AppNavigation()
+            }
         }
     }
 }

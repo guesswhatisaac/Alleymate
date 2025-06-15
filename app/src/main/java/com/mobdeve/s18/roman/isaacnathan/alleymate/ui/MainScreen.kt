@@ -2,81 +2,69 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.ui
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.BottomNavBar
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.navigation.Screen
-import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.CatalogueScreen
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventsScreen
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.HomeScreen
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.reports.ReportsScreen
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.ui.unit.dp
 
 @Composable
-fun MainScreen() {
-    val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
+fun MainScreen(
+    onNavigateToLiveSale: () -> Unit,
+    onNavigateToAllocate: () -> Unit
+) {
+    val tabNavController = rememberNavController()
+    val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-
-    AlleyMateTheme {
-        Scaffold(
-            bottomBar = {
-                BottomNavBar(
-                    currentRoute = currentRoute,
-                    onItemSelected = { route ->
-                        navController.navigate(route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(
+                currentRoute = currentRoute,
+                onItemSelected = { route ->
+                    tabNavController.navigate(route) {
+                        popUpTo(tabNavController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = false
                     }
+                }
+            )
+        },
+        contentWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
+    ) { innerPadding ->
+        NavHost(
+            navController = tabNavController,
+            startDestination = AppDestinations.HOME_ROUTE,
+            modifier = Modifier.padding(innerPadding),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
+        ) {
+            composable(AppDestinations.HOME_ROUTE) {
+                HomeScreen(
+                    onNavigateToEvents = { tabNavController.navigate(AppDestinations.EVENTS_ROUTE) },
+                    onNavigateToLiveSale = onNavigateToLiveSale
                 )
-
-            },
-            contentWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
-        ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = Screen.Home.route,
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                val noEnterTransition: EnterTransition = EnterTransition.None
-                val noExitTransition: ExitTransition = ExitTransition.None
-
-                composable(
-                    route = Screen.Home.route,
-                    enterTransition = { noEnterTransition },
-                    exitTransition = { noExitTransition }
-                ) { HomeScreen() }
-
-                composable(
-                    route = Screen.Catalogue.route,
-                    enterTransition = { noEnterTransition },
-                    exitTransition = { noExitTransition }
-                ) { CatalogueScreen() }
-
-                composable(
-                    route = Screen.Events.route,
-                    enterTransition = { noEnterTransition },
-                    exitTransition = { noExitTransition }
-                ) { EventsScreen() }
-
-                composable(
-                    route = Screen.Reports.route,
-                    enterTransition = { noEnterTransition },
-                    exitTransition = { noExitTransition }
-                ) { ReportsScreen() }
             }
+            composable(AppDestinations.CATALOGUE_ROUTE) {
+                CatalogueScreen(
+                    onNavigateToAllocate = onNavigateToAllocate
+                )
+            }
+            composable(AppDestinations.EVENTS_ROUTE) { EventsScreen() }
+            composable(AppDestinations.REPORTS_ROUTE) { ReportsScreen() }
         }
     }
 }

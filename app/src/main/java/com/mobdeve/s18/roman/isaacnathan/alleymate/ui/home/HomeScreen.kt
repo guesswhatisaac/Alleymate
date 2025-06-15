@@ -16,7 +16,11 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.OverviewGr
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.UpcomingEventsSection
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onNavigateToEvents: () -> Unit,
+    onNavigateToLiveSale: () -> Unit
+
+) {
     Scaffold(
         topBar = {
             HomeTopBar(title = "Alleymate")
@@ -30,7 +34,10 @@ fun HomeScreen() {
         ) {
             // ─── UPCOMING EVENTS SECTION ───────────────────────
             item {
-                UpcomingEventsSection(events = getSampleEvents())
+                UpcomingEventsSection(
+                    events = getSampleEvents(),
+                    onViewAllClick = onNavigateToEvents
+                )
             }
 
             // ─── CURRENT LIVE SALE SECTION ─────────────────────
@@ -42,7 +49,7 @@ fun HomeScreen() {
                         isSubtle = true
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    CurrentLiveSaleCard()
+                    CurrentLiveSaleCard(onContinueClick = onNavigateToLiveSale)
                 }
             }
 
@@ -79,5 +86,8 @@ private fun getSampleEvents(): List<Event> {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen()
+        HomeScreen(
+            onNavigateToEvents = {},
+            onNavigateToLiveSale = {}
+        )
 }

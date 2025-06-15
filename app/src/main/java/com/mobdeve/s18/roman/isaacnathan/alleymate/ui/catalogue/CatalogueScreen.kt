@@ -8,7 +8,6 @@ import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.*
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
@@ -20,7 +19,9 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.components.Categ
 // ========================
 
 @Composable
-fun CatalogueScreen() {
+fun CatalogueScreen(
+    onNavigateToAllocate: () -> Unit
+) {
     val exportCount = 3
 
     // --- Scaffold Layout: TopBar + FAB ---
@@ -33,7 +34,7 @@ fun CatalogueScreen() {
                         badgeCount = exportCount,
                         icon = Icons.Outlined.Archive,
                         contentDescription = "View Exports",
-                        onClick = { /* TODO: Handle export button click */ }
+                        onClick = onNavigateToAllocate
                     )
                 }
             )
@@ -110,12 +111,3 @@ fun CatalogueScreen() {
     }
 }
 
-// ==================
-// Preview Composable
-// ==================
-
-@Preview(showBackground = true)
-@Composable
-fun CatalogueScreenPreview() {
-    CatalogueScreen()
-}

@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.navigation.Screen
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.AppDestinations
 
 data class BottomNavItem(
     val label: String,
@@ -36,11 +36,12 @@ fun BottomNavBar(
     currentRoute: String?,
     onItemSelected: (String) -> Unit
 ) {
+
     val items = listOf(
-        BottomNavItem("Home", Screen.Home.route, Icons.Rounded.Home, Icons.Outlined.Home),
-        BottomNavItem("Catalogue", Screen.Catalogue.route, Icons.Rounded.Inbox, Icons.Outlined.Inbox),
-        BottomNavItem("Events", Screen.Events.route, Icons.Rounded.Event, Icons.Outlined.Event),
-        BottomNavItem("Reports", Screen.Reports.route, Icons.Rounded.Assessment, Icons.Outlined.Assessment)
+        BottomNavItem("Home", AppDestinations.HOME_ROUTE, Icons.Rounded.Home, Icons.Outlined.Home),
+        BottomNavItem("Catalogue", AppDestinations.CATALOGUE_ROUTE, Icons.Rounded.Inbox, Icons.Outlined.Inbox),
+        BottomNavItem("Events", AppDestinations.EVENTS_ROUTE, Icons.Rounded.Event, Icons.Outlined.Event),
+        BottomNavItem("Reports", AppDestinations.REPORTS_ROUTE, Icons.Rounded.Assessment, Icons.Outlined.Assessment)
     )
 
     Column {
