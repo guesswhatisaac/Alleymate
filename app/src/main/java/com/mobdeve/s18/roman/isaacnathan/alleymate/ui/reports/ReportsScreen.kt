@@ -9,6 +9,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,11 +24,20 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHead
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.components.CatalogueItemCard
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.reports.components.EventSelectorBar
+import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EventSelectorBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.reports.components.TimeFilterChips
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 
 @Composable
 fun ReportsScreen() {
+
+    val allEvents = listOf(
+        Event(1, "KOMIKET ‘25", "Oct 25-27", "loc", EventStatus.LIVE, 0,0,0,0),
+        Event(2, "Sticker Con", "Nov 16", "loc", EventStatus.UPCOMING, 0,0,0,0)
+    )
+    var selectedEvent by remember { mutableStateOf(allEvents[0]) }
+
     Scaffold(
         topBar = {
             AppTopBar(title = "Reports")
@@ -47,12 +60,13 @@ fun ReportsScreen() {
             // --- EVENT SELECTOR BAR ---
             item {
                 EventSelectorBar(
-                    eventName = "KOMIKET '25",
-                    eventDate = "October 25 - October 27",
-                    onSelectorClick = { /* TODO: Show event dropdown */ },
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    currentEventName = selectedEvent.title,
+                    currentEventDate = selectedEvent.date,
+                    events = allEvents,
+                    onEventSelected = { newEvent ->
+                        selectedEvent = newEvent
+                    }
                 )
-
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     color = MaterialTheme.colorScheme.outlineVariant
@@ -119,7 +133,12 @@ fun ReportsScreen() {
                     ) {
                         items(bestSellers) { item ->
                             Box(modifier = Modifier.width(180.dp)) {
-                                CatalogueItemCard(item = item)
+                                CatalogueItemCard(
+                                    item = item,
+                                    // TODO: BEST SELLER CATALOGUE ITEM CARD NO LOGIC YET
+                                    onRestockClick = {},
+                                    onEditClick = {}
+                                )
                             }
                         }
                     }

@@ -2,6 +2,7 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -15,7 +16,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
@@ -25,7 +25,11 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
 // ===========================
 
 @Composable
-fun CatalogueItemCard(item: CatalogueItem) {
+fun CatalogueItemCard(
+    item: CatalogueItem,
+    onRestockClick: () -> Unit,
+    onEditClick: () -> Unit
+) {
 
     AppCard(modifier = Modifier.fillMaxWidth()) {
         Column {
@@ -46,7 +50,7 @@ fun CatalogueItemCard(item: CatalogueItem) {
                 )
 
                 IconButton(
-                    onClick = { /* TODO: Handle more options */ },
+                    onClick = onEditClick,
                     modifier = Modifier.align(Alignment.TopEnd)
                 ) {
                     Icon(
@@ -103,6 +107,7 @@ fun CatalogueItemCard(item: CatalogueItem) {
 
                     // Stock Count
                     Text(
+                        modifier = Modifier.clickable { onRestockClick() },
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                 append(item.stock.toString())
@@ -116,16 +121,4 @@ fun CatalogueItemCard(item: CatalogueItem) {
             }
         }
     }
-}
-
-// ==================
-// Preview Composable
-// ==================
-
-@Preview
-@Composable
-private fun CatalogueItemCardPreview() {
-    CatalogueItemCard(
-        item = CatalogueItem(1, "MHYLOW star sticker", "Sticker", 100, 50)
-    )
 }

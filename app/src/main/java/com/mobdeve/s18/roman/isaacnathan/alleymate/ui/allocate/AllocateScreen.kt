@@ -29,7 +29,7 @@ fun AllocateScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.onPrimary // Ensure icon is white
+                            tint = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
