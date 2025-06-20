@@ -13,11 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
-import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 
 @Composable
 fun EventListItem(event: Event) {
@@ -84,7 +82,10 @@ fun EventListItem(event: Event) {
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     StatColumn(value = "${event.itemsSold}", label = "Sold")
-                    StatColumn(value = "₱${event.itemsSold}", label = "Revenue") // You may want to calculate revenue separately
+                    StatColumn(
+                        value = "₱${event.itemsSold}",
+                        label = "Revenue"
+                    ) // You may want to calculate revenue separately
                     StatColumn(value = "₱${event.expenses}", label = "Expenses")
                     StatColumn(value = "₱${event.profit}", label = "Profit")
                 }
@@ -111,7 +112,11 @@ fun EventListItem(event: Event) {
                     ),
                     contentPadding = PaddingValues(vertical = 12.dp)
                 ) {
-                    Icon(Icons.Default.Inventory2, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(
+                        Icons.Default.Inventory2,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         "Inventory (${event.itemsAllocated}x)",
@@ -130,7 +135,11 @@ fun EventListItem(event: Event) {
                     ),
                     contentPadding = PaddingValues(vertical = 12.dp)
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ReceiptLong, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(
+                        Icons.AutoMirrored.Filled.ReceiptLong,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         "Expenses",
@@ -186,30 +195,6 @@ private fun StatusTag(status: EventStatus) {
             style = MaterialTheme.typography.labelSmall,
             color = tagTextColor,
             fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-// ----------------------
-// Preview
-// ----------------------
-
-@Preview
-@Composable
-private fun EventListItemLivePreview() {
-    AlleyMateTheme {
-        EventListItem(
-            event = Event(
-                id = 1,
-                title = "KOMIKET ‘25",
-                date = "Oct. 25 - Oct. 26, 2025",
-                location = "SM Megamall B | Table 35",
-                status = EventStatus.LIVE,
-                itemsSold = 200,
-                itemsAllocated = 150,
-                expenses = 5000,
-                profit = 10000
-            )
         )
     }
 }

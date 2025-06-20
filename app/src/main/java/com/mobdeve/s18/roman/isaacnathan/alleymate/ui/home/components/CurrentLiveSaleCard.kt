@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
+import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.StatColumn
 
 @Composable
 fun CurrentLiveSaleCard(
@@ -88,28 +89,6 @@ fun CurrentLiveSaleCard(
                 StatColumn(value = "102x", label = "Transactions")
             }
         }
-    }
-}
-
-@Composable
-private fun StatColumn(value: String, label: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Black,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(2.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = Color.Gray
-        )
     }
 }
 

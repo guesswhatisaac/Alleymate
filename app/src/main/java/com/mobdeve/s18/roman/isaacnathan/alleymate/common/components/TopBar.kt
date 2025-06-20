@@ -55,7 +55,7 @@ fun AppTopBar(
             )
         },
         actions = { actions() },
-        navigationIcon = navigationIcon, // Use the new parameter here
+        navigationIcon = navigationIcon,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary
         ),

@@ -20,10 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
 
-// ===========================
-// Catalogue Item Card Layout
-// ===========================
-
 @Composable
 fun CatalogueItemCard(
     item: CatalogueItem,

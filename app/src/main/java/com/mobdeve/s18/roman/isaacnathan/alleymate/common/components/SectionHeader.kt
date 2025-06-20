@@ -12,14 +12,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-/**
- * A flexible section header.
- *
- * @param title The text to display as the header title.
- * @param modifier The modifier to be applied to the component.
- * @param showDivider If true, a horizontal divider will be shown ABOVE the title.
- * @param isSubtle If true, uses a more subtle text style (for sub-headers like counts).
- */
 @Composable
 fun SectionHeader(
     title: String,
@@ -62,7 +54,7 @@ fun SectionHeader(
     }
 }
 
-// --- PREVIEWS to test all variations ---
+
 
 @Preview(name = "Standard Header", showBackground = true, widthDp = 300)
 @Composable

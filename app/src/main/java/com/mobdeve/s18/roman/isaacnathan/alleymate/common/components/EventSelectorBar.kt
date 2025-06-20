@@ -30,11 +30,10 @@ fun EventSelectorBar(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    // This is the main visible bar. Clicking it will also expand the dropdown.
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant) // Use a subtle theme color
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable { expanded = true }
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -50,7 +49,6 @@ fun EventSelectorBar(
             Text(text = currentEventDate, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
         }
 
-        // --- 1. WRAP THE ICON IN A BOX TO USE AS AN ANCHOR ---
         Box {
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
@@ -59,7 +57,6 @@ fun EventSelectorBar(
                 modifier = Modifier.rotate(if (expanded) 180f else 0f)
             )
 
-            // --- 2. THE STYLED DROPDOWN MENU ---
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
@@ -84,7 +81,6 @@ fun EventSelectorBar(
     }
 }
 
-// --- 3. A DEDICATED COMPOSABLE FOR THE DROPDOWN ITEMS ---
 @Composable
 private fun EventDropdownItem(
     event: Event,
@@ -95,7 +91,7 @@ private fun EventDropdownItem(
             Column {
                 Text(
                     text = event.title,
-                    style = MaterialTheme.typography.bodyLarge, // A good size for menu items
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold
                 )
                 Text(

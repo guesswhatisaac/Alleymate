@@ -20,13 +20,12 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 fun EditProductModal(
     item: CatalogueItem,
     onDismissRequest: () -> Unit,
-    onConfirmEdit: (CatalogueItem) -> Unit // Passes the updated item back
+    onConfirmEdit: (CatalogueItem) -> Unit
 ) {
     BaseModal(
         onDismissRequest = onDismissRequest,
         headerTitle = "Edit Product"
     ) {
-        // State for the form fields, initialized with the existing item's data
         var productName by remember { mutableStateOf(item.name) }
         var productTag by remember { mutableStateOf(item.category) }
         var retailPrice by remember { mutableStateOf(item.price.toString()) }
@@ -59,7 +58,6 @@ fun EditProductModal(
 
             Button(
                 onClick = {
-                    // Create an updated item object and pass it back
                     val updatedItem = item.copy(
                         name = productName,
                         category = productTag,
