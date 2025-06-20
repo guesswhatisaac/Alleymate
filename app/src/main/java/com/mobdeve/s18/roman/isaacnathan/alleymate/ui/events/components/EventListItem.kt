@@ -18,7 +18,13 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 
 @Composable
-fun EventListItem(event: Event) {
+fun EventListItem(
+    event: Event,
+    onInventoryClick: () -> Unit,
+    onExpensesClick: () -> Unit,
+    onEditClick: () -> Unit
+
+) {
     Card(
         shape = MaterialTheme.shapes.medium,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
@@ -46,7 +52,7 @@ fun EventListItem(event: Event) {
                 Spacer(modifier = Modifier.weight(1f))
                 StatusTag(status = event.status)
                 Spacer(modifier = Modifier.width(4.dp))
-                IconButton(onClick = { /* TODO: Handle more options click */ }) {
+                IconButton(onClick = onEditClick) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "More Options",
@@ -103,7 +109,7 @@ fun EventListItem(event: Event) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = { /* TODO: Handle View Stock */ },
+                    onClick = onInventoryClick,
                     shape = MaterialTheme.shapes.extraLarge,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
@@ -126,7 +132,7 @@ fun EventListItem(event: Event) {
                 }
 
                 Button(
-                    onClick = { /* TODO: Handle Expenses Tracker */ },
+                    onClick = onExpensesClick,
                     shape = MaterialTheme.shapes.extraLarge,
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.buttonColors(
