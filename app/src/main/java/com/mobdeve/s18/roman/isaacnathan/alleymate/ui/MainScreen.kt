@@ -28,16 +28,28 @@ fun MainScreen(
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val navigateToTab = { route: String ->
+        // prevent navigating to the same tab if it's already selected
+        if (route != currentRoute) {
+            tabNavController.navigate(route) {
+                // pop up to the start destination, saving the state of all screens on the back stack
+                popUpTo(tabNavController.graph.startDestinationId) {
+                    saveState = true
+                }
+                // avoid multiple copies of the same destination
+                launchSingleTop = true
+                // restore the state of the destination when re-navigating to it
+                restoreState = true
+            }
+        }
+    }
+
     Scaffold(
         bottomBar = {
             BottomNavBar(
                 currentRoute = currentRoute,
                 onItemSelected = { route ->
-                    tabNavController.navigate(route) {
-                        popUpTo(tabNavController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = false
-                    }
+                    navigateToTab(route)
                 }
             )
         },
@@ -54,7 +66,7 @@ fun MainScreen(
         ) {
             composable(AppDestinations.HOME_ROUTE) {
                 HomeScreen(
-                    onNavigateToEvents = { tabNavController.navigate(AppDestinations.EVENTS_ROUTE) },
+                    onNavigateToEvents = { navigateToTab(AppDestinations.EVENTS_ROUTE) },
                     onNavigateToLiveSale = onNavigateToLiveSale
                 )
             }

@@ -11,12 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.modal.QuantityStepper
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
-import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 
 @Composable
 fun AllocationItem(
@@ -93,16 +91,5 @@ fun AllocationItem(
                 )
             }
         }
-    }
-}
-
-@Preview
-@Composable
-private fun AllocationItemPreview() {
-    AlleyMateTheme {
-        AllocationItem(
-            item = CatalogueItem(1, "MHYLOW star sticker", "Sticker", 100, 50),
-            onQuantityChange = {}
-        )
     }
 }

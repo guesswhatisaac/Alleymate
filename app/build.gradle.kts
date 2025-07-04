@@ -75,11 +75,13 @@ dependencies {
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.runtime.rxjava2)
     implementation(libs.androidx.navigation.compose)
-
+    implementation(libs.coil.compose)
 
     // Room
     val roomVersion = "2.7.2"
     implementation("androidx.room:room-runtime:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
+
+
 
 }

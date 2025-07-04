@@ -21,7 +21,6 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.allocate.components.AllocationItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EventSelectorBar
-import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyWhite
 
 @Composable
 fun AllocateScreen(onNavigateBack: () -> Unit) {
@@ -33,9 +32,9 @@ fun AllocateScreen(onNavigateBack: () -> Unit) {
     var selectedEvent by remember { mutableStateOf(allEvents[0]) }
 
     val itemsToAllocate = listOf(
-        CatalogueItem(1, "MHYLOW star sticker", "Sticker", 100, 50),
-        CatalogueItem(2, "Art Print A", "Print", 250, 30),
-        CatalogueItem(3, "Cosmic Enamel Pin", "Jewelry", 350, 25)
+        CatalogueItem(1, "MHYLOW star sticker", "Sticker", 100.0, 50),
+        CatalogueItem(2, "Art Print A", "Print", 100.0, 30),
+        CatalogueItem(3, "Cosmic Enamel Pin", "Jewelry", 100.0, 25)
     )
 
     Scaffold(
@@ -83,7 +82,7 @@ fun AllocateScreen(onNavigateBack: () -> Unit) {
                         item = item,
                         onQuantityChange = { newQuantity ->
                             // TODO: Update a ViewModel with the new quantity for this item
-                            println("Item ${item.id} quantity changed to $newQuantity")
+                            println("Item ${item.itemId} quantity changed to $newQuantity")
                         },
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )

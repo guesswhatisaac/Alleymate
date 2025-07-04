@@ -2,21 +2,27 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
+import coil.compose.AsyncImage
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
 
@@ -24,7 +30,8 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
 fun CatalogueItemCard(
     item: CatalogueItem,
     onRestockClick: () -> Unit,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
 
     AppCard(modifier = Modifier.fillMaxWidth()) {
@@ -38,26 +45,80 @@ fun CatalogueItemCard(
                     .background(Color(0xFFECE6F0)),
                 contentAlignment = Alignment.Center
             ) {
+
+                /*
                 Icon(
                     imageVector = Icons.Outlined.Image,
                     contentDescription = "Image Placeholder",
                     modifier = Modifier.size(64.dp),
                     tint = Color(0xFFC9C3CD)
                 )
+                */
 
-                IconButton(
-                    onClick = onEditClick,
-                    modifier = Modifier.align(Alignment.TopEnd)
-                ) {
+                if (item.imageUri.isNullOrBlank()) {
                     Icon(
-                        Icons.Default.MoreVert,
-                        contentDescription = "More options",
-                        tint = Color.Gray
+                        imageVector = Icons.Outlined.Image,
+                        contentDescription = "Image Placeholder",
+                        modifier = Modifier.size(64.dp),
+                        tint = Color(0xFFC9C3CD)
                     )
+                } else {
+                    AsyncImage(
+                        model = item.imageUri.toUri(),
+                        contentDescription = "${item.name} image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+
+                // --- Dropdown Menu for all actions ---
+                Box(modifier = Modifier.align(Alignment.TopEnd)) {
+                    var menuExpanded by remember { mutableStateOf(false) }
+
+                    IconButton(onClick = { menuExpanded = true }) {
+                        Icon(
+                            Icons.Default.MoreVert,
+                            contentDescription = "More options",
+                            tint = Color.Gray
+                        )
+                    }
+
+
+
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Edit") },
+                            onClick = {
+                                onEditClick()
+                                menuExpanded = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Restock") },
+                            onClick = {
+                                onRestockClick()
+                                menuExpanded = false
+                            }
+                        )
+
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = {
+                                Text("Delete", color = MaterialTheme.colorScheme.error)
+                            },
+                            onClick = {
+                                onDeleteClick()
+                                menuExpanded = false
+                            }
+                        )
+                    }
                 }
             }
 
-            // --- Item Details Section ---
+        // --- Item Details Section ---
             Column(modifier = Modifier.padding(12.dp)) {
 
                 // Item Name
@@ -103,7 +164,6 @@ fun CatalogueItemCard(
 
                     // Stock Count
                     Text(
-                        modifier = Modifier.clickable { onRestockClick() },
                         text = buildAnnotatedString {
                             withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                 append(item.stock.toString())

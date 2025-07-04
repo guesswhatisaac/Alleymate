@@ -11,11 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.modal.BaseModal
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
-import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 
 @Composable
 fun EventInventoryModal(
@@ -74,18 +72,3 @@ private fun InventoryItemRow(
     }
 }
 
-@Preview
-@Composable
-private fun EventInventoryModalPreview() {
-    AlleyMateTheme {
-        EventInventoryModal(
-            eventName = "KOMIKET '25",
-            inventory = listOf(
-                CatalogueItem(1, "MHYLOW star sticker", "Sticker", 100, 50),
-                CatalogueItem(2, "Art Print A", "Print", 250, 20)
-            ),
-            onDismissRequest = {},
-            onRemoveItem = {}
-        )
-    }
-}

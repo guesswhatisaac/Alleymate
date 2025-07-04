@@ -54,8 +54,8 @@ fun EventsScreen() {
         }
         is EventModalState.Inventory -> {
             val inventoryItems = listOf(
-                CatalogueItem(1, "MHYLOW star sticker", "Sticker", 100, 50),
-                CatalogueItem(2, "Art Print A", "Print", 250, 20)
+                CatalogueItem(1, "MHYLOW star sticker", "Sticker", 100.0, 50),
+                CatalogueItem(2, "Art Print A", "Print", 250.0, 20)
             )
             EventInventoryModal(
                 eventName = state.event.title,

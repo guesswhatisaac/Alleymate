@@ -1,5 +1,6 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.modal
 
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -15,11 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 
 @Composable
 fun FormImagePicker(
     modifier: Modifier = Modifier,
-    onImagePickerClick: () -> Unit
+    onImagePickerClick: () -> Unit,
+    imageUri: Uri?
 ) {
     Box(
         modifier = modifier
@@ -34,11 +38,21 @@ fun FormImagePicker(
             .clickable { onImagePickerClick() },
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = Icons.Default.AddAPhoto,
-            contentDescription = "Add Photo",
-            tint = Color.White,
-            modifier = Modifier.size(48.dp)
-        )
+        if (imageUri == null) {
+            Icon(
+                imageVector = Icons.Default.AddAPhoto,
+                contentDescription = "Add Photo",
+                // Use a theme-based tint
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(48.dp)
+            )
+        } else {
+            AsyncImage(
+                model = imageUri,
+                contentDescription = "Selected product image",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
     }
 }

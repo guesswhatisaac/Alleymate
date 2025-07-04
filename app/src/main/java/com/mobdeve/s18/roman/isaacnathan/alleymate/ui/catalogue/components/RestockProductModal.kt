@@ -24,7 +24,7 @@ fun RestockProductModal(
         onDismissRequest = onDismissRequest,
         headerTitle = "Restock Product"
     ) {
-        var restockQuantity by remember { mutableIntStateOf(50) }
+        var restockQuantity by remember { mutableIntStateOf(0) }
 
         Row(
             modifier = Modifier.padding(vertical = 16.dp).height(IntrinsicSize.Min),

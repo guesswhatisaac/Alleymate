@@ -13,25 +13,54 @@ import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.*
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.components.*
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.saveable.rememberSaveable
 
 private sealed interface ModalState {
     data object None : ModalState
     data object AddProduct : ModalState
+    data object AddCategory : ModalState
     data class EditProduct(val item: CatalogueItem) : ModalState
     data class RestockProduct(val item: CatalogueItem) : ModalState
 }
 
 @Composable
-fun CatalogueScreen(onNavigateToAllocate: () -> Unit) {
+fun CatalogueScreen(
+    onNavigateToAllocate: () -> Unit,
+    viewModel: CatalogueViewModel = viewModel()
+) {
     var modalState by remember { mutableStateOf<ModalState>(ModalState.None) }
+
+    val items by viewModel.filteredItems.collectAsState()
+    val itemCategories by viewModel.itemCategories.collectAsState()
+    val selectedItemCategory by viewModel.selectedItemCategory.collectAsState()
+
+    val lazyListState = rememberSaveable(saver = LazyListState.Saver) {
+        LazyListState()
+    }
+
+    val allItemCategories by viewModel.itemCategories.collectAsState()
+    val modalCategories = allItemCategories.filter { it != "ALL" }
 
     when (val state = modalState) {
         is ModalState.None -> { /* Do nothing */ }
         is ModalState.AddProduct -> {
             AddProductModal(
+                itemCategories = modalCategories,
                 onDismissRequest = { modalState = ModalState.None },
-                onAddProduct = {
-                    // TODO: Handle adding the product
+                onAddProduct = { name, category, price, stock, imageUri ->
+                    viewModel.addProduct(name, category, price, stock, imageUri)
+                    modalState = ModalState.None
+                }
+            )
+        }
+        is ModalState.AddCategory -> {
+            AddCategoryModal(
+                onDismissRequest = { modalState = ModalState.None },
+                onAddCategory = { categoryName ->
+                    viewModel.addItemCategory(categoryName)
                     modalState = ModalState.None
                 }
             )
@@ -39,10 +68,10 @@ fun CatalogueScreen(onNavigateToAllocate: () -> Unit) {
         is ModalState.EditProduct -> {
             EditProductModal(
                 item = state.item,
+                itemCategories = modalCategories,
                 onDismissRequest = { modalState = ModalState.None },
                 onConfirmEdit = { updatedItem ->
-                    // TODO: Handle the edit logic
-                    println("Saving changes for: $updatedItem")
+                    viewModel.editProduct(updatedItem)
                     modalState = ModalState.None
                 }
             )
@@ -52,8 +81,7 @@ fun CatalogueScreen(onNavigateToAllocate: () -> Unit) {
                 item = state.item,
                 onDismissRequest = { modalState = ModalState.None },
                 onConfirmRestock = { quantity ->
-                    // TODO: Handle the restock logic
-                    println("Restocking ${state.item.name} with $quantity items.")
+                    viewModel.restockProduct(state.item, quantity)
                     modalState = ModalState.None
                 }
             )
@@ -80,23 +108,21 @@ fun CatalogueScreen(onNavigateToAllocate: () -> Unit) {
             )
         }
     ) { innerPadding ->
-        val items = listOf(
-            CatalogueItem(1, "MHYLOW star sticker", "Sticker", 100, 50),
-            CatalogueItem(2, "MHYLOW star sticker", "Sticker", 100, 50),
-            CatalogueItem(3, "MHYLOW star sticker", "Sticker", 100, 50),
-            CatalogueItem(4, "Art Print A", "Print", 250, 20),
-            CatalogueItem(5, "Art Print B", "Print", 250, 15),
-        )
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
+            state = lazyListState,
             contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
-                CategoryFilters()
+                CategoryFilters(
+                    categories = itemCategories,
+                    selectedCategory = selectedItemCategory,
+                    onCategorySelected = viewModel::selectItemCategory,
+                    onAddCategoryClicked = {modalState = ModalState.AddCategory}
+                )
             }
             item {
                 SectionHeader(
@@ -117,7 +143,9 @@ fun CatalogueScreen(onNavigateToAllocate: () -> Unit) {
                         CatalogueItemCard(
                             item = rowItems[0],
                             onRestockClick = { modalState = ModalState.RestockProduct(rowItems[0]) },
-                            onEditClick = { modalState = ModalState.EditProduct(rowItems[0]) }
+                            onEditClick = { modalState = ModalState.EditProduct(rowItems[0]) },
+                            onDeleteClick = { viewModel.deleteItem(rowItems[0]) }
+
                         )
                     }
                     Box(modifier = Modifier.weight(1f)) {
@@ -125,7 +153,8 @@ fun CatalogueScreen(onNavigateToAllocate: () -> Unit) {
                             CatalogueItemCard(
                                 item = rowItems[1],
                                 onRestockClick = { modalState = ModalState.RestockProduct(rowItems[1]) },
-                                onEditClick = { modalState = ModalState.EditProduct(rowItems[1]) }
+                                onEditClick = { modalState = ModalState.EditProduct(rowItems[1]) },
+                                onDeleteClick = { viewModel.deleteItem(rowItems[1]) }
                             )
                         }
                     }

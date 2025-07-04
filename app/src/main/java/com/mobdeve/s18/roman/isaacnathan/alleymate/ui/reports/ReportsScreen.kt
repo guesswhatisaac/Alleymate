@@ -45,9 +45,9 @@ fun ReportsScreen() {
     ) { innerPadding ->
         // Dummy data
         val bestSellers = listOf(
-            CatalogueItem(1, "MHYLOW star sticker", "Sticker", 100, 50),
-            CatalogueItem(2, "MHYLOW star sticker", "Sticker", 100, 50),
-            CatalogueItem(3, "MHYLOW star sticker", "Sticker", 100, 50)
+            CatalogueItem(1, "MHYLOW star sticker", "Sticker", 100.0, 50),
+            CatalogueItem(2, "MHYLOW star sticker", "Sticker", 100.0, 50),
+            CatalogueItem(3, "MHYLOW star sticker", "Sticker", 100.0, 50)
         )
 
         LazyColumn(
@@ -137,7 +137,8 @@ fun ReportsScreen() {
                                     item = item,
                                     // TODO: BEST SELLER CATALOGUE ITEM CARD NO LOGIC YET
                                     onRestockClick = {},
-                                    onEditClick = {}
+                                    onEditClick = {},
+                                    onDeleteClick = {}
                                 )
                             }
                         }

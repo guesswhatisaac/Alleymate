@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,26 +19,29 @@ import androidx.compose.ui.unit.dp
 // ============================
 
 @Composable
-fun CategoryFilters() {
-    // --- State & Config ---
-    val categories = listOf("ALL", "STICKERS", "PRINTS", "JEWELLERY", "SHIRT")
-    var selectedCategory by remember { mutableStateOf("ALL") }
+fun CategoryFilters(
+    categories: List<String>,
+    selectedCategory: String,
+    onCategorySelected: (String) -> Unit,
+    onAddCategoryClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val selectedColor = Color(0xFFEF6C42)
 
     // --- Filter Chips Scrollable Row ---
     LazyRow(
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 16.dp), // inner padding
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // --- Category Chips ---
-        items(categories) { category ->
+        items(items = categories, key = { it }) { category ->
             val isSelected = selectedCategory == category
 
             FilterChip(
                 selected = isSelected,
-                onClick = { selectedCategory = category },
+                onClick = { onCategorySelected(category) },
                 label = {
                     Text(
                         text = category,
@@ -66,7 +69,7 @@ fun CategoryFilters() {
         // --- Add Category Button ---
         item {
             OutlinedButton(
-                onClick = { /* TODO: Handle Add Category */ },
+                onClick = onAddCategoryClicked,
                 modifier = Modifier.size(40.dp),
                 shape = MaterialTheme.shapes.medium,
                 contentPadding = PaddingValues(0.dp),
@@ -81,4 +84,3 @@ fun CategoryFilters() {
         }
     }
 }
-
