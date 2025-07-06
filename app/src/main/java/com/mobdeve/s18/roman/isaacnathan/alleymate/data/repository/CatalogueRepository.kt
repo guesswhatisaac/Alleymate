@@ -34,7 +34,11 @@ class CatalogueRepository(
     }
 
     fun clearEntireDatabase() {
-        database.clearDatabase()
+        database.clearAllData()
+    }
+
+    fun getItemsByIds(itemIds: List<Int>): Flow<List<CatalogueItem>> {
+        return catalogueDao.getItemsByIds(itemIds)
     }
 
 }

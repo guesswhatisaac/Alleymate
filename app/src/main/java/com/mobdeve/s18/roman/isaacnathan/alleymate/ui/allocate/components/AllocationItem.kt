@@ -10,12 +10,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.modal.QuantityStepper
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
+import androidx.compose.ui.layout.ContentScale
+import androidx.core.net.toUri
+import coil.compose.AsyncImage
 
 @Composable
 fun AllocationItem(
@@ -43,16 +47,32 @@ fun AllocationItem(
             // --- Image Placeholder ---
             Box(
                 modifier = Modifier
-                    .size(72.dp) // Slightly smaller for a more compact look
+                    .size(72.dp)
                     .background(Color(0xFFECE6F0), shape = MaterialTheme.shapes.medium),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.Image,
-                    contentDescription = "Item Image",
-                    modifier = Modifier.size(36.dp),
-                    tint = Color(0xFFC9C3CD)
-                )
+                if (item.imageUri.isNullOrBlank()) {
+                    Icon(
+                        imageVector = Icons.Outlined.Image,
+                        contentDescription = "Image Placeholder",
+                        modifier = Modifier.size(64.dp),
+                        tint = Color(0xFFC9C3CD),
+
+                    )
+                }
+                else {
+                    AsyncImage(
+                        model = item.imageUri.toUri(),
+                        contentDescription = "${item.name} image",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(MaterialTheme.shapes.medium),
+                    contentScale = ContentScale.Crop,
+
+                    )
+                }
+
+
             }
 
             Spacer(modifier = Modifier.width(12.dp))

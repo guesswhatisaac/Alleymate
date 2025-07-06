@@ -129,7 +129,7 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
             .filter { it.itemId in _selectedItemIds.value }
 
         if (newlySelectedItems.isNotEmpty()) {
-            AllocationStateHolder.addItems(newlySelectedItems)
+            AllocationStateHolder.addItemIds(_selectedItemIds.value)
         }
 
         clearSelection()

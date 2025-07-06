@@ -19,8 +19,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 
 @Composable
 fun EventSelectorBar(
-    currentEventName: String,
-    currentEventDate: String,
+    currentEvent: Event?,
     events: List<Event>,
     onEventSelected: (Event) -> Unit,
     modifier: Modifier = Modifier
@@ -42,10 +41,14 @@ fun EventSelectorBar(
         )
         Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = currentEventName, style = MaterialTheme.typography.titleLarge)
-            Text(text = currentEventDate, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+            if (currentEvent != null) {
+                Text(text = currentEvent.title, style = MaterialTheme.typography.titleLarge)
+                Text(text = currentEvent.dateRangeString, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+            } else {
+                Text(text = "Select an Event", style = MaterialTheme.typography.titleLarge)
+                Text(text = "Tap to choose from list", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+            }
         }
-
         Box {
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
@@ -62,14 +65,22 @@ fun EventSelectorBar(
                     .background(MaterialTheme.colorScheme.surface),
                 properties = PopupProperties(focusable = true)
             ) {
-                events.forEach { event ->
-                    EventDropdownItem(
-                        event = event,
-                        onClick = {
-                            onEventSelected(event)
-                            expanded = false
-                        }
+                if (events.isEmpty()) {
+                    DropdownMenuItem(
+                        text = { Text("No events created yet.") },
+                        onClick = { expanded = false },
+                        enabled = false
                     )
+                } else {
+                    events.forEach { event ->
+                        EventDropdownItem(
+                            event = event,
+                            onClick = {
+                                onEventSelected(event)
+                                expanded = false
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -90,7 +101,7 @@ private fun EventDropdownItem(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = event.startDate.toString(),
+                    text = event.dateRangeString,
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )

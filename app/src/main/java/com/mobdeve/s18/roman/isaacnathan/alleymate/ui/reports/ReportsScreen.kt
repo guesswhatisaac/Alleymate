@@ -90,8 +90,7 @@ fun ReportsScreen() {
             // --- EVENT SELECTOR BAR ---
             item {
                 EventSelectorBar(
-                    currentEventName = selectedEvent.title,
-                    currentEventDate = selectedEvent.startDate.toString(),
+                    currentEvent = selectedEvent,
                     events = allEvents,
                     onEventSelected = { newEvent ->
                         selectedEvent = newEvent

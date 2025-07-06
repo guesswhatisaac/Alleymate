@@ -25,5 +25,8 @@ interface CatalogueDao {
     @Query("UPDATE catalogue_items SET stock = stock - :quantityToReduce WHERE itemId = :itemId")
     suspend fun reduceStock(itemId: Int, quantityToReduce: Int)
 
+    @Query("SELECT * FROM catalogue_items WHERE itemId IN (:itemIds)")
+    fun getItemsByIds(itemIds: List<Int>): Flow<List<CatalogueItem>>
+
 
 }

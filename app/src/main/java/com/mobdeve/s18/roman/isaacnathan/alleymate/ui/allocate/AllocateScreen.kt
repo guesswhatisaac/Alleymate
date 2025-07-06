@@ -7,29 +7,29 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppTopBar
+import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateMessage
+import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EventSelectorBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.allocate.components.AllocationItem
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EventSelectorBar
-import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun AllocateScreen(
     onNavigateBack: () -> Unit,
     viewModel: AllocationViewModel = viewModel()
 ) {
-
     val allEvents by viewModel.allEvents.collectAsState()
     val selectedEvent by viewModel.selectedEvent.collectAsState()
     val itemsToAllocate by viewModel.itemsToAllocate.collectAsState()
-    val allocationQuantities by viewModel.allocationQuantities.collectAsState()
+    val isAllocationValid by viewModel.isAllocationValid.collectAsState()
 
     Scaffold(
         topBar = {
@@ -43,63 +43,86 @@ fun AllocateScreen(
             )
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            // --- SCROLLING CONTENT SECTION ---
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = 16.dp, bottom = 96.dp),
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(top = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Event Selector
+                // Event Selector Logic
                 item {
-                    selectedEvent?.let { event ->
-                        EventSelectorBar(
-                            currentEventName = event.title,
-                            currentEventDate = event.dateRangeString,
-                            events = allEvents,
-                            onEventSelected = viewModel::selectEvent,
+                    EventSelectorBar(
+                        currentEvent = selectedEvent,
+                        events = allEvents,
+                        onEventSelected = viewModel::selectEvent,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+
+
+                if (itemsToAllocate.isEmpty()) {
+                    item {
+                        SectionHeader(
+                            title = "No Items Selected",
+                            showDivider = true,
+                            isSubtle = true,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                } else {
+                    // Header
+                    item {
+                        SectionHeader(
+                            title = "${itemsToAllocate.size} Items Selected",
+                            showDivider = true,
+                            isSubtle = true,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+
+                    items(itemsToAllocate, key = { it.itemId }) { item ->
+                        AllocationItem(
+                            item = item,
+                            onQuantityChange = { newQuantity ->
+                                viewModel.updateAllocationQuantity(item.itemId, newQuantity)
+                            },
+                            onRemoveClick = {
+                                viewModel.removeAllocationItem(item.itemId)
+                            },
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
                     }
                 }
-
-                // Header
-                item {
-                    SectionHeader(
-                        title = "${itemsToAllocate.size} Designs Selected",
-                        showDivider = true,
-                        isSubtle = true,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
-
-                // List of items to allocate
-                items(itemsToAllocate, key = { it.itemId }) { item ->
-                    AllocationItem(
-                        item = item,
-                        // Update the quantity in the ViewModel
-                        onQuantityChange = { newQuantity ->
-                            viewModel.updateAllocationQuantity(item.itemId, newQuantity)
-                        },
-                        onRemoveClick = {
-                            viewModel.removeAllocationItem(item.itemId)
-                        },
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
             }
 
-            // "Allocate" Button at the bottom
+
+            if (itemsToAllocate.isNotEmpty() && !isAllocationValid) {
+                Text(
+                    text = "All items must have a quantity greater than '0'.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 4.dp)
+                )
+            }
+
+            // The "Allocate" Button
             Button(
                 onClick = {
                     viewModel.performAllocation(onSuccess = onNavigateBack)
                 },
-                enabled = selectedEvent != null,
+                enabled = selectedEvent != null && isAllocationValid,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(
-                        alignment = Alignment.BottomEnd
-                    )
-                    .padding(16.dp),
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(containerColor = AlleyMainOrange)
             ) {
@@ -109,7 +132,7 @@ fun AllocateScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-        }
+        } // End of Column
     }
 }
 

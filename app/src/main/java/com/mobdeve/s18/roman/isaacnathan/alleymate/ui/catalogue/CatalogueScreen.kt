@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.graphics.Color
 
 private sealed interface ModalState {
     data object None : ModalState
@@ -108,7 +109,7 @@ fun CatalogueScreen(
                 navigationIcon = {
                     if (inSelectionMode) {
                         IconButton(onClick = viewModel::clearSelection) {
-                            Icon(Icons.Default.Close, contentDescription = "Clear selection")
+                            Icon(Icons.Default.Close, tint = Color.White, contentDescription = "Clear selection")
                         }
                     }
                 },

@@ -54,8 +54,11 @@ class EventRepository(
         val updatedInventory = mutableListOf<EventInventoryItem>()
 
         for ((itemId, quantity) in itemsToAllocate) {
+            if (quantity <= 0) continue
+
             val existingItem = eventDao.getInventoryItem(eventId, itemId)
-            val newQuantity = if (existingItem != null) {
+
+            val newTotalAllocatedQuantity = if (existingItem != null) {
                 existingItem.allocatedQuantity + quantity
             } else {
                 quantity
@@ -65,11 +68,12 @@ class EventRepository(
                 EventInventoryItem(
                     eventId = eventId,
                     itemId = itemId,
-                    allocatedQuantity = newQuantity
+                    allocatedQuantity = newTotalAllocatedQuantity,
+                    soldQuantity = existingItem?.soldQuantity ?: 0
                 )
             )
 
-            reduceCatalogueStock(itemId, quantity)
+            catalogueDao.reduceStock(itemId, quantity)
         }
 
         if (updatedInventory.isNotEmpty()) {

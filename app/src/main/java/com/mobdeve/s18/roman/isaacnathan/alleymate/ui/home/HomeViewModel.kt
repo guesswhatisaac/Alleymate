@@ -27,4 +27,5 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             catalogueRepository.clearEntireDatabase()
         }
     }
+
 }

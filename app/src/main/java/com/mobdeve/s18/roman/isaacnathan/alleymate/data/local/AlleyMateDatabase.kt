@@ -2,13 +2,10 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.data.local
 
 import android.content.Context
 import androidx.room.*
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.ItemCategory
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventExpense
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventInventoryItem
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.*
 
 // vv  TODO: A CERTAIN FUNCTION MUST BE REMOVED IN PRODUCTION; CREATE MIGRATION SYSTEM
+
 @Database(
     entities = [
         CatalogueItem::class,
@@ -17,7 +14,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventInventoryItem
         EventExpense::class,
         EventInventoryItem::class
     ],
-    version = 5,
+    version = 8,
     exportSchema = false
 )
 
@@ -27,8 +24,8 @@ abstract class AlleyMateDatabase : RoomDatabase() {
     abstract fun itemCategoryDao(): ItemCategoryDao
     abstract fun eventDao(): EventDao
 
-    fun clearDatabase() { // DEBUG PURPOSES
-        this.clearAllTables()
+    fun clearAllData() {
+        clearAllTables()
     }
 
     companion object {

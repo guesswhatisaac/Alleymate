@@ -61,7 +61,7 @@ fun RestockProductModal(
                     )
                 }
 
-                // Bottom content (pushed to the bottom by Arrangement.SpaceBetween)
+                // Bottom content
                 Text(
                     text = "${item.stock} in Stock",
                     style = MaterialTheme.typography.labelSmall,
