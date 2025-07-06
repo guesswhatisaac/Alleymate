@@ -53,7 +53,6 @@ class EventDetailViewModel(
             initialValue = emptyList()
         )
 
-
     fun addExpense(description: String, amount: Double) = viewModelScope.launch {
         // Basic validation to ensure data is sensible
         if (description.isNotBlank() && amount > 0) {
@@ -65,29 +64,30 @@ class EventDetailViewModel(
             eventRepository.insertExpense(newExpense)
         }
     }
+
+    fun allocateMoreItems(itemsToAllocate: Map<Int, Int>) {
+        viewModelScope.launch {
+            eventRepository.stackAllocateItemsToEvent(eventId, itemsToAllocate)
+
+            itemsToAllocate.forEach { (itemId, quantity) ->
+                eventRepository.reduceCatalogueStock(itemId, quantity)
+            }
+        }
+    }
+
 }
 
-/**
- * A mandatory factory for creating EventDetailViewModel instances.
- * This is required because the ViewModel has a constructor that takes arguments (the repository and eventId),
- * which the default ViewModel provider does not know how to handle.
- */
+
 class EventDetailViewModelFactory(
     private val eventRepository: EventRepository,
     private val eventId: Int
 ) : ViewModelProvider.Factory {
 
-    /**
-     * Creates a new instance of the given `ViewModel` class.
-     */
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        // Check if the requested ViewModel class is the one we know how to create
         if (modelClass.isAssignableFrom(EventDetailViewModel::class.java)) {
-            // Suppress the "UNCHECKED_CAST" warning because our 'if' check makes this cast safe
             @Suppress("UNCHECKED_CAST")
             return EventDetailViewModel(eventRepository, eventId) as T
         }
-        // If it's a different ViewModel class, throw an exception
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

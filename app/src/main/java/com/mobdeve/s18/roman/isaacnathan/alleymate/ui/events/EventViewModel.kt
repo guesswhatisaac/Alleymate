@@ -11,28 +11,33 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.map
+
 class EventViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository: EventRepository
+    private val eventRepository: EventRepository
 
     val allEvents: StateFlow<List<Event>>
 
     init {
         val eventDao = AlleyMateDatabase.getDatabase(application).eventDao()
-        repository = EventRepository(eventDao)
+        val catalogueDao = AlleyMateDatabase.getDatabase(application).catalogueDao()
 
-        // We transform the Flow<List<Event>> into another Flow<List<Event>>
-        allEvents = repository.getAllEvents()
-            .map { eventsFromDb ->
-                // For each Event from the database...
-                eventsFromDb.map { event ->
-                    // ...we "hydrate" it by setting its @Ignore fields.
-                    // TODO: Replace these hardcoded stats with real data from new queries.
+        eventRepository = EventRepository(eventDao, catalogueDao)
+
+        allEvents = eventRepository.getAllEventsWithDetails()
+            .map { listOfEventsWithDetails ->
+                listOfEventsWithDetails.map { eventWithDetails ->
+                    val event = eventWithDetails.event
+                    val inventory = eventWithDetails.inventory
+                    val expenses = eventWithDetails.expenses
+
                     event.apply {
-                        totalItemsAllocated = 100 // Placeholder
-                        totalItemsSold = 50      // Placeholder
-                        totalExpensesInCents = 250000 // Placeholder
-                        totalRevenueInCents = 750000   // Placeholder
+                        totalItemsAllocated = inventory.sumOf { it.eventInventoryItem.allocatedQuantity }
+                        totalItemsSold = inventory.sumOf { it.eventInventoryItem.soldQuantity }
+                        totalExpensesInCents = expenses.sumOf { it.amountInCents }
+                        totalRevenueInCents = inventory.sumOf {
+                            it.eventInventoryItem.soldQuantity * (it.catalogueItem.price * 100).toLong()
+                        }
                     }
                 }
             }
@@ -50,11 +55,11 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
             startDate = startDate,
             endDate = endDate
         )
-        repository.addEvent(newEvent)
+        eventRepository.addEvent(newEvent)
     }
 
     fun updateEvent(event: Event) = viewModelScope.launch {
-        repository.updateEvent(event)
+        eventRepository.updateEvent(event)
     }
 
 

@@ -53,7 +53,10 @@ fun EventDetailScreen(
 ) {
     // --- Get Dependencies and ViewModel ---
     val context = LocalContext.current
-    val eventRepository = remember { EventRepository(AlleyMateDatabase.getDatabase(context).eventDao()) }
+    val eventRepository = remember { EventRepository(
+        AlleyMateDatabase.getDatabase(context).eventDao(),
+        catalogueDao = AlleyMateDatabase.getDatabase(context).catalogueDao()
+    ) }
     val viewModel: EventDetailViewModel = viewModel(
         factory = EventDetailViewModelFactory(eventRepository, eventId)
     )

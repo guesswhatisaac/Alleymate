@@ -22,7 +22,7 @@ fun TransactionListItem(
     transaction: Transaction,
     modifier: Modifier = Modifier
 ) {
-    AppCard(modifier = modifier) {
+    AppCard(modifier = modifier, content = {
         Column {
             Row(
                 modifier = Modifier
@@ -73,6 +73,8 @@ fun TransactionListItem(
             }
         }
     }
+    )
+
 }
 
 @Composable

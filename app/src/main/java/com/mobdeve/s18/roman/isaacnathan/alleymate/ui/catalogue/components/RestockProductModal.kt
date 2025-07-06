@@ -85,7 +85,7 @@ fun RestockProductModal(
                 )
                 QuantityStepper(
                     initialValue = restockQuantity,
-                    onValueChange = { restockQuantity = it }
+                    onValueChange = { restockQuantity = it },
                 )
                 Button(
                     onClick = { onConfirmRestock(restockQuantity) },

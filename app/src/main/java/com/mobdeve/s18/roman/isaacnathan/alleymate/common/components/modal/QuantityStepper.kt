@@ -11,13 +11,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun QuantityStepper(
     initialValue: Int = 0,
-    onValueChange: (Int) -> Unit
+    onValueChange: (Int) -> Unit,
+    maxValue: Int = Int.MAX_VALUE
 ) {
     var count by remember { mutableIntStateOf(initialValue) }
 
@@ -58,19 +58,11 @@ fun QuantityStepper(
 
         // Plus Button
         IconButton(
-            onClick = {
-                count++
-                onValueChange(count)
-            },
+            onClick = { if (count < maxValue) count++ ; onValueChange(count) },
+            enabled = count < maxValue,
             modifier = Modifier.weight(1f)
         ) {
             Icon(Icons.Default.Add, contentDescription = "Increase quantity")
         }
     }
-}
-
-@Preview
-@Composable
-private fun QuantityStepperPreview() {
-    QuantityStepper(initialValue = 50, onValueChange = {})
 }

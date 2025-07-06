@@ -16,6 +16,10 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.components.*
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.saveable.rememberSaveable
 
 private sealed interface ModalState {
@@ -33,7 +37,6 @@ fun CatalogueScreen(
 ) {
     var modalState by remember { mutableStateOf<ModalState>(ModalState.None) }
 
-    val items by viewModel.filteredItems.collectAsState()
     val itemCategories by viewModel.itemCategories.collectAsState()
     val selectedItemCategory by viewModel.selectedItemCategory.collectAsState()
 
@@ -43,6 +46,12 @@ fun CatalogueScreen(
 
     val allItemCategories by viewModel.itemCategories.collectAsState()
     val modalCategories = allItemCategories.filter { it != "ALL" }
+
+    val items by viewModel.filteredItems.collectAsState()
+    val selectedItemIds by viewModel.selectedItemIds.collectAsState()
+    val inSelectionMode by viewModel.inSelectionMode.collectAsState()
+    val allocationBadgeCount by viewModel.allocationBadgeCount.collectAsState()
+
 
     when (val state = modalState) {
         is ModalState.None -> { /* Do nothing */ }
@@ -91,14 +100,37 @@ fun CatalogueScreen(
     Scaffold(
         topBar = {
             AppTopBar(
-                title = "Catalogue",
+                title = if (inSelectionMode) {
+                    "$allocationBadgeCount Selected"
+                } else {
+                    "Catalogue"
+                },
+                navigationIcon = {
+                    if (inSelectionMode) {
+                        IconButton(onClick = viewModel::clearSelection) {
+                            Icon(Icons.Default.Close, contentDescription = "Clear selection")
+                        }
+                    }
+                },
                 actions = {
-                    BadgedIconButton(
-                        badgeCount = 3,
-                        icon = Icons.Outlined.Archive,
-                        contentDescription = "View Exports",
-                        onClick = onNavigateToAllocate
-                    )
+                    if (inSelectionMode) {
+                        IconButton(onClick = {
+                            viewModel.prepareForAllocation()
+                        }) {
+                            Icon(Icons.Default.Check, contentDescription = "Confirm Selection")
+                        }
+                    } else {
+                        BadgedIconButton(
+                            badgeCount = allocationBadgeCount,
+                            icon = Icons.Outlined.Archive,
+                            contentDescription = "View Allocations",
+                            onClick = {
+                                if (allocationBadgeCount > 0) {
+                                    onNavigateToAllocate()
+                                }
+                            }
+                        )
+                    }
                 }
             )
         },
@@ -140,21 +172,48 @@ fun CatalogueScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
-                        CatalogueItemCard(
-                            item = rowItems[0],
-                            onRestockClick = { modalState = ModalState.RestockProduct(rowItems[0]) },
-                            onEditClick = { modalState = ModalState.EditProduct(rowItems[0]) },
-                            onDeleteClick = { viewModel.deleteItem(rowItems[0]) }
 
+                        val item = rowItems[0]
+                        val isSelected = item.itemId in selectedItemIds
+
+                        CatalogueItemCard(
+                            item = item,
+                            isSelected = isSelected,
+                            onLongClick = {
+                                viewModel.toggleSelection(item.itemId)
+                            },
+                            onClick = {
+                                if (inSelectionMode) {
+                                    viewModel.toggleSelection(item.itemId)
+                                }
+                            },
+                            onRestockClick = { modalState = ModalState.RestockProduct(item) },
+                            onEditClick = { modalState = ModalState.EditProduct(item) },
+                            onDeleteClick = { viewModel.deleteItem(item) }
                         )
+
                     }
                     Box(modifier = Modifier.weight(1f)) {
                         if (rowItems.size > 1) {
+
+                            val item = rowItems[1]
+                            val isSelected = item.itemId in selectedItemIds
+
+
                             CatalogueItemCard(
-                                item = rowItems[1],
-                                onRestockClick = { modalState = ModalState.RestockProduct(rowItems[1]) },
-                                onEditClick = { modalState = ModalState.EditProduct(rowItems[1]) },
-                                onDeleteClick = { viewModel.deleteItem(rowItems[1]) }
+                                item = item,
+                                isSelected = isSelected,
+                                onLongClick = {
+                                    viewModel.toggleSelection(item.itemId)
+                                },
+                                onClick = {
+                                    if (inSelectionMode) {
+                                        viewModel.toggleSelection(item.itemId)
+                                    }
+                                },
+                                onRestockClick = { modalState = ModalState.RestockProduct(item) },
+                                onEditClick = { modalState = ModalState.EditProduct(item) },
+                                onDeleteClick = { viewModel.deleteItem(item) }
                             )
                         }
                     }

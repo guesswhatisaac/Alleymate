@@ -2,8 +2,10 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.*
@@ -29,152 +31,170 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
 @Composable
 fun CatalogueItemCard(
     item: CatalogueItem,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
     onRestockClick: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
 
-    AppCard(modifier = Modifier.fillMaxWidth()) {
-        Column {
+    AppCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            ),
+        content = {
+            Column {
 
-            // --- Image Placeholder with Action Button ---
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .background(Color(0xFFECE6F0)),
-                contentAlignment = Alignment.Center
-            ) {
+                // --- Image Placeholder with Action Button ---
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .background(Color(0xFFECE6F0)),
+                    contentAlignment = Alignment.Center,
+                ) {
 
-                /*
-                Icon(
-                    imageVector = Icons.Outlined.Image,
-                    contentDescription = "Image Placeholder",
-                    modifier = Modifier.size(64.dp),
-                    tint = Color(0xFFC9C3CD)
-                )
-                */
-
-                if (item.imageUri.isNullOrBlank()) {
-                    Icon(
-                        imageVector = Icons.Outlined.Image,
-                        contentDescription = "Image Placeholder",
-                        modifier = Modifier.size(64.dp),
-                        tint = Color(0xFFC9C3CD)
-                    )
-                } else {
-                    AsyncImage(
-                        model = item.imageUri.toUri(),
-                        contentDescription = "${item.name} image",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
-                }
-
-                // --- Dropdown Menu for all actions ---
-                Box(modifier = Modifier.align(Alignment.TopEnd)) {
-                    var menuExpanded by remember { mutableStateOf(false) }
-
-                    IconButton(onClick = { menuExpanded = true }) {
+                    if (item.imageUri.isNullOrBlank()) {
                         Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = "More options",
-                            tint = Color.Gray
+                            imageVector = Icons.Outlined.Image,
+                            contentDescription = "Image Placeholder",
+                            modifier = Modifier.size(64.dp),
+                            tint = Color(0xFFC9C3CD)
+                        )
+                    } else {
+                        AsyncImage(
+                            model = item.imageUri.toUri(),
+                            contentDescription = "${item.name} image",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
                     }
 
+                    if (isSelected) {
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+                        )
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = "Selected",
+                            tint = Color.White,
+                            modifier = Modifier.align(Alignment.Center).size(48.dp)
+                        )
+                    }
+
+                    // --- Dropdown Menu for all actions ---
+                    if (!isSelected) {
+                        Box(modifier = Modifier.align(Alignment.TopEnd)) {
+                            var menuExpanded by remember { mutableStateOf(false) }
+
+                            IconButton(onClick = { menuExpanded = true }) {
+                                Icon(
+                                    Icons.Default.MoreVert,
+                                    contentDescription = "More options",
+                                    tint = Color.Gray
+                                )
+                            }
 
 
-                    DropdownMenu(
-                        expanded = menuExpanded,
-                        onDismissRequest = { menuExpanded = false }
+
+                            DropdownMenu(
+                                expanded = menuExpanded,
+                                onDismissRequest = { menuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Edit") },
+                                    onClick = {
+                                        onEditClick()
+                                        menuExpanded = false
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Restock") },
+                                    onClick = {
+                                        onRestockClick()
+                                        menuExpanded = false
+                                    }
+                                )
+
+                                HorizontalDivider()
+                                DropdownMenuItem(
+                                    text = {
+                                        Text("Delete", color = MaterialTheme.colorScheme.error)
+                                    },
+                                    onClick = {
+                                        onDeleteClick()
+                                        menuExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // --- Item Details Section ---
+                Column(modifier = Modifier.padding(12.dp)) {
+
+                    // Item Name
+                    Text(
+                        text = item.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Category Tag
+                    Surface(
+                        shape = MaterialTheme.shapes.small,
+                        border = BorderStroke(1.dp, Color.LightGray),
+                        color = Color.Transparent,
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("Edit") },
-                            onClick = {
-                                onEditClick()
-                                menuExpanded = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Restock") },
-                            onClick = {
-                                onRestockClick()
-                                menuExpanded = false
-                            }
-                        )
-
-                        HorizontalDivider()
-                        DropdownMenuItem(
-                            text = {
-                                Text("Delete", color = MaterialTheme.colorScheme.error)
-                            },
-                            onClick = {
-                                onDeleteClick()
-                                menuExpanded = false
-                            }
+                        Text(
+                            text = item.category.uppercase(),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                     }
-                }
-            }
 
-        // --- Item Details Section ---
-            Column(modifier = Modifier.padding(12.dp)) {
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                // Item Name
-                Text(
-                    text = item.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
+                    // --- Bottom Info Row: Price & Stock ---
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        // Price
+                        Text(
+                            text = "₱${item.price}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Gray
+                        )
 
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Category Tag
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    border = BorderStroke(1.dp, Color.LightGray),
-                    color = Color.Transparent,
-                ) {
-                    Text(
-                        text = item.category.uppercase(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.Gray,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // --- Bottom Info Row: Price & Stock ---
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    // Price
-                    Text(
-                        text = "₱${item.price}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Gray
-                    )
-
-                    // Stock Count
-                    Text(
-                        text = buildAnnotatedString {
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(item.stock.toString())
-                            }
-                            append(" in Stock")
-                        },
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.Gray
-                    )
+                        // Stock Count
+                        Text(
+                            text = buildAnnotatedString {
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append(item.stock.toString())
+                                }
+                                append(" in Stock")
+                            },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
         }
-    }
+    )
 }

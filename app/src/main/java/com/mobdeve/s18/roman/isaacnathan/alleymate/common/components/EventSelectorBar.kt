@@ -13,12 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
-import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 
 @Composable
 fun EventSelectorBar(

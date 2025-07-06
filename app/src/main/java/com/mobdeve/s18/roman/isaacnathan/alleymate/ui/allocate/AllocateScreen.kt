@@ -14,61 +14,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppTopBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.allocate.components.AllocationItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EventSelectorBar
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun AllocateScreen(onNavigateBack: () -> Unit) {
+fun AllocateScreen(
+    onNavigateBack: () -> Unit,
+    viewModel: AllocationViewModel = viewModel()
+) {
 
-    val allEvents = listOf(
-        Event(
-            eventId = 1,
-            title = "KOMIKET ‘25",
-            location = "SMX Convention Center",
-            startDate = 1750876800000, // Oct 25, 2025
-            endDate = 1751049600000    // Oct 27, 2025
-        ),
-        Event(
-            eventId = 2,
-            title = "Sticker Con '25",
-            location = "White Space Manila",
-            startDate = 1752604800000, // Nov 16, 2025
-            endDate = 1752604800000    // Nov 16, 2025 (same day)
-        ),
-        Event(
-            eventId = 3,
-            title = "UP Fair ‘25: Cosmos",
-            location = "UP Diliman Sunken Garden",
-            startDate = 1749936000000, // Oct 20, 2025
-            endDate = 1749946800000    // Oct 20, 2025
-        ),
-        Event(
-            eventId = 4,
-            title = "Indie Arts Fest",
-            location = "Circuit Makati",
-            startDate = 1751654400000, // Nov 3, 2025
-            endDate = 1751740800000    // Nov 4, 2025
-        ),
-        Event(
-            eventId = 5,
-            title = "AlleyMate Launch Party",
-            location = "DLSU Henry Sy Grounds",
-            startDate = 1749244800000, // Oct 13, 2025
-            endDate = 1749252000000    // Oct 13, 2025
-        )
-    )
-
-    var selectedEvent by remember { mutableStateOf(allEvents[0]) }
-
-    val itemsToAllocate = listOf(
-        CatalogueItem(1, "MHYLOW star sticker", "Sticker", 100.0, 50),
-        CatalogueItem(2, "Art Print A", "Print", 100.0, 30),
-        CatalogueItem(3, "Cosmic Enamel Pin", "Jewelry", 100.0, 25)
-    )
+    val allEvents by viewModel.allEvents.collectAsState()
+    val selectedEvent by viewModel.selectedEvent.collectAsState()
+    val itemsToAllocate by viewModel.itemsToAllocate.collectAsState()
+    val allocationQuantities by viewModel.allocationQuantities.collectAsState()
 
     Scaffold(
         topBar = {
@@ -90,13 +51,15 @@ fun AllocateScreen(onNavigateBack: () -> Unit) {
             ) {
                 // Event Selector
                 item {
-                    EventSelectorBar(
-                        currentEventName = selectedEvent.title,
-                        currentEventDate = selectedEvent.startDate.toString(),
-                        events = allEvents,
-                        onEventSelected = { selectedEvent = it },
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
+                    selectedEvent?.let { event ->
+                        EventSelectorBar(
+                            currentEventName = event.title,
+                            currentEventDate = event.dateRangeString,
+                            events = allEvents,
+                            onEventSelected = viewModel::selectEvent,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
                 }
 
                 // Header
@@ -110,12 +73,15 @@ fun AllocateScreen(onNavigateBack: () -> Unit) {
                 }
 
                 // List of items to allocate
-                items(itemsToAllocate) { item ->
+                items(itemsToAllocate, key = { it.itemId }) { item ->
                     AllocationItem(
                         item = item,
+                        // Update the quantity in the ViewModel
                         onQuantityChange = { newQuantity ->
-                            // TODO: Update a ViewModel with the new quantity for this item
-                            println("Item ${item.itemId} quantity changed to $newQuantity")
+                            viewModel.updateAllocationQuantity(item.itemId, newQuantity)
+                        },
+                        onRemoveClick = {
+                            viewModel.removeAllocationItem(item.itemId)
                         },
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
@@ -124,7 +90,10 @@ fun AllocateScreen(onNavigateBack: () -> Unit) {
 
             // "Allocate" Button at the bottom
             Button(
-                onClick = { /* TODO: Handle final allocation logic */ },
+                onClick = {
+                    viewModel.performAllocation(onSuccess = onNavigateBack)
+                },
+                enabled = selectedEvent != null,
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(

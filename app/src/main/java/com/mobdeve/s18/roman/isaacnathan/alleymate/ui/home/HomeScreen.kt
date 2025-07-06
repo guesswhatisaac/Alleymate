@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.HomeTopBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.CurrentLiveSaleCard
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.OverviewGrid
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.UpcomingEventsSection

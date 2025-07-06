@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -20,15 +21,25 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 fun AllocationItem(
     item: CatalogueItem,
     onQuantityChange: (Int) -> Unit,
+    onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    AppCard(modifier = modifier) {
+    AppCard(modifier = modifier, content = {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp, horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
+            // --- Delete ---
+            IconButton(onClick = onRemoveClick) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Remove Item",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
             // --- Image Placeholder ---
             Box(
                 modifier = Modifier
@@ -82,7 +93,10 @@ fun AllocationItem(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.width(120.dp)
             ) {
-                QuantityStepper(onValueChange = onQuantityChange)
+                QuantityStepper(
+                    onValueChange = onQuantityChange,
+                    maxValue = item.stock
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "${item.stock} in Stock",
@@ -92,4 +106,5 @@ fun AllocationItem(
             }
         }
     }
+    )
 }

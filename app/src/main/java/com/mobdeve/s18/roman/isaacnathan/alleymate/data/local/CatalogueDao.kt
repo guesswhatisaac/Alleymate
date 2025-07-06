@@ -22,5 +22,8 @@ interface CatalogueDao {
     @Query("DELETE FROM catalogue_items")
     suspend fun deleteAllItems()
 
+    @Query("UPDATE catalogue_items SET stock = stock - :quantityToReduce WHERE itemId = :itemId")
+    suspend fun reduceStock(itemId: Int, quantityToReduce: Int)
+
 
 }

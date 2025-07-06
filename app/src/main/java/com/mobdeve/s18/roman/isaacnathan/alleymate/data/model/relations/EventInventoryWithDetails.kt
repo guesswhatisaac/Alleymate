@@ -14,5 +14,6 @@ data class EventInventoryWithDetails(
         parentColumn = "itemId", // CatalogueItem's primary key
         entityColumn = "itemId"  // EventInventoryItem's foreign key
     )
+
     val catalogueItem: CatalogueItem
 )

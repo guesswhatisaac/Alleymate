@@ -1,6 +1,7 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.ui
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,6 +34,7 @@ object AppDestinations {
 
 }
 
+
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -53,58 +55,47 @@ fun AppNavigation() {
             )
         }
 
+        val animationDuration = 400
+
         composable(
             route = "${AppDestinations.EVENT_DETAIL_ROUTE}/{${AppDestinations.EVENT_ID_ARG}}",
             arguments = listOf(navArgument(AppDestinations.EVENT_ID_ARG) { type = NavType.IntType }),
-            enterTransition = {
-                slideInVertically(initialOffsetY = { it }) // 'it' is the full height of the screen
-            },
-            popExitTransition = {
-                slideOutVertically(targetOffsetY = { it })
-            },
+            enterTransition = { slideInVertically(animationSpec = tween(animationDuration), initialOffsetY = { it }) },
+            exitTransition = { fadeOut(animationSpec = tween(animationDuration)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(animationDuration)) },
+            popExitTransition = { slideOutVertically(animationSpec = tween(animationDuration), targetOffsetY = { it }) }
         ) { backStackEntry ->
             val eventId = backStackEntry.arguments?.getInt(AppDestinations.EVENT_ID_ARG)
-
             if (eventId != null) {
                 EventDetailScreen(
                     eventId = eventId,
-
                     onNavigateBack = {
                         if (navController.previousBackStackEntry != null) {
                             navController.popBackStack()
                         }
                     }
-
                 )
             }
         }
 
         composable(
             route = AppDestinations.LIVE_SALE_ROUTE,
-            enterTransition = { slideInVertically(initialOffsetY = { it }) },
-            popExitTransition = { slideOutVertically(targetOffsetY = { it }) }
+            enterTransition = { slideInVertically(animationSpec = tween(animationDuration), initialOffsetY = { it }) },
+            exitTransition = { fadeOut(animationSpec = tween(animationDuration)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(animationDuration)) },
+            popExitTransition = { slideOutVertically(animationSpec = tween(animationDuration), targetOffsetY = { it }) }
         ) {
-            LiveSaleScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
+            LiveSaleScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         composable(
             route = AppDestinations.ALLOCATE_ROUTE,
-            enterTransition = { slideInVertically(initialOffsetY = { it }) },
-            popExitTransition = { slideOutVertically(targetOffsetY = { it }) }
+            enterTransition = { slideInVertically(animationSpec = tween(animationDuration), initialOffsetY = { it }) },
+            exitTransition = { fadeOut(animationSpec = tween(animationDuration)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(animationDuration)) },
+            popExitTransition = { slideOutVertically(animationSpec = tween(animationDuration), targetOffsetY = { it }) }
         ) {
-            AllocateScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
+            AllocateScreen(onNavigateBack = { navController.popBackStack() })
         }
-
-
-
-
     }
 }

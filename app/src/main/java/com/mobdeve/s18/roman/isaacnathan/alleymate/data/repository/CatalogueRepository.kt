@@ -33,7 +33,7 @@ class CatalogueRepository(
         catalogueDao.deleteAllItems()
     }
 
-    suspend fun clearEntireDatabase() {
+    fun clearEntireDatabase() {
         database.clearDatabase()
     }
 

@@ -17,17 +17,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppTopBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
-import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.components.CatalogueItemCard
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EventSelectorBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.reports.components.TimeFilterChips
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 
 @Composable
 fun ReportsScreen() {
@@ -171,7 +168,10 @@ fun ReportsScreen() {
                                     // TODO: BEST SELLER CATALOGUE ITEM CARD NO LOGIC YET
                                     onRestockClick = {},
                                     onEditClick = {},
-                                    onDeleteClick = {}
+                                    onDeleteClick = {},
+                                    isSelected = false,
+                                    onClick = {},
+                                    onLongClick = {}
                                 )
                             }
                         }

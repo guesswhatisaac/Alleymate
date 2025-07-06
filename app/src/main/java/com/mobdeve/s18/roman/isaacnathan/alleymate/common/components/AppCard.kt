@@ -15,7 +15,7 @@ fun AppCard(
     modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.medium,
     hasBorder: Boolean = true,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable (ColumnScope.() -> Unit),
 ) {
     Card(
         modifier = modifier,

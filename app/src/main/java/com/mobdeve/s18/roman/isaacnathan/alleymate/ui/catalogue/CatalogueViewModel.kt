@@ -3,6 +3,7 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.AllocationStateHolder
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.AlleyMateDatabase
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.CatalogueRepository
@@ -18,7 +19,7 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
     private val itemCategoryRepository: ItemCategoryRepository
 
     // --- RAW DATA FLOWS ---
-    private val allCatalogueItems: Flow<List<CatalogueItem>>
+    private val allCatalogueItems: StateFlow<List<CatalogueItem>>
 
     // --- STATE FOR THE UI ---
     private val _selectedItemCategory = MutableStateFlow("ALL")
@@ -26,6 +27,14 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
     val itemCategories: StateFlow<List<String>>
     val filteredItems: StateFlow<List<CatalogueItem>>
 
+    private val _selectedItemIds = MutableStateFlow<Set<Int>>(emptySet())
+    val selectedItemIds: StateFlow<Set<Int>> = _selectedItemIds.asStateFlow()
+    val inSelectionMode: StateFlow<Boolean> = _selectedItemIds
+        .map { it.isNotEmpty() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val allocationBadgeCount: StateFlow<Int> = AllocationStateHolder.allocationCount
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     init {
         val database = AlleyMateDatabase.getDatabase(application)
@@ -34,6 +43,11 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
         itemCategoryRepository = ItemCategoryRepository(database.itemCategoryDao())
 
         allCatalogueItems = catalogueRepository.getAllItems()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000L),
+                initialValue = emptyList()
+            )
 
         itemCategories = itemCategoryRepository.getAllItemCategories()
             .map { dbCategories ->
@@ -93,4 +107,33 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
     fun deleteItem(item: CatalogueItem) = viewModelScope.launch {
         catalogueRepository.deleteItem(item)
     }
+
+    fun toggleSelection(itemId: Int) {
+        val currentSelection = _selectedItemIds.value.toMutableSet()
+        if (itemId in currentSelection) {
+            currentSelection.remove(itemId)
+        } else {
+            currentSelection.add(itemId)
+        }
+        _selectedItemIds.value = currentSelection
+    }
+
+
+    fun clearSelection() {
+        _selectedItemIds.value = emptySet()
+    }
+
+    fun prepareForAllocation() {
+
+        val newlySelectedItems = allCatalogueItems.value
+            .filter { it.itemId in _selectedItemIds.value }
+
+        if (newlySelectedItems.isNotEmpty()) {
+            AllocationStateHolder.addItems(newlySelectedItems)
+        }
+
+        clearSelection()
+
+    }
+
 }
