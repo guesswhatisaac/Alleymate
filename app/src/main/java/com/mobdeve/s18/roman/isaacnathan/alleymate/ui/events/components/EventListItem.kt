@@ -14,18 +14,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
+import androidx.compose.foundation.clickable
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 
 @Composable
 fun EventListItem(
     event: Event,
-    onInventoryClick: () -> Unit,
-    onExpensesClick: () -> Unit,
+    onEventClick: () -> Unit,
     onEditClick: () -> Unit
-
 ) {
     Card(
+        modifier = Modifier.clickable { onEventClick() },
         shape = MaterialTheme.shapes.medium,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -71,7 +71,7 @@ fun EventListItem(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = event.date,
+                    text = event.dateRangeString,
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.Gray
                 )
@@ -87,13 +87,19 @@ fun EventListItem(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    StatColumn(value = "${event.itemsSold}", label = "Sold")
+                    StatColumn(value = "${event.totalItemsSold}", label = "Sold")
                     StatColumn(
-                        value = "₱${event.itemsSold}",
+                        value = "₱${"%.2f".format(event.totalRevenueInCents / 100.0)}",
                         label = "Revenue"
-                    ) // You may want to calculate revenue separately
-                    StatColumn(value = "₱${event.expenses}", label = "Expenses")
-                    StatColumn(value = "₱${event.profit}", label = "Profit")
+                    )
+                    StatColumn(
+                        value = "₱${"%.2f".format(event.totalExpensesInCents / 100.0)}",
+                        label = "Expenses"
+                    )
+                    StatColumn(
+                        value = "₱${"%.2f".format(event.profitInCents / 100.0)}",
+                        label = "Profit"
+                    )
                 }
             }
 
@@ -102,6 +108,7 @@ fun EventListItem(
             // ----------------------
             // Action Buttons Section
             // ----------------------
+            /*
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -125,7 +132,7 @@ fun EventListItem(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        "Inventory (${event.itemsAllocated}x)",
+                        "Inventory (${details.totalItemsAllocated}x)",
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -154,12 +161,14 @@ fun EventListItem(
                     )
                 }
             }
+
+            */
         }
     }
 }
 
 // ----------------------
-// Helper Composables
+// Helper Composable
 // ----------------------
 
 @Composable

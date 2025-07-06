@@ -11,9 +11,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun EventCard(event: Event) {
+
+    val startDateStr = SimpleDateFormat("MMM dd", Locale.getDefault()).format(event.startDate)
+    val endDateStr = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(event.endDate)
+    val dateRangeString =
+        if (event.startDate == event.endDate) endDateStr else "$startDateStr - $endDateStr"
+
     // ─── Card Container ─────────────────────────────────────
     Card(
         modifier = Modifier
@@ -25,6 +33,7 @@ fun EventCard(event: Event) {
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
+
 
         // ─── Card Content ─────────────────────────────────────
         Column(
@@ -46,7 +55,7 @@ fun EventCard(event: Event) {
 
             // Date
             Text(
-                text = event.date,
+                text = dateRangeString,
                 style = MaterialTheme.typography.bodyMedium
             )
 

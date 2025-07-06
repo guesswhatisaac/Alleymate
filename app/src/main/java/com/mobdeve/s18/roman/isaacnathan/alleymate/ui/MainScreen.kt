@@ -18,9 +18,11 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.CatalogueScreen
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventsScreen
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.HomeScreen
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.reports.ReportsScreen
+import androidx.navigation.NavHostController
 
 @Composable
 fun MainScreen(
+    navController: NavHostController,
     onNavigateToLiveSale: () -> Unit,
     onNavigateToAllocate: () -> Unit
 ) {
@@ -75,7 +77,13 @@ fun MainScreen(
                     onNavigateToAllocate = onNavigateToAllocate
                 )
             }
-            composable(AppDestinations.EVENTS_ROUTE) { EventsScreen() }
+            composable(AppDestinations.EVENTS_ROUTE) {
+                EventsScreen(
+                    onNavigateToEventDetail = { eventId ->
+                        navController.navigate("${AppDestinations.EVENT_DETAIL_ROUTE}/$eventId")
+                    }
+                )
+            }
             composable(AppDestinations.REPORTS_ROUTE) { ReportsScreen() }
         }
     }

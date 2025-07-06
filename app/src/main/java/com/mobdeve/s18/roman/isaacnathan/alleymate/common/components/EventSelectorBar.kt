@@ -61,13 +61,11 @@ fun EventSelectorBar(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
                 modifier = Modifier
-                    .width(250.dp) // Set a reasonable width for the menu
+                    .width(250.dp)
                     .background(MaterialTheme.colorScheme.surface),
-                // This allows the menu to be scrollable if there are many events
                 properties = PopupProperties(focusable = true)
             ) {
                 events.forEach { event ->
-                    // Use our custom item composable
                     EventDropdownItem(
                         event = event,
                         onClick = {
@@ -95,7 +93,7 @@ private fun EventDropdownItem(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = event.date,
+                    text = event.startDate.toString(),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
@@ -104,25 +102,4 @@ private fun EventDropdownItem(
         onClick = onClick,
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
     )
-}
-
-
-@Preview(showBackground = true)
-@Composable
-private fun EventSelectorBarPreview() {
-    AlleyMateTheme {
-        val sampleEvents = listOf(
-            Event(1, "KOMIKET ‘25", "Oct 25-27, 2025", "", EventStatus.LIVE, 0, 0, 0, 0),
-            Event(2, "Sticker Con '25", "Nov 16, 2025", "", EventStatus.UPCOMING, 0, 0, 0, 0),
-            Event(3, "Cosmania '24", "Dec 7-8, 2024", "", EventStatus.ENDED, 0, 0, 0, 0),
-        )
-        var selectedEvent by remember { mutableStateOf(sampleEvents[0]) }
-
-        EventSelectorBar(
-            currentEventName = selectedEvent.title,
-            currentEventDate = selectedEvent.date,
-            events = sampleEvents,
-            onEventSelected = { selectedEvent = it }
-        )
-    }
 }

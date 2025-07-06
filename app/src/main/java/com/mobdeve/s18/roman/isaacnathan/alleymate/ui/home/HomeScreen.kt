@@ -119,9 +119,41 @@ fun HomeScreen(
 // ─────────────────────────────────────────────────────────────
 private fun getSampleEvents(): List<Event> {
     return listOf(
-        Event(1, "KOMIKET ‘25", "October 25 - October 27", "SM Megamall B | Table 35", EventStatus.LIVE, 0, 0, 0, 0),
-        Event(2, "STICKER CON", "November 16", "Whitespace Manila", EventStatus.LIVE, 0, 0, 0, 0),
-        Event(3, "COSMANIA", "December 7 - December 8", "SMX Convention Center", EventStatus.LIVE, 0, 0, 0, 0)
+        Event(
+            eventId = 1,
+            title = "KOMIKET ‘25",
+            location = "SMX Convention Center",
+            startDate = 1750876800000, // Oct 25, 2025
+            endDate = 1751049600000    // Oct 27, 2025
+        ),
+        Event(
+            eventId = 2,
+            title = "Sticker Con '25",
+            location = "White Space Manila",
+            startDate = 1752604800000, // Nov 16, 2025
+            endDate = 1752604800000    // Nov 16, 2025 (same day)
+        ),
+        Event(
+            eventId = 3,
+            title = "UP Fair ‘25: Cosmos",
+            location = "UP Diliman Sunken Garden",
+            startDate = 1749936000000, // Oct 20, 2025
+            endDate = 1749946800000    // Oct 20, 2025
+        ),
+        Event(
+            eventId = 4,
+            title = "Indie Arts Fest",
+            location = "Circuit Makati",
+            startDate = 1751654400000, // Nov 3, 2025
+            endDate = 1751740800000    // Nov 4, 2025
+        ),
+        Event(
+            eventId = 5,
+            title = "AlleyMate Launch Party",
+            location = "DLSU Henry Sy Grounds",
+            startDate = 1749244800000, // Oct 13, 2025
+            endDate = 1749252000000    // Oct 13, 2025
+        )
     )
 }
 

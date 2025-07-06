@@ -33,8 +33,41 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 fun ReportsScreen() {
 
     val allEvents = listOf(
-        Event(1, "KOMIKET ‘25", "Oct 25-27", "loc", EventStatus.LIVE, 0,0,0,0),
-        Event(2, "Sticker Con", "Nov 16", "loc", EventStatus.UPCOMING, 0,0,0,0)
+        Event(
+            eventId = 1,
+            title = "KOMIKET ‘25",
+            location = "SMX Convention Center",
+            startDate = 1750876800000, // Oct 25, 2025
+            endDate = 1751049600000    // Oct 27, 2025
+        ),
+        Event(
+            eventId = 2,
+            title = "Sticker Con '25",
+            location = "White Space Manila",
+            startDate = 1752604800000, // Nov 16, 2025
+            endDate = 1752604800000    // Nov 16, 2025 (same day)
+        ),
+        Event(
+            eventId = 3,
+            title = "UP Fair ‘25: Cosmos",
+            location = "UP Diliman Sunken Garden",
+            startDate = 1749936000000, // Oct 20, 2025
+            endDate = 1749946800000    // Oct 20, 2025
+        ),
+        Event(
+            eventId = 4,
+            title = "Indie Arts Fest",
+            location = "Circuit Makati",
+            startDate = 1751654400000, // Nov 3, 2025
+            endDate = 1751740800000    // Nov 4, 2025
+        ),
+        Event(
+            eventId = 5,
+            title = "AlleyMate Launch Party",
+            location = "DLSU Henry Sy Grounds",
+            startDate = 1749244800000, // Oct 13, 2025
+            endDate = 1749252000000    // Oct 13, 2025
+        )
     )
     var selectedEvent by remember { mutableStateOf(allEvents[0]) }
 
@@ -61,7 +94,7 @@ fun ReportsScreen() {
             item {
                 EventSelectorBar(
                     currentEventName = selectedEvent.title,
-                    currentEventDate = selectedEvent.date,
+                    currentEventDate = selectedEvent.startDate.toString(),
                     events = allEvents,
                     onEventSelected = { newEvent ->
                         selectedEvent = newEvent
@@ -149,13 +182,6 @@ fun ReportsScreen() {
     }
 }
 
-@Preview(showBackground = true, widthDp = 400)
-@Composable
-private fun ReportsScreenPreview() {
-    AlleyMateTheme {
-        ReportsScreen()
-    }
-}
 
 @Composable
 private fun StatColumn(value: String, label: String, modifier: Modifier = Modifier) {
