@@ -1,6 +1,5 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
@@ -24,7 +23,6 @@ fun CurrentLiveSaleCard(
     AppCard(
         modifier = Modifier.fillMaxWidth(),
         content = {
-            // Main layout column
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {

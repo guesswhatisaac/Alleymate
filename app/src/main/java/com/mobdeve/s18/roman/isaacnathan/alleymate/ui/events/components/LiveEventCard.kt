@@ -12,10 +12,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
+
+private val AlleyMainOrange = Color(0xFFEE7036)
 
 @Composable
-fun EventListItem(
+fun LiveEventCard(
     event: Event,
     onEventClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -34,7 +35,7 @@ fun EventListItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(AlleyMainOrange)
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -42,7 +43,7 @@ fun EventListItem(
                     text = event.title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = Color.White
                 )
             }
 
@@ -71,14 +72,26 @@ fun EventListItem(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Bottom Section: Status Tag (left) and Stats (right)
+                // Bottom Section
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Status Tag - Bottom Left
-                    StatusTag(status = event.status)
+                    // Live Status Tag - Bottom Left
+                    Surface(
+                        shape = MaterialTheme.shapes.small,
+                        border = BorderStroke(1.dp, color = AlleyMainOrange.copy(alpha = 0.5f)),
+                        color = AlleyMainOrange.copy(alpha = 0.15f)
+                    ) {
+                        Text(
+                            text = "LIVE",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = AlleyMainOrange,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
 
                     // Stats - Bottom Right
                     Row(
@@ -100,17 +113,13 @@ fun EventListItem(
     }
 }
 
-// --- Helper Composables ---
 @Composable
 private fun StatColumn(
     value: String,
     label: String,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.End
-    ) {
+    Column(modifier = modifier) {
         Text(
             text = value,
             style = MaterialTheme.typography.headlineSmall,
@@ -122,35 +131,6 @@ private fun StatColumn(
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
             color = Color.Gray
-        )
-    }
-}
-
-@Composable
-private fun StatusTag(status: EventStatus) {
-    val tagBackgroundColor = when (status) {
-        EventStatus.LIVE -> Color(0xFF4CAF50).copy(alpha = 0.15f)
-        EventStatus.UPCOMING -> MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-        EventStatus.ENDED -> Color.Gray.copy(alpha = 0.15f)
-    }
-
-    val tagTextColor = when (status) {
-        EventStatus.LIVE -> Color(0xFF388E3C)
-        EventStatus.UPCOMING -> MaterialTheme.colorScheme.primary
-        EventStatus.ENDED -> Color.Gray
-    }
-
-    Surface(
-        shape = MaterialTheme.shapes.small,
-        border = BorderStroke(1.dp, color = tagTextColor.copy(alpha = 0.5f)),
-        color = tagBackgroundColor
-    ) {
-        Text(
-            text = status.name,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-            style = MaterialTheme.typography.labelSmall,
-            color = tagTextColor,
-            fontWeight = FontWeight.Bold
         )
     }
 }

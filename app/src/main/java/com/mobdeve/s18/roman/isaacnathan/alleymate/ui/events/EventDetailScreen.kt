@@ -1,50 +1,44 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppTopBar
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
+import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppFloatingActionButton
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.AlleyMateDatabase
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventExpense
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.EventRepository
+import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.EditEventModal
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.AddExpenseModal
+
+private enum class DetailTab(val title: String) {
+    OVERVIEW("Overview"),
+    INVENTORY("Inventory"),
+    EXPENSES("Expenses")
+}
+
+private sealed interface EventDetailModalState {
+    data object None : EventDetailModalState
+    data class EditEvent(val event: Event) : EventDetailModalState
+    data object DeleteConfirmation : EventDetailModalState
+    data object AddExpense : EventDetailModalState
+}
 
 @Composable
 fun EventDetailScreen(
@@ -53,18 +47,80 @@ fun EventDetailScreen(
 ) {
     // --- Get Dependencies and ViewModel ---
     val context = LocalContext.current
-    val eventRepository = remember { EventRepository(
-        AlleyMateDatabase.getDatabase(context).eventDao(),
-        catalogueDao = AlleyMateDatabase.getDatabase(context).catalogueDao()
-    ) }
+    val eventRepository = remember {
+        EventRepository(
+            AlleyMateDatabase.getDatabase(context).eventDao(),
+            catalogueDao = AlleyMateDatabase.getDatabase(context).catalogueDao()
+        )
+    }
     val viewModel: EventDetailViewModel = viewModel(
         factory = EventDetailViewModelFactory(eventRepository, eventId)
     )
 
-    // --- Collect State from ViewModel ---
     val event by viewModel.event.collectAsState()
     val inventory by viewModel.inventory.collectAsState()
     val expenses by viewModel.expenses.collectAsState()
+
+    // Tab state
+    var selectedTab by remember { mutableStateOf(DetailTab.OVERVIEW) }
+
+    // Modal state
+    var modalState by remember { mutableStateOf<EventDetailModalState>(EventDetailModalState.None) }
+    var menuExpanded by remember { mutableStateOf(false) }
+
+    // Handle modals
+    when (val state = modalState) {
+        is EventDetailModalState.None -> { /* Show nothing */ }
+        is EventDetailModalState.EditEvent -> {
+            EditEventModal(
+                event = state.event,
+                onDismissRequest = { modalState = EventDetailModalState.None },
+                onConfirmEdit = { updatedEvent ->
+                    // TODO: Handle the event edit logic
+                    println("Saving changes for event: $updatedEvent")
+                    modalState = EventDetailModalState.None
+                }
+            )
+        }
+        is EventDetailModalState.DeleteConfirmation -> {
+            AlertDialog(
+                onDismissRequest = { modalState = EventDetailModalState.None },
+                title = { Text("Delete Event") },
+                text = { Text("Are you sure you want to delete this event? This action cannot be undone.") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            // TODO: Handle event deletion
+                            println("Deleting event: ${event?.title}")
+                            modalState = EventDetailModalState.None
+                            onNavigateBack()
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text("Delete")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { modalState = EventDetailModalState.None }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+        is EventDetailModalState.AddExpense -> {
+            AddExpenseModal(
+                onDismissRequest = { modalState = EventDetailModalState.None },
+                onAddExpense = { description, amount ->
+                    viewModel.addExpense(description, amount)
+                    modalState = EventDetailModalState.None
+                }
+            )
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -74,13 +130,49 @@ fun EventDetailScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Navigate back")
                     }
+                },
+                actions = {
+                    // More options menu
+                    Box {
+                        IconButton(onClick = { menuExpanded = true }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "More Options"
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Edit") },
+                                onClick = {
+                                    event?.let { modalState = EventDetailModalState.EditEvent(it) }
+                                    menuExpanded = false
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Delete") },
+                                onClick = {
+                                    modalState = EventDetailModalState.DeleteConfirmation
+                                    menuExpanded = false
+                                }
+                            )
+                        }
+                    }
                 }
             )
+        },
+        floatingActionButton = {
+            if (selectedTab == DetailTab.EXPENSES) {
+                AppFloatingActionButton(
+                    onClick = { modalState = EventDetailModalState.AddExpense }
+                )
+            }
         }
     ) { innerPadding ->
         val currentEvent = event
         if (currentEvent == null) {
-            // Show a loading indicator while the main event data is being fetched
             Box(
                 Modifier.fillMaxSize().padding(innerPadding),
                 contentAlignment = Alignment.Center
@@ -88,26 +180,62 @@ fun EventDetailScreen(
                 CircularProgressIndicator()
             }
         } else {
-            // Content is ready, display it in a LazyColumn
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
-                contentPadding = PaddingValues(vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+                    .padding(innerPadding)
             ) {
-                // Top Header Section with stats
-                item { EventDetailHeader(event = currentEvent) }
+                // Tabs Section
+                Column {
+                    TabRow(
+                        selectedTabIndex = selectedTab.ordinal,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        DetailTab.entries.forEach { tab ->
+                            val count = when (tab) {
+                                DetailTab.OVERVIEW -> ""
+                                DetailTab.INVENTORY -> " (${inventory.size})"
+                                DetailTab.EXPENSES -> " (${expenses.size})"
+                            }
+                            Tab(
+                                selected = selectedTab == tab,
+                                onClick = { selectedTab = tab },
+                                text = {
+                                    Text("${tab.title}$count")
+                                }
+                            )
+                        }
+                    }
 
-                // Inventory Section
-                item { EventInventorySection(inventory = inventory) }
-
-                // Expenses Section
-                item {
-                    EventExpensesSection(
-                        expenses = expenses,
-                        onAddExpense = viewModel::addExpense
-                    )
+                    // Tab Content
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        when (selectedTab) {
+                            DetailTab.OVERVIEW -> {
+                                EventOverviewSection(
+                                    event = currentEvent,
+                                    onStartLiveSale = {
+                                        // TODO: Handle start live sale
+                                        println("Starting live sale for event: ${currentEvent.title}")
+                                    },
+                                    onEndEvent = {
+                                        // TODO: Handle end event
+                                        println("Ending event: ${currentEvent.title}")
+                                    }
+                                )
+                            }
+                            DetailTab.INVENTORY -> {
+                                EventInventorySection(inventory = inventory)
+                            }
+                            DetailTab.EXPENSES -> {
+                                EventExpensesSection(expenses = expenses)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -115,65 +243,350 @@ fun EventDetailScreen(
 }
 
 // ====================================================================================
-//  PRIVATE HELPER COMPOSABLES - Specific to EventDetailScreen
+//  PRIVATE HELPER COMPOSABLES
 // ====================================================================================
 
 @Composable
-private fun EventDetailHeader(event: Event) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-        Text(event.dateRangeString, style = MaterialTheme.typography.labelMedium, color = Color.Gray)
-        Text(event.location, style = MaterialTheme.typography.labelMedium, color = Color.Gray)
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
+private fun EventOverviewSection(
+    event: Event,
+    onStartLiveSale: () -> Unit,
+    onEndEvent: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Event Details Card
+        Card(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            shape = RoundedCornerShape(12.dp)
         ) {
-            StatColumn(value = "${event.totalItemsSold}", label = "Sold")
-            StatColumn(value = "₱${"%.2f".format(event.totalRevenueInCents / 100.0)}", label = "Revenue")
-            StatColumn(value = "₱${"%.2f".format(event.totalExpensesInCents / 100.0)}", label = "Expenses")
-            StatColumn(value = "₱${"%.2f".format(event.profitInCents / 100.0)}", label = "Profit")
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                DetailRow(label = "Date", value = event.dateRangeString)
+                DetailRow(label = "Location", value = event.location)
+                DetailRow(label = "Status", value = event.status.name)
+            }
+        }
+
+        // Statistics Grid
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // First Row
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                CompactStatCard(
+                    modifier = Modifier.weight(1f),
+                    value = "${event.totalItemsSold}",
+                    label = "Items Sold"
+                )
+                CompactStatCard(
+                    modifier = Modifier.weight(1f),
+                    value = "₱${"%.2f".format(event.totalRevenueInCents / 100.0)}",
+                    label = "Revenue"
+                )
+            }
+
+            // Second Row
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                CompactStatCard(
+                    modifier = Modifier.weight(1f),
+                    value = "₱${"%.2f".format(event.totalExpensesInCents / 100.0)}",
+                    label = "Expenses"
+                )
+                CompactStatCard(
+                    modifier = Modifier.weight(1f),
+                    value = "₱${"%.2f".format(event.profitInCents / 100.0)}",
+                    label = "Profit"
+                )
+            }
+        }
+
+        // Event Action Button
+        when (event.status) {
+            EventStatus.UPCOMING -> {
+                Button(
+                    onClick = onStartLiveSale,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AlleyMainOrange
+                    )
+                ) {
+                    Text(
+                        text = "Start Live Sale",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            EventStatus.LIVE -> {
+                Button(
+                    onClick = onEndEvent,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFF44336)
+                    )
+                ) {
+                    Text(
+                        text = "End Event",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            EventStatus.ENDED -> {
+            }
         }
     }
 }
 
 @Composable
-private fun StatColumn(value: String, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Text(label, style = MaterialTheme.typography.labelMedium, color = Color.Gray)
+private fun CompactStatCard(
+    modifier: Modifier = Modifier,
+    value: String,
+    label: String
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray
+            )
+        }
     }
 }
 
 @Composable
-private fun EventInventorySection(
-    inventory: List<EventInventoryWithDetails>
-) {
-    Column {
-        SectionHeader(
-            title = "Inventory",
-            modifier = Modifier.padding(horizontal = 16.dp),
-            showDivider = true
+private fun DetailRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray,
+            fontWeight = FontWeight.Medium
         )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (inventory.isEmpty()) {
-            Text("No items allocated.", modifier = Modifier.padding(16.dp), color = Color.Gray)
-        } else {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                inventory.forEach { inventoryItemWithDetails  ->
-
+@Composable
+private fun EventInventorySection(inventory: List<EventInventoryWithDetails>) {
+    if (inventory.isEmpty()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "No items allocated to this event",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray
+                )
+            }
+        }
+    } else {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Column {
+                inventory.forEachIndexed { index, inventoryItemWithDetails ->
                     val catalogueItem = inventoryItemWithDetails.catalogueItem
                     val eventInventory = inventoryItemWithDetails.eventInventoryItem
 
-                    ListItem(
-                        headlineContent = { Text(catalogueItem.name) },
-                        supportingContent = {
-                            Text("Allocated: ${eventInventory.allocatedQuantity} | Sold: ${eventInventory.soldQuantity}")
-                        },
-                        trailingContent = {
-                            Text("₱${"%.2f".format(catalogueItem.price)}")
+                    InventoryItem(
+                        name = catalogueItem.name,
+                        price = catalogueItem.price,
+                        allocated = eventInventory.allocatedQuantity,
+                        sold = eventInventory.soldQuantity
+                    )
+
+                    if (index < inventory.size - 1) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun InventoryItem(
+    name: String,
+    price: Double,
+    allocated: Int,
+    sold: Int
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = name,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                text = "Allocated: $allocated | Sold: $sold",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray
+            )
+        }
+        Text(
+            text = "₱${"%.2f".format(price)}",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = AlleyMainOrange
+        )
+    }
+}
+
+@Composable
+private fun EventExpensesSection(expenses: List<EventExpense>) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Expenses List
+        if (expenses.isEmpty()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No expenses recorded",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
+            }
+        } else {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column {
+                    expenses.forEachIndexed { index, expense ->
+                        ExpenseItem(
+                            description = expense.description,
+                            amount = expense.amountInCents / 100.0
+                        )
+
+                        if (index < expenses.size - 1) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant
+                            )
                         }
+                    }
+                }
+            }
+        }
+
+        // Total Expenses Card
+        if (expenses.isNotEmpty()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = AlleyMainOrange.copy(alpha = 0.1f)
+                ),
+                border = BorderStroke(1.dp, AlleyMainOrange.copy(alpha = 0.3f)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Total Expenses",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = AlleyMainOrange
+                    )
+                    Text(
+                        text = "₱${"%.2f".format(expenses.sumOf { it.amountInCents } / 100.0)}",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = AlleyMainOrange
                     )
                 }
             }
@@ -182,65 +595,28 @@ private fun EventInventorySection(
 }
 
 @Composable
-private fun EventExpensesSection(
-    expenses: List<EventExpense>,
-    onAddExpense: (description: String, amount: Double) -> Unit
+private fun ExpenseItem(
+    description: String,
+    amount: Double
 ) {
-    var expenseDesc by remember { mutableStateOf("") }
-    var expenseAmount by remember { mutableStateOf("") }
-
-    Column(modifier = Modifier.padding(bottom = 16.dp)) {
-        SectionHeader(
-            title = "Expenses",
-            modifier = Modifier.padding(horizontal = 16.dp),
-            showDivider = true
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.weight(1f)
         )
-        if (expenses.isEmpty()) {
-            Text("No expenses recorded.", modifier = Modifier.padding(16.dp), color = Color.Gray)
-        } else {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                expenses.forEach { expense ->
-                    ListItem(
-                        headlineContent = { Text(expense.description) },
-                        trailingContent = {
-                            Text("₱${"%.2f".format(expense.amountInCents / 100.0)}")
-                        }
-                    )
-                }
-            }
-        }
-
-        HorizontalDivider(modifier = Modifier.padding(top = 8.dp, bottom = 16.dp))
-
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text("Add New Expense", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-            OutlinedTextField(
-                value = expenseDesc,
-                onValueChange = { expenseDesc = it },
-                label = { Text("Expense Description") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = expenseAmount,
-                onValueChange = { expenseAmount = it },
-                label = { Text("Amount") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
-            Button(
-                onClick = {
-                    onAddExpense(expenseDesc, expenseAmount.toDoubleOrNull() ?: 0.0)
-                    expenseDesc = ""
-                    expenseAmount = ""
-                },
-                enabled = expenseDesc.isNotBlank() && (expenseAmount.toDoubleOrNull() ?: 0.0) > 0,
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text("Add Expense")
-            }
-        }
+        Text(
+            text = "₱${"%.2f".format(amount)}",
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFFF44336)
+        )
     }
 }
