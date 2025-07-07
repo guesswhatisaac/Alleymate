@@ -1,11 +1,14 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.modal
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,7 +22,12 @@ fun FormDropdown(
     var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = modifier) {
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.Gray,
+            fontWeight = FontWeight.Medium
+        )
         Spacer(modifier = Modifier.height(4.dp))
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -40,15 +48,26 @@ fun FormDropdown(
             )
             ExposedDropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onDismissRequest = { expanded = false },
+                modifier = Modifier
+                    //.width(200.dp)
+                    .background(MaterialTheme.colorScheme.surface),
             ) {
                 options.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(text = option) },
+                        text = {
+                            Text(
+                                text = option,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        },
                         onClick = {
                             onValueChange(option)
                             expanded = false
-                        }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                     )
                 }
             }

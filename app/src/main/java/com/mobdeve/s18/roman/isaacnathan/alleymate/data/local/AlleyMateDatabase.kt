@@ -7,6 +7,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.views.EventSummary
 
 // vv  TODO: A CERTAIN FUNCTION MUST BE REMOVED IN PRODUCTION; CREATE MIGRATION SYSTEM
 
+@TypeConverters(DateConverter::class, EventStatusConverter::class)
 @Database(
     entities = [
         CatalogueItem::class,
@@ -16,7 +17,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.views.EventSummary
         EventInventoryItem::class,
     ],
     views = [EventSummaryView::class],
-    version = 10,
+    version = 11,
     exportSchema = false
 )
 

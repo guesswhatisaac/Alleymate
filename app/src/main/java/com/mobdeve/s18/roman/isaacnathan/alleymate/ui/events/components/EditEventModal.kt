@@ -1,6 +1,5 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components
 
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -40,7 +39,7 @@ fun EditEventModal(
         val endDatePickerState = rememberDatePickerState(initialSelectedDateMillis = event.endDate)
         var showEndDatePicker by remember { mutableStateOf(false) }
 
-        // --- Date formatting and validation logic (copied from AddEventModal) ---
+        // --- Date formatting and validation logic ---
         val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
 
         val selectedStartDate = startDatePickerState.selectedDateMillis?.let {
@@ -54,7 +53,6 @@ fun EditEventModal(
         val isEndDateInvalid = startDatePickerState.selectedDateMillis != null &&
                 endDatePickerState.selectedDateMillis != null &&
                 endDatePickerState.selectedDateMillis!! < startDatePickerState.selectedDateMillis!!
-
 
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -71,7 +69,7 @@ fun EditEventModal(
                 onValueChange = { eventLocation = it }
             )
 
-            // --- USE THE DateSelectionCard COMPONENT ---
+            // --- Date Selection Cards ---
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DateSelectionCard(
                     modifier = Modifier.weight(1f),
@@ -101,7 +99,7 @@ fun EditEventModal(
                 )
             }
 
-            // --- Date Picker Dialogs with validation (copied from AddEventModal) ---
+            // --- Start Date Picker Dialog ---
             if (showStartDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { showStartDatePicker = false },
@@ -139,6 +137,7 @@ fun EditEventModal(
                 }
             }
 
+            // --- End Date Picker Dialog (FIXED: Added complete color configuration) ---
             if (showEndDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { showEndDatePicker = false },
@@ -159,6 +158,10 @@ fun EditEventModal(
                         state = endDatePickerState,
                         colors = DatePickerDefaults.colors(
                             selectedDayContainerColor = MaterialTheme.colorScheme.primary,
+                            todayDateBorderColor = MaterialTheme.colorScheme.primary,
+                            containerColor = Color.White,
+                            titleContentColor = MaterialTheme.colorScheme.primary,
+                            headlineContentColor = MaterialTheme.colorScheme.primary
                         )
                     )
                 }

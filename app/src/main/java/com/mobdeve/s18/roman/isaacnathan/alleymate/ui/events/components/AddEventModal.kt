@@ -168,6 +168,10 @@ fun AddEventModal(
                         state = endDatePickerState,
                         colors = DatePickerDefaults.colors(
                             selectedDayContainerColor = MaterialTheme.colorScheme.primary,
+                            todayDateBorderColor = MaterialTheme.colorScheme.primary,
+                            containerColor = Color.White,
+                            titleContentColor = MaterialTheme.colorScheme.primary,
+                            headlineContentColor = MaterialTheme.colorScheme.primary
                         )
                     )
                 }

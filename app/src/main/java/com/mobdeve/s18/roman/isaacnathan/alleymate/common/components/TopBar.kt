@@ -70,7 +70,7 @@ fun AppTopBar(
 fun LiveSaleTopBar(
     title: String,
     onNavigateBack: () -> Unit,
-    actions: @Composable () -> Unit = {}
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
         title = {
@@ -80,7 +80,6 @@ fun LiveSaleTopBar(
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.headlineMedium,
                 color = AlleyWhite
-
             )
         },
         navigationIcon = {
@@ -92,7 +91,7 @@ fun LiveSaleTopBar(
                 )
             }
         },
-        actions = { actions() },
+        actions = actions,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = AlleyMainOrange
         ),

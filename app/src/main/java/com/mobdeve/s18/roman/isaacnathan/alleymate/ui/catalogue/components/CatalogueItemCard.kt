@@ -23,6 +23,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
@@ -38,7 +39,6 @@ fun CatalogueItemCard(
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
-
     AppCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -48,7 +48,6 @@ fun CatalogueItemCard(
             ),
         content = {
             Column {
-
                 // --- Image Placeholder with Action Button ---
                 Box(
                     modifier = Modifier
@@ -57,7 +56,6 @@ fun CatalogueItemCard(
                         .background(Color(0xFFECE6F0)),
                     contentAlignment = Alignment.Center,
                 ) {
-
                     if (item.imageUri.isNullOrBlank()) {
                         Icon(
                             imageVector = Icons.Outlined.Image,
@@ -73,7 +71,6 @@ fun CatalogueItemCard(
                             contentScale = ContentScale.Crop
                         )
                     }
-
                     if (isSelected) {
                         Box(
                             modifier = Modifier
@@ -87,12 +84,10 @@ fun CatalogueItemCard(
                             modifier = Modifier.align(Alignment.Center).size(48.dp)
                         )
                     }
-
                     // --- Dropdown Menu for all actions ---
                     if (!isSelected) {
                         Box(modifier = Modifier.align(Alignment.TopEnd)) {
                             var menuExpanded by remember { mutableStateOf(false) }
-
                             IconButton(onClick = { menuExpanded = true }) {
                                 Icon(
                                     Icons.Default.MoreVert,
@@ -100,28 +95,30 @@ fun CatalogueItemCard(
                                     tint = Color.Gray
                                 )
                             }
-
-
-
                             DropdownMenu(
                                 expanded = menuExpanded,
-                                onDismissRequest = { menuExpanded = false }
+                                onDismissRequest = { menuExpanded = false },
+                                modifier = Modifier
+                                    .width(120.dp)
+                                    .background(MaterialTheme.colorScheme.surface),
+                                properties = PopupProperties(focusable = true)
                             ) {
                                 DropdownMenuItem(
                                     text = { Text("Edit") },
                                     onClick = {
                                         onEditClick()
                                         menuExpanded = false
-                                    }
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                                 )
                                 DropdownMenuItem(
                                     text = { Text("Restock") },
                                     onClick = {
                                         onRestockClick()
                                         menuExpanded = false
-                                    }
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                                 )
-
                                 HorizontalDivider()
                                 DropdownMenuItem(
                                     text = {
@@ -130,16 +127,15 @@ fun CatalogueItemCard(
                                     onClick = {
                                         onDeleteClick()
                                         menuExpanded = false
-                                    }
+                                    },
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                                 )
                             }
                         }
                     }
                 }
-
                 // --- Item Details Section ---
                 Column(modifier = Modifier.padding(12.dp)) {
-
                     // Item Name
                     Text(
                         text = item.name,
@@ -147,9 +143,7 @@ fun CatalogueItemCard(
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
-
                     Spacer(modifier = Modifier.height(4.dp))
-
                     // Category Tag
                     Surface(
                         shape = MaterialTheme.shapes.small,
@@ -164,9 +158,7 @@ fun CatalogueItemCard(
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                     }
-
                     Spacer(modifier = Modifier.height(24.dp))
-
                     // --- Bottom Info Row: Price & Stock ---
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -180,7 +172,6 @@ fun CatalogueItemCard(
                             fontWeight = FontWeight.Bold,
                             color = Color.Gray
                         )
-
                         // Stock Count
                         Text(
                             text = buildAnnotatedString {

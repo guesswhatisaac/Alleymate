@@ -90,8 +90,8 @@ fun EventsScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 SectionHeader(
                     title = "Currently Live",
-                    showDivider = false,
-                    isSubtle = false
+                    showDivider = true,
+                    isSubtle = true
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 

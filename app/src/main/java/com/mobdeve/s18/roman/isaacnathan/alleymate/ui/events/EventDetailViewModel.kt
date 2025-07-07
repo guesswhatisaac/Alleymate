@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventExpense
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.EventRepository
 import kotlinx.coroutines.flow.*
@@ -85,7 +86,20 @@ class EventDetailViewModel(
         }
     }
 
+    fun startLiveSale(onSuccess: () -> Unit) = viewModelScope.launch {
+        event.value?.let { currentEvent ->
+            val updatedEvent = currentEvent.copy(status = EventStatus.LIVE)
+            eventRepository.updateEvent(updatedEvent)
+            onSuccess()
+        }
+    }
 
+    fun endLiveSale() = viewModelScope.launch {
+        event.value?.let { currentEvent ->
+            val updatedEvent = currentEvent.copy(status = EventStatus.ENDED)
+            eventRepository.updateEvent(updatedEvent)
+        }
+    }
 
 
 }

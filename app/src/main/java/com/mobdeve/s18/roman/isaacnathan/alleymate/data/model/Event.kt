@@ -20,7 +20,8 @@ data class Event(
     val title: String,
     val location: String,
     val startDate: Long,
-    val endDate: Long
+    val endDate: Long,
+    val status: EventStatus = EventStatus.UPCOMING
 ) {
 
     @Ignore
@@ -44,17 +45,6 @@ data class Event(
     @get:Ignore
     val profitInCents: Long
         get() = totalRevenueInCents - totalExpensesInCents
-
-    @get:Ignore
-    val status: EventStatus
-        get() {
-            val now = System.currentTimeMillis()
-            return when {
-                now in startDate..endDate -> EventStatus.LIVE
-                now > endDate -> EventStatus.ENDED
-                else -> EventStatus.UPCOMING
-            }
-        }
 
     @get:Ignore
     val dateRangeString: String

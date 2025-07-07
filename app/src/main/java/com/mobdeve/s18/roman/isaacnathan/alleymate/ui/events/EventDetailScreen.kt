@@ -1,6 +1,7 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppTopBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppFloatingActionButton
@@ -26,6 +28,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.EventReposito
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.EditEventModal
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.AddExpenseModal
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.DeleteEventModal
 
 private enum class DetailTab(val title: String) {
     OVERVIEW("Overview"),
@@ -82,32 +85,17 @@ fun EventDetailScreen(
             )
         }
         is EventDetailModalState.DeleteConfirmation -> {
-            AlertDialog(
-                onDismissRequest = { modalState = EventDetailModalState.None },
-                title = { Text("Delete Event") },
-                text = { Text("Are you sure you want to delete this event? This action cannot be undone.") },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.deleteEvent()
-                            modalState = EventDetailModalState.None
-                            onNavigateBack()
-                        },
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        )
-                    ) {
-                        Text("Delete")
+            event?.let {
+                DeleteEventModal(
+                    event = it,
+                    onDismissRequest = { modalState = EventDetailModalState.None },
+                    onConfirmDelete = {
+                        viewModel.deleteEvent()
+                        modalState = EventDetailModalState.None
+                        onNavigateBack()
                     }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { modalState = EventDetailModalState.None }
-                    ) {
-                        Text("Cancel")
-                    }
-                }
-            )
+                )
+            }
         }
         is EventDetailModalState.AddExpense -> {
             AddExpenseModal(
@@ -140,21 +128,30 @@ fun EventDetailScreen(
                         }
                         DropdownMenu(
                             expanded = menuExpanded,
-                            onDismissRequest = { menuExpanded = false }
+                            onDismissRequest = { menuExpanded = false },
+                            modifier = Modifier
+                                .width(120.dp)
+                                .background(MaterialTheme.colorScheme.surface),
+                            properties = PopupProperties(focusable = true)
                         ) {
                             DropdownMenuItem(
                                 text = { Text("Edit") },
+                                enabled = event?.status != EventStatus.ENDED,
                                 onClick = {
                                     event?.let { modalState = EventDetailModalState.EditEvent(it) }
                                     menuExpanded = false
-                                }
+                                },
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                             )
                             DropdownMenuItem(
-                                text = { Text("Delete") },
+                                text = {
+                                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                                },
                                 onClick = {
                                     modalState = EventDetailModalState.DeleteConfirmation
                                     menuExpanded = false
-                                }
+                                },
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                             )
                         }
                     }
@@ -217,12 +214,14 @@ fun EventDetailScreen(
                                 EventOverviewSection(
                                     event = currentEvent,
                                     onStartLiveSale = {
-                                        // TODO: Handle start live sale
-                                        println("Starting live sale for event: ${currentEvent.title}")
+                                        viewModel.startLiveSale(onSuccess = {
+                                            // TODO: Navigate to the actual LiveSaleScreen, passing the eventId
+                                            println("NAVIGATE TO LIVE SALE FOR EVENT ID: ${currentEvent.eventId}")
+                                        })
                                     },
                                     onEndEvent = {
                                         // TODO: Handle end event
-                                        println("Ending event: ${currentEvent.title}")
+                                        viewModel.endLiveSale()
                                     }
                                 )
                             }
