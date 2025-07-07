@@ -21,7 +21,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
         eventRepository = EventRepository(database.eventDao(), database.catalogueDao())
 
         // The property is now just a direct reference to the repository's Flow.
-        allEventsFlow = eventRepository.getEventSummaries()
+        allEventsFlow = eventRepository.getHydratedEvents()
     }
 
     fun addEvent(title: String, location: String, startDate: Long, endDate: Long) = viewModelScope.launch {

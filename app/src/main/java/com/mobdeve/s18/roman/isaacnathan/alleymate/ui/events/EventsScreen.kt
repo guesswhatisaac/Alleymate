@@ -33,16 +33,20 @@ private enum class EventTab(val title: String) {
 @Composable
 fun EventsScreen(
     onNavigateToEventDetail: (Int) -> Unit,
-    viewModel: EventViewModel = viewModel()
+    viewModel: EventViewModel
 ) {
     var modalState by remember { mutableStateOf<EventModalState>(EventModalState.None) }
     var selectedTab by remember { mutableStateOf(EventTab.UPCOMING) }
+
     val events by viewModel.allEventsFlow.collectAsState(initial = emptyList())
 
-    // Filter events by status
-    val liveEvents = events.filter { it.status == EventStatus.LIVE }
-    val upcomingEvents = events.filter { it.status == EventStatus.UPCOMING }
-    val pastEvents = events.filter { it.status == EventStatus.ENDED }
+    // Filter events by status - use remember to optimize recomposition
+    val (liveEvents, upcomingEvents, pastEvents) = remember(events) {
+        val live = events.filter { it.status == EventStatus.LIVE }
+        val upcoming = events.filter { it.status == EventStatus.UPCOMING }
+        val past = events.filter { it.status == EventStatus.ENDED }
+        Triple(live, upcoming, past)
+    }
 
     // Modal handling
     when (val state = modalState) {
@@ -61,7 +65,7 @@ fun EventsScreen(
                 event = state.event,
                 onDismissRequest = { modalState = EventModalState.None },
                 onConfirmEdit = { updatedEvent ->
-                    println("Saving changes for event: $updatedEvent")
+                    viewModel.updateEvent(updatedEvent)
                     modalState = EventModalState.None
                 }
             )
@@ -83,7 +87,7 @@ fun EventsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Live Event Section (always show)
+            // Live Event Section
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {

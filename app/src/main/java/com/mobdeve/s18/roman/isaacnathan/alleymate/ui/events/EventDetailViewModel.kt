@@ -55,7 +55,6 @@ class EventDetailViewModel(
         )
 
     fun addExpense(description: String, amount: Double) = viewModelScope.launch {
-        // Basic validation to ensure data is sensible
         if (description.isNotBlank() && amount > 0) {
             val newExpense = EventExpense(
                 eventId = eventId,

@@ -27,6 +27,9 @@ interface EventDao {
     @Query("SELECT * FROM event_expenses WHERE eventId = :eventId")
     fun getExpensesForEvent(eventId: Int): Flow<List<EventExpense>>
 
+    @Query("SELECT * FROM event_expenses")
+    fun getAllExpenses(): Flow<List<EventExpense>>
+
     @Query("SELECT SUM(amountInCents) FROM event_expenses WHERE eventId = :eventId")
     fun getTotalExpensesForEvent(eventId: Int): Flow<Long?>
 
@@ -54,5 +57,11 @@ interface EventDao {
 
     @Delete
     suspend fun deleteEvent(event: Event)
+
+    @Transaction
+    @Query("SELECT * FROM event_inventory")
+    fun getAllInventoryWithDetails(): Flow<List<EventInventoryWithDetails>>
+
+
 
 }

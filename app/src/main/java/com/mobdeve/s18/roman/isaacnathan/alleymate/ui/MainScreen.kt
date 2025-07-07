@@ -19,6 +19,8 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventsScreen
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.HomeScreen
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.reports.ReportsScreen
 import androidx.navigation.NavHostController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventViewModel
 
 @Composable
 fun MainScreen(
@@ -29,6 +31,9 @@ fun MainScreen(
     val tabNavController = rememberNavController()
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    val eventViewModel: EventViewModel = viewModel()
+
 
     val navigateToTab = { route: String ->
         // prevent navigating to the same tab if it's already selected
@@ -81,10 +86,13 @@ fun MainScreen(
                 EventsScreen(
                     onNavigateToEventDetail = { eventId ->
                         navController.navigate("${AppDestinations.EVENT_DETAIL_ROUTE}/$eventId")
-                    }
+                    },
+                    viewModel = eventViewModel
                 )
             }
             composable(AppDestinations.REPORTS_ROUTE) { ReportsScreen() }
+
+
         }
     }
 }

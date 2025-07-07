@@ -7,6 +7,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventExpense
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventInventoryItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 class EventRepository(
@@ -85,9 +86,37 @@ class EventRepository(
         eventDao.deleteEvent(event)
     }
 
-    fun getEventSummaries(): Flow<List<Event>> {
-        return eventDao.getEventSummaries().map { summaries ->
-            summaries.map { it.toEvent() }
+    fun getHydratedEvents(): Flow<List<Event>> {
+
+        // 1. Get a flow for each table we depend on.
+        val allEventsFlow = eventDao.getAllEvents() // Flow<List<Event>>
+        val allInventoryFlow = eventDao.getAllInventoryWithDetails() // Flow<List<EventInventoryWithDetails>>
+        val allExpensesFlow = eventDao.getAllExpenses() // Flow<List<EventExpense>>
+        // (You'll need to add getAllExpenses to your DAO: @Query("SELECT * FROM event_expenses"))
+
+        // 2. Combine them. This lambda will re-run if ANY of the three flows emit a new value.
+        return combine(allEventsFlow, allInventoryFlow, allExpensesFlow) { events, allInventory, allExpenses ->
+
+            // 3. Group the inventory and expenses by eventId for efficient lookup.
+            val inventoryByEvent = allInventory.groupBy { it.eventInventoryItem.eventId }
+            val expensesByEvent = allExpenses.groupBy { it.eventId }
+
+            // 4. Map over the base events and apply the calculated stats.
+            events.map { event ->
+                val eventInventory = inventoryByEvent[event.eventId] ?: emptyList()
+                val eventExpenses = expensesByEvent[event.eventId] ?: emptyList()
+
+                event.apply {
+                    catalogueCount = eventInventory.size
+                    totalItemsAllocated = eventInventory.sumOf { it.eventInventoryItem.allocatedQuantity }
+                    totalItemsSold = eventInventory.sumOf { it.eventInventoryItem.soldQuantity }
+                    totalStockLeft = totalItemsAllocated - totalItemsSold
+                    totalExpensesInCents = eventExpenses.sumOf { it.amountInCents }
+                    totalRevenueInCents = eventInventory.sumOf {
+                        it.eventInventoryItem.soldQuantity * (it.catalogueItem.price * 100).toLong()
+                    }
+                }
+            }
         }
     }
 
