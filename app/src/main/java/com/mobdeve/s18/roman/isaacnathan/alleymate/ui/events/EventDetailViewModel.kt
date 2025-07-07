@@ -75,6 +75,19 @@ class EventDetailViewModel(
         }
     }
 
+    fun updateEvent(event: Event) = viewModelScope.launch {
+        eventRepository.updateEvent(event)
+    }
+
+    fun deleteEvent() = viewModelScope.launch {
+        event.value?.let { currentEvent ->
+            eventRepository.deleteEvent(currentEvent)
+        }
+    }
+
+
+
+
 }
 
 

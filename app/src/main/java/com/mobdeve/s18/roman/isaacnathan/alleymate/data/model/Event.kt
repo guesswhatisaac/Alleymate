@@ -35,6 +35,11 @@ data class Event(
     @Ignore
     var totalRevenueInCents: Long = 0
 
+    @Ignore
+    var totalStockLeft: Int = 0
+
+    @Ignore
+    var catalogueCount: Int = 0
 
     @get:Ignore
     val profitInCents: Long

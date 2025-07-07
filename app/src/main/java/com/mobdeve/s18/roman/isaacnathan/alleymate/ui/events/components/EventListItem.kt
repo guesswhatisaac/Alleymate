@@ -86,11 +86,11 @@ fun EventListItem(
                         verticalAlignment = Alignment.Bottom
                     ) {
                         StatColumn(
-                            value = event.totalItemsAllocated.toString(),
-                            label = "Inventory"
+                            value = event.catalogueCount.toString(),
+                            label = "Catalogue"
                         )
                         StatColumn(
-                            value = (event.totalItemsAllocated - event.totalItemsSold).toString(),
+                            value = event.totalStockLeft.toString(),
                             label = "Stock Left"
                         )
                     }

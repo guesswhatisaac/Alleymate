@@ -7,7 +7,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventInventoryItem
 import kotlinx.coroutines.flow.Flow
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import androidx.room.Transaction
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventWithDetails
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.views.EventSummaryView
 
 
 @Dao
@@ -46,13 +46,13 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE eventId = :eventId")
     fun getEventById(eventId: Int): Flow<Event?>
 
-    @Transaction
-    @Query("SELECT * FROM events ORDER BY startDate DESC")
-    fun getAllEventsWithDetails(): Flow<List<EventWithDetails>>
+    @Query("SELECT * FROM EventSummaryView ORDER BY startDate DESC")
+    fun getEventSummaries(): Flow<List<EventSummaryView>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertEventInventory(inventory: List<EventInventoryItem>)
 
-
+    @Delete
+    suspend fun deleteEvent(event: Event)
 
 }

@@ -76,8 +76,7 @@ fun EventDetailScreen(
                 event = state.event,
                 onDismissRequest = { modalState = EventDetailModalState.None },
                 onConfirmEdit = { updatedEvent ->
-                    // TODO: Handle the event edit logic
-                    println("Saving changes for event: $updatedEvent")
+                    viewModel.updateEvent(updatedEvent)
                     modalState = EventDetailModalState.None
                 }
             )
@@ -90,8 +89,7 @@ fun EventDetailScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            // TODO: Handle event deletion
-                            println("Deleting event: ${event?.title}")
+                            viewModel.deleteEvent()
                             modalState = EventDetailModalState.None
                             onNavigateBack()
                         },
@@ -128,7 +126,7 @@ fun EventDetailScreen(
                 title = event?.title ?: "Event Details",
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Navigate back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, tint = Color.White, contentDescription = "Navigate back")
                     }
                 },
                 actions = {

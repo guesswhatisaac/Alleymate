@@ -37,7 +37,7 @@ fun EventsScreen(
 ) {
     var modalState by remember { mutableStateOf<EventModalState>(EventModalState.None) }
     var selectedTab by remember { mutableStateOf(EventTab.UPCOMING) }
-    val events by viewModel.allEvents.collectAsState()
+    val events by viewModel.allEventsFlow.collectAsState(initial = emptyList())
 
     // Filter events by status
     val liveEvents = events.filter { it.status == EventStatus.LIVE }

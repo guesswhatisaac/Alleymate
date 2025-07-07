@@ -7,7 +7,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventExpense
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventInventoryItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import kotlinx.coroutines.flow.Flow
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventWithDetails
+import kotlinx.coroutines.flow.map
 
 class EventRepository(
     private val eventDao: EventDao,
@@ -40,10 +40,6 @@ class EventRepository(
 
     suspend fun insertExpense(expense: EventExpense) {
         eventDao.insertExpense(expense)
-    }
-
-    fun getAllEventsWithDetails(): Flow<List<EventWithDetails>> {
-        return eventDao.getAllEventsWithDetails()
     }
 
     suspend fun allocateItemsToEvent(inventory: List<EventInventoryItem>) {
@@ -85,5 +81,14 @@ class EventRepository(
         catalogueDao.reduceStock(itemId, quantityToReduce)
     }
 
+    suspend fun deleteEvent(event: Event) {
+        eventDao.deleteEvent(event)
+    }
+
+    fun getEventSummaries(): Flow<List<Event>> {
+        return eventDao.getEventSummaries().map { summaries ->
+            summaries.map { it.toEvent() }
+        }
+    }
 
 }

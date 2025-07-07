@@ -3,6 +3,7 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.data.local
 import android.content.Context
 import androidx.room.*
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.*
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.views.EventSummaryView
 
 // vv  TODO: A CERTAIN FUNCTION MUST BE REMOVED IN PRODUCTION; CREATE MIGRATION SYSTEM
 
@@ -12,9 +13,10 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.*
         ItemCategory::class,
         Event::class,
         EventExpense::class,
-        EventInventoryItem::class
+        EventInventoryItem::class,
     ],
-    version = 8,
+    views = [EventSummaryView::class],
+    version = 10,
     exportSchema = false
 )
 
