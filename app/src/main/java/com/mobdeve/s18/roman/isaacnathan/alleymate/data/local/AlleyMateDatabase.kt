@@ -15,9 +15,11 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.views.EventSummary
         Event::class,
         EventExpense::class,
         EventInventoryItem::class,
+        SaleTransaction::class,
+        SaleTransactionItem::class
     ],
     views = [EventSummaryView::class],
-    version = 12,
+    version = 15,
     exportSchema = false
 )
 
@@ -26,6 +28,7 @@ abstract class AlleyMateDatabase : RoomDatabase() {
     abstract fun catalogueDao(): CatalogueDao
     abstract fun itemCategoryDao(): ItemCategoryDao
     abstract fun eventDao(): EventDao
+    abstract fun transactionDao(): TransactionDao
 
     fun clearAllData() {
         clearAllTables()

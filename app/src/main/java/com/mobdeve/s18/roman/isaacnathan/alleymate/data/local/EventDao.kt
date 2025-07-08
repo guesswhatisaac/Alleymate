@@ -62,6 +62,7 @@ interface EventDao {
     @Query("SELECT * FROM event_inventory")
     fun getAllInventoryWithDetails(): Flow<List<EventInventoryWithDetails>>
 
-
+    @Query("SELECT * FROM events WHERE status = 'LIVE'")
+    fun getLiveEvents(): Flow<List<Event>>
 
 }

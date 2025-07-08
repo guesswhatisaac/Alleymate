@@ -28,9 +28,8 @@ class AllocationViewModel(application: Application) : AndroidViewModel(applicati
 
     init {
         val database = AlleyMateDatabase.getDatabase(application)
-        val catalogueDao = database.catalogueDao()
-        catalogueRepository = CatalogueRepository(catalogueDao, database)
-        eventRepository = EventRepository(database.eventDao(), catalogueDao)
+        catalogueRepository = CatalogueRepository(database.catalogueDao(), database)
+        eventRepository = EventRepository(database.eventDao(), database.catalogueDao(), database.transactionDao())
 
         itemsToAllocate = AllocationStateHolder.itemIdsToAllocate
             .flatMapLatest { ids ->

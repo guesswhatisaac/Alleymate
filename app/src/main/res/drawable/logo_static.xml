@@ -1,0 +1,12 @@
+<!-- res/drawable/logo_static.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="288dp"
+    android:height="288dp"
+    android:viewportWidth="288"
+    android:viewportHeight="288">
+
+    <path
+        android:fillColor="#8A2BE2"
+        android:pathData="M84,215 L84,195 C84,120 204,120 204,195 L204,215 Z M70,215 L218,215 L218,230 L70,230 Z M84,230 L104,230 L104,250 L84,250 Z M184,230 L204,230 L204,250 L184,250 Z" />
+
+</vector>

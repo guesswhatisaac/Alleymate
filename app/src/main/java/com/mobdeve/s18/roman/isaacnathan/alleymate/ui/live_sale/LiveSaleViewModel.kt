@@ -6,77 +6,60 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.AlleyMateDatabase
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.*
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.*
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.TransactionWithItems
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.EventRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 
 class LiveSaleViewModel(
     private val eventRepository: EventRepository,
-    val eventId: Int
+    private val eventId: Int
 ) : ViewModel() {
 
-    // --- State for UI ---
     val event: StateFlow<Event?> = eventRepository.getEventById(eventId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val inventory: StateFlow<List<EventInventoryWithDetails>> = eventRepository.getInventoryForEvent(eventId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // In-memory list of transactions for this session
-    private val _transactions = MutableStateFlow<List<Transaction>>(emptyList())
-    val transactions: StateFlow<List<Transaction>> = _transactions.asStateFlow()
+    val expenses: StateFlow<List<EventExpense>> = eventRepository.getExpensesForEvent(eventId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    // Key: itemId, Value: quantity
+    val transactions: StateFlow<List<TransactionWithItems>> = eventRepository.getTransactionsForEvent(eventId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     private val _currentCart = MutableStateFlow<Map<Int, Int>>(emptyMap())
     val currentCart: StateFlow<Map<Int, Int>> = _currentCart.asStateFlow()
 
+
     // --- User Actions ---
-    fun addItemToCart(itemId: Int, quantity: Int) {
+    fun addItemToCart(itemId: Int) {
         val newCart = _currentCart.value.toMutableMap()
-        if (quantity > 0) {
-            newCart[itemId] = quantity
-        } else {
-            newCart.remove(itemId)
-        }
+        // Increment quantity by 1
+        newCart[itemId] = (newCart[itemId] ?: 0) + 1
         _currentCart.value = newCart
     }
 
+
+    fun clearCart() {
+        _currentCart.value = emptyMap()
+    }
+
+
     fun recordSale() {
         viewModelScope.launch {
-            val cart = _currentCart.value
-            if (cart.isEmpty()) return@launch
+            val cartQuantities = _currentCart.value
+            if (cartQuantities.isEmpty()) return@launch
 
-            // TODO: This is where you would call the repository to persist the sale
-            // For now, we will just create a transaction object for the UI
+            val cartItemsWithDetails = inventory.value
+                .filter { it.catalogueItem.itemId in cartQuantities.keys }
+                .associateBy { it.catalogueItem.itemId }
+                .mapValues { it.value.catalogueItem }
 
-            val timeFormatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
-            val timestamp = timeFormatter.format(Date())
+            eventRepository.recordSaleTransaction(eventId, cartItemsWithDetails, cartQuantities)
 
-            val transactionItems = cart.mapNotNull { (itemId, quantity) ->
-                val inventoryDetails = inventory.value.find { it.catalogueItem.itemId == itemId }
-                inventoryDetails?.let {
-                    TransactionItem(
-                        id = it.catalogueItem.itemId,
-                        name = it.catalogueItem.name,
-                        category = it.catalogueItem.category,
-                        price = it.catalogueItem.price.toInt(), // Assuming price is Int for TransactionItem
-                        quantity = quantity
-                    )
-                }
-            }
-
-            val newTransaction = Transaction(
-                id = (_transactions.value.size + 1),
-                time = timestamp,
-                items = transactionItems
-            )
-
-            // Add to our in-memory list and clear the cart
-            _transactions.value = listOf(newTransaction) + _transactions.value
-            _currentCart.value = emptyMap()
+            clearCart()
         }
     }
 }
@@ -89,7 +72,8 @@ class LiveSaleViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LiveSaleViewModel::class.java)) {
             val db = AlleyMateDatabase.getDatabase(application)
-            val repository = EventRepository(db.eventDao(), db.catalogueDao())
+
+            val repository = EventRepository(db.eventDao(), db.catalogueDao(), db.transactionDao())
             @Suppress("UNCHECKED_CAST")
             return LiveSaleViewModel(repository, eventId) as T
         }

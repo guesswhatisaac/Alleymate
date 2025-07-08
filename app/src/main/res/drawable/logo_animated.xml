@@ -1,0 +1,77 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/logo_static">
+
+    <!-- 1. Legs rise very quickly. Duration reduced to 200ms. -->
+    <target android:name="left_leg">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="200"
+                android:propertyName="translateY"
+                android:startOffset="0"
+                android:valueFrom="40"
+                android:valueTo="0"
+                android:interpolator="@android:interpolator/fast_out_slow_in" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="right_leg">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="200"
+                android:propertyName="translateY"
+                android:startOffset="20"
+                android:valueFrom="40"
+                android:valueTo="0"
+                android:interpolator="@android:interpolator/fast_out_slow_in" />
+        </aapt:attr>
+    </target>
+
+    <!-- 2. Base connects almost immediately. Start offset reduced to 50ms. -->
+    <target android:name="base">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="180"
+                android:startOffset="50"
+                android:propertyName="scaleX"
+                android:valueFrom="0"
+                android:valueTo="1"
+                android:interpolator="@android:interpolator/fast_out_slow_in" />
+        </aapt:attr>
+    </target>
+
+    <!-- 3. Arch grows while the base is still forming. -->
+    <target android:name="arch_group">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="250"
+                    android:startOffset="150"
+                    android:propertyName="scaleY"
+                    android:valueFrom="0"
+                    android:valueTo="1"
+                    android:interpolator="@android:interpolator/fast_out_slow_in" />
+                <objectAnimator
+                    android:duration="150"
+                    android:startOffset="150"
+                    android:propertyName="alpha"
+                    android:valueFrom="0"
+                    android:valueTo="1"/>
+            </set>
+        </aapt:attr>
+    </target>
+
+    <!-- 4. Final pop happens as soon as the arch is visible. -->
+    <target android:name="logo_group">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="200"
+                android:startOffset="400"
+                android:interpolator="@android:anim/overshoot_interpolator">
+                <propertyValuesHolder android:propertyName="scaleX" android:valueFrom="0.95" android:valueTo="1.0" />
+                <propertyValuesHolder android:propertyName="scaleY" android:valueFrom="0.95" android:valueTo="1.0" />
+            </objectAnimator>
+        </aapt:attr>
+    </target>
+
+</animated-vector>

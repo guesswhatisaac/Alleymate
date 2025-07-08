@@ -78,6 +78,8 @@ fun LiveEventCard(
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+
+
                     // Live Status Tag - Bottom Left
                     Surface(
                         shape = MaterialTheme.shapes.small,
@@ -119,7 +121,10 @@ private fun StatColumn(
     label: String,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.End
+    ) {
         Text(
             text = value,
             style = MaterialTheme.typography.headlineSmall,

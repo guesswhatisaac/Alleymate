@@ -25,7 +25,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         val database = AlleyMateDatabase.getDatabase(application)
-        eventRepository = EventRepository(database.eventDao(), database.catalogueDao())
+        eventRepository = EventRepository(database.eventDao(), database.catalogueDao(), database.transactionDao())
         val allHydratedEventsFlow = eventRepository.getHydratedEvents()
 
         liveEvent = allHydratedEventsFlow

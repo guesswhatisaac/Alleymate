@@ -18,7 +18,7 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         val database = AlleyMateDatabase.getDatabase(application)
-        eventRepository = EventRepository(database.eventDao(), database.catalogueDao())
+        eventRepository = EventRepository(database.eventDao(), database.catalogueDao(), database.transactionDao())
 
         allEventsFlow = eventRepository.getHydratedEvents()
     }

@@ -65,15 +65,6 @@ class EventDetailViewModel(
         }
     }
 
-    fun allocateMoreItems(itemsToAllocate: Map<Int, Int>) {
-        viewModelScope.launch {
-            eventRepository.stackAllocateItemsToEvent(eventId, itemsToAllocate)
-
-            itemsToAllocate.forEach { (itemId, quantity) ->
-                eventRepository.reduceCatalogueStock(itemId, quantity)
-            }
-        }
-    }
 
     fun updateEvent(event: Event) = viewModelScope.launch {
         eventRepository.updateEvent(event)
@@ -85,18 +76,31 @@ class EventDetailViewModel(
         }
     }
 
-    fun startLiveSale(onSuccess: () -> Unit) = viewModelScope.launch {
-        event.value?.let { currentEvent ->
-            val updatedEvent = currentEvent.copy(status = EventStatus.LIVE)
-            eventRepository.updateEvent(updatedEvent)
-            onSuccess()
-        }
-    }
-
     fun endLiveSale() = viewModelScope.launch {
         event.value?.let { currentEvent ->
             val updatedEvent = currentEvent.copy(status = EventStatus.ENDED)
             eventRepository.updateEvent(updatedEvent)
+        }
+    }
+
+    private val _startSaleError = MutableStateFlow<String?>(null)
+    val startSaleError: StateFlow<String?> = _startSaleError.asStateFlow()
+
+    fun onStartSaleErrorShown() {
+        _startSaleError.value = null
+    }
+
+    fun startLiveSale(onSuccess: () -> Unit) = viewModelScope.launch {
+        val otherLiveEvents = eventRepository.getLiveEvents().first() // Needs a new DAO function
+        if (otherLiveEvents.any { it.eventId != eventId }) {
+            _startSaleError.value = "Another event is already live. Please end it first."
+            return@launch
+        }
+
+        event.value?.let { currentEvent ->
+            val updatedEvent = currentEvent.copy(status = EventStatus.LIVE)
+            eventRepository.updateEvent(updatedEvent)
+            onSuccess()
         }
     }
 

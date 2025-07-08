@@ -69,6 +69,7 @@ fun AppNavigation() {
             if (eventId != null) {
                 EventDetailScreen(
                     eventId = eventId,
+                    navController = navController,
                     onNavigateBack = {
                         if (navController.previousBackStackEntry != null) {
                             navController.popBackStack()

@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppTopBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppFloatingActionButton
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.AlleyMateDatabase
@@ -26,12 +28,12 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.EventRepository
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.AppDestinations
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.EditEventModal
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.AddExpenseModal
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.DeleteEventModal
 
 private enum class DetailTab(val title: String) {
-    OVERVIEW("Overview"),
     INVENTORY("Inventory"),
     EXPENSES("Expenses")
 }
@@ -47,6 +49,7 @@ private sealed interface EventDetailModalState {
 fun EventDetailScreen(
     eventId: Int,
     onNavigateBack: () -> Unit,
+    navController: NavController,
     onNavigateToLiveSale: (Int) -> Unit
 ) {
     // --- Get Dependencies and ViewModel ---
@@ -54,7 +57,8 @@ fun EventDetailScreen(
     val eventRepository = remember {
         EventRepository(
             AlleyMateDatabase.getDatabase(context).eventDao(),
-            catalogueDao = AlleyMateDatabase.getDatabase(context).catalogueDao()
+            catalogueDao = AlleyMateDatabase.getDatabase(context).catalogueDao(),
+            transactionDao = AlleyMateDatabase.getDatabase(context).transactionDao()
         )
     }
     val viewModel: EventDetailViewModel = viewModel(
@@ -66,7 +70,7 @@ fun EventDetailScreen(
     val expenses by viewModel.expenses.collectAsState()
 
     // Tab state
-    var selectedTab by remember { mutableStateOf(DetailTab.OVERVIEW) }
+    var selectedTab by remember { mutableStateOf(DetailTab.INVENTORY) }
 
     // Modal state
     var modalState by remember { mutableStateOf<EventDetailModalState>(EventDetailModalState.None) }
@@ -109,7 +113,21 @@ fun EventDetailScreen(
         }
     }
 
+    val startSaleError by viewModel.startSaleError.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(startSaleError) {
+        startSaleError?.let { error ->
+            snackbarHostState.showSnackbar(
+                message = error,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.onStartSaleErrorShown()
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             AppTopBar(
                 title = event?.title ?: "Event Details",
@@ -119,12 +137,34 @@ fun EventDetailScreen(
                     }
                 },
                 actions = {
+                    // Start Live Sale button (only for upcoming events)
+                    if (event?.status == EventStatus.UPCOMING) {
+                        IconButton(
+                            onClick = {
+                                viewModel.startLiveSale(onSuccess = {
+                                    navController.navigate("${AppDestinations.LIVE_SALE_ROUTE}/${event!!.eventId}") {
+                                        popUpTo("${AppDestinations.EVENT_DETAIL_ROUTE}/${event!!.eventId}") {
+                                            inclusive = true
+                                        }
+                                    }
+                                })
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = "Start Live Sale",
+                                tint = Color.White
+                            )
+                        }
+                    }
+
                     // More options menu
                     Box {
                         IconButton(onClick = { menuExpanded = true }) {
                             Icon(
                                 imageVector = Icons.Default.MoreVert,
-                                contentDescription = "More Options"
+                                contentDescription = "More Options",
+                                tint = Color.White
                             )
                         }
                         DropdownMenu(
@@ -181,56 +221,41 @@ fun EventDetailScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
+                // Event Stats Header (always visible)
+                EventStatsHeader(
+                    event = currentEvent,
+                    expenses = expenses
+                )
+
                 // Tabs Section
-                Column {
-                    TabRow(
-                        selectedTabIndex = selectedTab.ordinal,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        DetailTab.entries.forEach { tab ->
-                            val count = when (tab) {
-                                DetailTab.OVERVIEW -> ""
-                                DetailTab.INVENTORY -> " (${inventory.size})"
-                                DetailTab.EXPENSES -> " (${expenses.size})"
+                TabRow(
+                    selectedTabIndex = selectedTab.ordinal,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    DetailTab.entries.forEach { tab ->
+                        Tab(
+                            selected = selectedTab == tab,
+                            onClick = { selectedTab = tab },
+                            text = {
+                                Text(tab.title)
                             }
-                            Tab(
-                                selected = selectedTab == tab,
-                                onClick = { selectedTab = tab },
-                                text = {
-                                    Text("${tab.title}$count")
-                                }
-                            )
-                        }
+                        )
                     }
+                }
 
-                    // Tab Content
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        when (selectedTab) {
-                            DetailTab.OVERVIEW -> {
-                                EventOverviewSection(
-                                    event = currentEvent,
-                                    onStartLiveSale = {
-                                        viewModel.startLiveSale(onSuccess = {
-                                            onNavigateToLiveSale(currentEvent.eventId)
-                                        })
-                                    },
-                                    onEndEvent = {
-                                        // TODO: Handle end event
-                                        viewModel.endLiveSale()
-                                    }
-                                )
-                            }
-                            DetailTab.INVENTORY -> {
-                                EventInventorySection(inventory = inventory)
-                            }
-                            DetailTab.EXPENSES -> {
-                                EventExpensesSection(expenses = expenses)
-                            }
+                // Tab Content
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    when (selectedTab) {
+                        DetailTab.INVENTORY -> {
+                            EventInventorySection(inventory = inventory)
+                        }
+                        DetailTab.EXPENSES -> {
+                            EventExpensesSection(expenses = expenses)
                         }
                     }
                 }
@@ -239,172 +264,71 @@ fun EventDetailScreen(
     }
 }
 
-// ====================================================================================
-//  PRIVATE HELPER COMPOSABLES
-// ====================================================================================
-
 @Composable
-private fun EventOverviewSection(
+private fun EventStatsHeader(
     event: Event,
-    onStartLiveSale: () -> Unit,
-    onEndEvent: () -> Unit
+    expenses: List<EventExpense>
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent
+        ),
+        border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f)),
+        shape = RoundedCornerShape(12.dp)
     ) {
-        // Event Details Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-            shape = RoundedCornerShape(12.dp)
+        // Stats grid
+        Row(
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                DetailRow(label = "Date", value = event.dateRangeString)
-                DetailRow(label = "Location", value = event.location)
-                DetailRow(label = "Status", value = event.status.name)
-            }
-        }
-
-        // Statistics Grid
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // First Row
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                CompactStatCard(
-                    modifier = Modifier.weight(1f),
-                    value = "${event.totalItemsSold}",
-                    label = "Items Sold"
-                )
-                CompactStatCard(
-                    modifier = Modifier.weight(1f),
-                    value = "₱${"%.2f".format(event.totalRevenueInCents / 100.0)}",
-                    label = "Revenue"
-                )
-            }
-
-            // Second Row
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                CompactStatCard(
-                    modifier = Modifier.weight(1f),
-                    value = "₱${"%.2f".format(event.totalExpensesInCents / 100.0)}",
-                    label = "Expenses"
-                )
-                CompactStatCard(
-                    modifier = Modifier.weight(1f),
-                    value = "₱${"%.2f".format(event.profitInCents / 100.0)}",
-                    label = "Profit"
-                )
-            }
-        }
-
-        // Event Action Button
-        when (event.status) {
-            EventStatus.UPCOMING -> {
-                Button(
-                    onClick = onStartLiveSale,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = AlleyMainOrange
-                    )
-                ) {
-                    Text(
-                        text = "Start Live Sale",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-            EventStatus.LIVE -> {
-                Button(
-                    onClick = onEndEvent,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF44336)
-                    )
-                ) {
-                    Text(
-                        text = "End Event",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-            EventStatus.ENDED -> {
-            }
+            StatCard(
+                modifier = Modifier.weight(1f),
+                value = "${event.totalItemsSold}",
+                label = "Sold"
+            )
+            StatCard(
+                modifier = Modifier.weight(1f),
+                value = "₱${"%.0f".format(event.totalRevenueInCents / 100.0)}",
+                label = "Revenue"
+            )
+            StatCard(
+                modifier = Modifier.weight(1f),
+                value = "₱${"%.0f".format(expenses.sumOf { it.amountInCents } / 100.0)}",
+                label = "Expenses"
+            )
+            StatCard(
+                modifier = Modifier.weight(1f),
+                value = "₱${"%.0f".format(event.profitInCents / 100.0)}",
+                label = "Profit"
+            )
         }
     }
 }
 
 @Composable
-private fun CompactStatCard(
+private fun StatCard(
     modifier: Modifier = Modifier,
     value: String,
     label: String
 ) {
-    Card(
+    Column(
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        shape = RoundedCornerShape(8.dp)
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray
-            )
-        }
-    }
-}
-
-@Composable
-private fun DetailRow(label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray,
-            fontWeight = FontWeight.Medium
-        )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = AlleyMainOrange
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.Gray
         )
     }
 }

@@ -2,17 +2,23 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository
 
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.CatalogueDao
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.EventDao
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.TransactionDao
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventExpense
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventInventoryItem
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.SaleTransaction
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.SaleTransactionItem
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.TransactionWithItems
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 
 class EventRepository(
     private val eventDao: EventDao,
-    private val catalogueDao: CatalogueDao
+    private val catalogueDao: CatalogueDao,
+    private val transactionDao: TransactionDao
+
 ) {
 
     fun getAllEvents(): Flow<List<Event>> {
@@ -41,10 +47,6 @@ class EventRepository(
 
     suspend fun insertExpense(expense: EventExpense) {
         eventDao.insertExpense(expense)
-    }
-
-    suspend fun allocateItemsToEvent(inventory: List<EventInventoryItem>) {
-        eventDao.upsertEventInventory(inventory)
     }
 
     suspend fun stackAllocateItemsToEvent(eventId: Int, itemsToAllocate: Map<Int, Int>) {
@@ -111,6 +113,41 @@ class EventRepository(
                         it.eventInventoryItem.soldQuantity * (it.catalogueItem.price * 100).toLong()
                     }
                 }
+            }
+        }
+    }
+
+    fun getLiveEvents(): Flow<List<Event>> {
+        return eventDao.getLiveEvents()
+    }
+
+
+    fun getTransactionsForEvent(eventId: Int): Flow<List<com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.TransactionWithItems>> {
+        return transactionDao.getTransactionsForEvent(eventId)
+    }
+
+    suspend fun recordSaleTransaction(eventId: Int, cart: Map<Int, CatalogueItem>, quantities: Map<Int, Int>) {
+        val newTransaction = SaleTransaction(eventId = eventId)
+        val transactionId = transactionDao.insertTransaction(newTransaction)
+
+        val transactionItems = quantities.map { (itemId, quantity) ->
+            val itemPrice = cart[itemId]?.price ?: 0.0
+            SaleTransactionItem(
+                transactionId = transactionId.toInt(),
+                itemId = itemId,
+                quantity = quantity,
+                priceInCents = (itemPrice * 100).toLong()
+            )
+        }
+        transactionDao.insertTransactionItems(transactionItems)
+
+        for ((itemId, quantity) in quantities) {
+            val existingInventory = eventDao.getInventoryItem(eventId, itemId)
+            if (existingInventory != null) {
+                val updatedInventory = existingInventory.copy(
+                    soldQuantity = existingInventory.soldQuantity + quantity
+                )
+                eventDao.upsertEventInventory(listOf(updatedInventory))
             }
         }
     }
