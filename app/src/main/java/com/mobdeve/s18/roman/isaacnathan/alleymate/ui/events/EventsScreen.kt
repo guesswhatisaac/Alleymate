@@ -16,7 +16,6 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.AddEvent
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.EventListItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.EditEventModal
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.LiveEventCard
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateMessage
 
 private sealed interface EventModalState {
@@ -33,8 +32,9 @@ private enum class EventTab(val title: String) {
 @Composable
 fun EventsScreen(
     onNavigateToEventDetail: (Int) -> Unit,
-    viewModel: EventViewModel
-) {
+    viewModel: EventViewModel,
+    onNavigateToLiveSale: (eventId: Int) -> Unit
+    ) {
     var modalState by remember { mutableStateOf<EventModalState>(EventModalState.None) }
     var selectedTab by remember { mutableStateOf(EventTab.UPCOMING) }
 
@@ -100,10 +100,11 @@ fun EventsScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 if (liveEvents.isNotEmpty()) {
-                    // Show the first live event prominently
                     LiveEventCard(
                         event = liveEvents.first(),
-                        onEventClick = { onNavigateToEventDetail(liveEvents.first().eventId) },
+                        onEventClick = { eventId ->
+                            onNavigateToLiveSale(eventId)
+                        },
                         //onEditClick = { modalState = EventModalState.EditEvent(liveEvents.first()) }
                     )
                 } else {
@@ -120,7 +121,6 @@ fun EventsScreen(
             }
 
             // Tabs Section
-            Column {
                 TabRow(
                     selectedTabIndex = selectedTab.ordinal,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
@@ -159,7 +159,7 @@ fun EventsScreen(
                         )
                     }
                 }
-            }
+
         }
     }
 }
@@ -178,25 +178,10 @@ private fun EventList(
     ) {
         if (events.isEmpty()) {
             item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(32.dp),
-                        contentAlignment = androidx.compose.ui.Alignment.Center
-                    ) {
-                        Text(
-                            text = if (isPastEvents) "No past events" else "No upcoming events",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                // MODIFICATION: Use EmptyStateMessage
+                val title = if (isPastEvents) "No Past Events" else "No Upcoming Events"
+                val subtitle = if (isPastEvents) "Completed events will appear here." else "Tap the '+' button to create a new event."
+                EmptyStateMessage(title = title, subtitle = subtitle)
             }
         } else {
             items(items = events, key = { it.eventId }) { event ->

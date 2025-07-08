@@ -73,6 +73,16 @@ fun AllocateScreen(
                             isSubtle = true,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
+
+                        Spacer(
+                            Modifier.height(16.dp)
+                        )
+
+                            EmptyStateMessage(
+                                title = "Nothing to Allocate",
+                                subtitle = "Long-press a catalogue item to allocate your first product."
+                            )
+
                     }
                 } else {
                     // Header

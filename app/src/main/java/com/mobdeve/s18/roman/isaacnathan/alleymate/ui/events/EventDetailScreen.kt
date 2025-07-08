@@ -46,7 +46,8 @@ private sealed interface EventDetailModalState {
 @Composable
 fun EventDetailScreen(
     eventId: Int,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToLiveSale: (Int) -> Unit
 ) {
     // --- Get Dependencies and ViewModel ---
     val context = LocalContext.current
@@ -215,8 +216,7 @@ fun EventDetailScreen(
                                     event = currentEvent,
                                     onStartLiveSale = {
                                         viewModel.startLiveSale(onSuccess = {
-                                            // TODO: Navigate to the actual LiveSaleScreen, passing the eventId
-                                            println("NAVIGATE TO LIVE SALE FOR EVENT ID: ${currentEvent.eventId}")
+                                            onNavigateToLiveSale(currentEvent.eventId)
                                         })
                                     },
                                     onEndEvent = {

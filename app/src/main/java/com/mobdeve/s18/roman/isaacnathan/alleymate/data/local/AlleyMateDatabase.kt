@@ -17,7 +17,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.views.EventSummary
         EventInventoryItem::class,
     ],
     views = [EventSummaryView::class],
-    version = 11,
+    version = 12,
     exportSchema = false
 )
 

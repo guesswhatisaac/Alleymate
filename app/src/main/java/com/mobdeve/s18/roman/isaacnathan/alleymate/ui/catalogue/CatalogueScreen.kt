@@ -8,7 +8,6 @@ import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.*
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
@@ -126,9 +125,7 @@ fun CatalogueScreen(
                             icon = Icons.Outlined.Archive,
                             contentDescription = "View Allocations",
                             onClick = {
-                                if (allocationBadgeCount > 0) {
                                     onNavigateToAllocate()
-                                }
                             }
                         )
                     }
@@ -136,11 +133,14 @@ fun CatalogueScreen(
             )
         },
         floatingActionButton = {
-            AppFloatingActionButton(
-                onClick = { modalState = ModalState.AddProduct }
-            )
+            if (!inSelectionMode) {
+                AppFloatingActionButton(
+                    onClick = { modalState = ModalState.AddProduct }
+                )
+            }
         }
     ) { innerPadding ->
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -149,14 +149,17 @@ fun CatalogueScreen(
             contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Header 1: Category Filters
             item {
                 CategoryFilters(
                     categories = itemCategories,
                     selectedCategory = selectedItemCategory,
                     onCategorySelected = viewModel::selectItemCategory,
-                    onAddCategoryClicked = {modalState = ModalState.AddCategory}
+                    onAddCategoryClicked = { modalState = ModalState.AddCategory },
                 )
             }
+
+            // Header 2: Section Header
             item {
                 SectionHeader(
                     title = "${items.size} Total Designs",
@@ -166,66 +169,59 @@ fun CatalogueScreen(
                 )
             }
 
-            val chunkedItems = items.chunked(2)
-            items(chunkedItems) { rowItems ->
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Box(modifier = Modifier.weight(1f)) {
-
-                        val item = rowItems[0]
-                        val isSelected = item.itemId in selectedItemIds
-
-                        CatalogueItemCard(
-                            item = item,
-                            isSelected = isSelected,
-                            onLongClick = {
-                                viewModel.toggleSelection(item.itemId)
-                            },
-                            onClick = {
-                                if (inSelectionMode) {
-                                    viewModel.toggleSelection(item.itemId)
-                                }
-                            },
-                            onRestockClick = { modalState = ModalState.RestockProduct(item) },
-                            onEditClick = { modalState = ModalState.EditProduct(item) },
-                            onDeleteClick = { viewModel.deleteItem(item) }
-                        )
-
-                    }
-                    Box(modifier = Modifier.weight(1f)) {
-                        if (rowItems.size > 1) {
-
-                            val item = rowItems[1]
+            // Conditional Content: Either the empty message OR the grid of items.
+            if (items.isEmpty()) {
+                item {
+                    EmptyStateMessage(
+                        title = "Your Catalogue is Empty",
+                        subtitle = "Tap the '+' button to add your first product."
+                    )
+                }
+            } else {
+                // The grid of items is added directly using items(), not a nested LazyColumn.
+                val chunkedItems = items.chunked(2)
+                items(
+                    items = chunkedItems,
+                    key = { row -> row.joinToString { it.itemId.toString() } }
+                ) { rowItems ->
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // --- Logic for the first card in the row ---
+                        Box(modifier = Modifier.weight(1f)) {
+                            val item = rowItems[0]
                             val isSelected = item.itemId in selectedItemIds
-
-
                             CatalogueItemCard(
                                 item = item,
                                 isSelected = isSelected,
-                                onLongClick = {
-                                    viewModel.toggleSelection(item.itemId)
-                                },
-                                onClick = {
-                                    if (inSelectionMode) {
-                                        viewModel.toggleSelection(item.itemId)
-                                    }
-                                },
+                                onLongClick = { viewModel.toggleSelection(item.itemId) },
+                                onClick = { if (inSelectionMode) viewModel.toggleSelection(item.itemId) },
                                 onRestockClick = { modalState = ModalState.RestockProduct(item) },
                                 onEditClick = { modalState = ModalState.EditProduct(item) },
                                 onDeleteClick = { viewModel.deleteItem(item) }
                             )
+                        }
+
+                        // --- Logic for the second card in the row (if it exists) ---
+                        Box(modifier = Modifier.weight(1f)) {
+                            if (rowItems.size > 1) {
+                                val item = rowItems[1]
+                                val isSelected = item.itemId in selectedItemIds
+                                CatalogueItemCard(
+                                    item = item,
+                                    isSelected = isSelected,
+                                    onLongClick = { viewModel.toggleSelection(item.itemId) },
+                                    onClick = { if (inSelectionMode) viewModel.toggleSelection(item.itemId) },
+                                    onRestockClick = { modalState = ModalState.RestockProduct(item) },
+                                    onEditClick = { modalState = ModalState.EditProduct(item) },
+                                    onDeleteClick = { viewModel.deleteItem(item) }
+                                )
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CatalogueScreenPreview() {
-    CatalogueScreen(onNavigateToAllocate = {})
 }

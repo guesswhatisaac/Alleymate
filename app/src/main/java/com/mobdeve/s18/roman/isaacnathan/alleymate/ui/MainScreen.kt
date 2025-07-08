@@ -25,7 +25,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventViewModel
 @Composable
 fun MainScreen(
     navController: NavHostController,
-    onNavigateToLiveSale: () -> Unit,
+    onNavigateToLiveSale: (eventId: Int) -> Unit,
     onNavigateToAllocate: () -> Unit
 ) {
     val tabNavController = rememberNavController()
@@ -87,6 +87,7 @@ fun MainScreen(
                     onNavigateToEventDetail = { eventId ->
                         navController.navigate("${AppDestinations.EVENT_DETAIL_ROUTE}/$eventId")
                     },
+                    onNavigateToLiveSale = onNavigateToLiveSale,
                     viewModel = eventViewModel
                 )
             }

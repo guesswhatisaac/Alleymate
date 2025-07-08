@@ -88,20 +88,15 @@ class EventRepository(
 
     fun getHydratedEvents(): Flow<List<Event>> {
 
-        // 1. Get a flow for each table we depend on.
-        val allEventsFlow = eventDao.getAllEvents() // Flow<List<Event>>
-        val allInventoryFlow = eventDao.getAllInventoryWithDetails() // Flow<List<EventInventoryWithDetails>>
-        val allExpensesFlow = eventDao.getAllExpenses() // Flow<List<EventExpense>>
-        // (You'll need to add getAllExpenses to your DAO: @Query("SELECT * FROM event_expenses"))
+        val allEventsFlow = eventDao.getAllEvents()
+        val allInventoryFlow = eventDao.getAllInventoryWithDetails()
+        val allExpensesFlow = eventDao.getAllExpenses()
 
-        // 2. Combine them. This lambda will re-run if ANY of the three flows emit a new value.
         return combine(allEventsFlow, allInventoryFlow, allExpensesFlow) { events, allInventory, allExpenses ->
 
-            // 3. Group the inventory and expenses by eventId for efficient lookup.
             val inventoryByEvent = allInventory.groupBy { it.eventInventoryItem.eventId }
             val expensesByEvent = allExpenses.groupBy { it.eventId }
 
-            // 4. Map over the base events and apply the calculated stats.
             events.map { event ->
                 val eventInventory = inventoryByEvent[event.eventId] ?: emptyList()
                 val eventExpenses = expensesByEvent[event.eventId] ?: emptyList()

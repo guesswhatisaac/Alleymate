@@ -20,7 +20,6 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
         val database = AlleyMateDatabase.getDatabase(application)
         eventRepository = EventRepository(database.eventDao(), database.catalogueDao())
 
-        // The property is now just a direct reference to the repository's Flow.
         allEventsFlow = eventRepository.getHydratedEvents()
     }
 

@@ -18,13 +18,13 @@ private val AlleyMainOrange = Color(0xFFEE7036)
 @Composable
 fun LiveEventCard(
     event: Event,
-    onEventClick: () -> Unit,
+    onEventClick: (eventId: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onEventClick() },
+            .clickable { onEventClick(event.eventId) },
         shape = MaterialTheme.shapes.medium,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),

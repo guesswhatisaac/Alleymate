@@ -1,139 +1,131 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.live_sale
 
+import android.app.Application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
+
 import androidx.compose.ui.unit.dp
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.InfoBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.LiveSaleTopBar
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Transaction
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.TransactionItem
-import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
-import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.live_sale.components.TransactionListItem
 
+import androidx.compose.runtime.*
+
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+
+private enum class LiveSaleTab(val title: String) {
+    OVERVIEW("Overview"),
+    INVENTORY("Inventory"),
+    TRANSACTIONS("Transactions")
+}
+
 @Composable
-fun LiveSaleScreen(onNavigateBack: () -> Unit) {
+fun LiveSaleScreen(
+    eventId: Int,
+    onNavigateBack: () -> Unit
+) {
+
+    val context = LocalContext.current
+    val viewModel: LiveSaleViewModel = viewModel(
+        factory = LiveSaleViewModelFactory(context.applicationContext as Application, eventId)
+    )
+
+    val event by viewModel.event.collectAsState()
+    val inventory by viewModel.inventory.collectAsState()
+    val transactions by viewModel.transactions.collectAsState()
+
+    var selectedTab by remember { mutableStateOf(LiveSaleTab.TRANSACTIONS) }
+
+
+
     Scaffold(
         topBar = {
             LiveSaleTopBar(
-                title = "Live Sale",
+                title = event?.title ?: "Live Sale",
                 onNavigateBack = onNavigateBack
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { /* TODO: Open Add Transaction Modal */ }) {
+                Icon(Icons.Default.Add, contentDescription = "Add Transaction")
+            }
         }
     ) { innerPadding ->
-        val transactions = listOf(
-            Transaction(1, "10:00AM", listOf(TransactionItem(1, "MHYLOW star sticker", "Sticker", 100, 3), TransactionItem(2, "MHYLOW star sticker", "Sticker", 30, 1))),
-            Transaction(2, "10:05AM", listOf(TransactionItem(3, "Art Print A", "Print", 250, 1))),
-            Transaction(3, "10:12AM", listOf(TransactionItem(1, "MHYLOW star sticker", "Sticker", 100, 1)))
-        )
 
-        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 100.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-
-                item {
-                    InfoBar(
-                        title = "KOMIKET '25",
-                        subtitle = "October 25 - October 27"
+        Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            // TabRow for switching views
+            TabRow(selectedTabIndex = selectedTab.ordinal) {
+                LiveSaleTab.entries.forEach { tab ->
+                    Tab(
+                        selected = selectedTab == tab,
+                        onClick = { selectedTab = tab },
+                        text = { Text(tab.title) }
                     )
                 }
+            }
 
-                // Stats Chips
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        StatChip(label = "Gross Revenue", value = "₱4500", modifier = Modifier.weight(1f))
-                        StatChip(label = "Gross Revenue", value = "₱4500", modifier = Modifier.weight(1f))
+            // Content for the selected tab
+            when (selectedTab) {
+                LiveSaleTab.OVERVIEW -> {
+                    // TODO: Reuse your EventOverviewSection from EventDetailScreen
+                    // Pass it the 'event' state
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Overview Content Here")
                     }
                 }
 
-                // Transactions Header
-                item {
-                    SectionHeader(
-                        title = "Transactions",
-                        showDivider = true,
-                        isSubtle = false,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
+                LiveSaleTab.INVENTORY -> {
+                    // TODO: Reuse your EventInventorySection from EventDetailScreen
+                    // Pass it the 'inventory' state
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Inventory Content Here")
+                    }
                 }
 
-                // Transaction List
-                items(transactions) { transaction ->
-                    TransactionListItem(
-                        transaction = transaction,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
+                LiveSaleTab.TRANSACTIONS -> {
+                    TransactionsContent(transactions = transactions)
                 }
-            }
-
-            // Floating "Add" Button
-            Button(
-                onClick = { /* TODO: Open add transaction modal */ },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-                    .fillMaxWidth(0.6f) // Take 60% of the width
-                    .height(64.dp),
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.buttonColors(containerColor = AlleyMainOrange)
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Transaction", modifier = Modifier.size(32.dp))
             }
         }
     }
+
 }
 
 
-// --- 2. POLISHED the StatChip ---
 @Composable
-private fun StatChip(label: String, value: String, modifier: Modifier = Modifier) {
-    OutlinedCard(modifier = modifier) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.Start,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+private fun TransactionsContent(transactions: List<Transaction>) {
+    if (transactions.isEmpty()) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("No transactions recorded yet.")
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(label, style = MaterialTheme.typography.labelSmall)
-            Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            items(items = transactions, key = { it.id }) { transaction ->
+                TransactionListItem(transaction = transaction)
+            }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun LiveSaleScreenPreview() {
-    AlleyMateTheme {
-        LiveSaleScreen(onNavigateBack = {})
     }
 }

@@ -40,7 +40,8 @@ fun DeleteEventModal(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant
                 ),
-                shape = MaterialTheme.shapes.medium
+                shape = MaterialTheme.shapes.medium,
+                border = CardDefaults.outlinedCardBorder()
             ) {
                 Column(
                     modifier = Modifier
@@ -52,13 +53,13 @@ fun DeleteEventModal(
                     Text(
                         text = event.title,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray,
+                        color = Color.Black,
                         textAlign = TextAlign.Center
                     )
                     Text(
                         text = event.dateRangeString,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray,
+                        color = Color.Black,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -68,7 +69,7 @@ fun DeleteEventModal(
             Text(
                 text = "This action cannot be undone.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray,
+                color = Color(0xFFF44336),
                 textAlign = TextAlign.Center
             )
 

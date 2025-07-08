@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import androidx.compose.foundation.clickable
+import androidx.compose.material3.Card
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun UpcomingEventsSection(
@@ -24,6 +26,11 @@ fun UpcomingEventsSection(
     events: List<Event>,
     onViewAllClick: () -> Unit
 ) {
+    if (events.isEmpty()) {
+        // TODO: Add empty state
+        return
+    }
+
     val pagerState = rememberPagerState(pageCount = { events.size })
 
     // ─── Colors ───────────────────────────────────────────────
@@ -90,6 +97,28 @@ fun UpcomingEventsSection(
                         .size(10.dp)
                 )
             }
+        }
+    }
+}
+
+
+@Composable
+private fun EventCard(event: Event, modifier: Modifier = Modifier) {
+    Card(modifier = modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = event.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = event.dateRangeString,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
         }
     }
 }

@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.HomeTopBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.CurrentLiveSaleCard
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.OverviewGrid
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.UpcomingEventsSection
@@ -19,13 +18,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.*
 
 @Composable
 fun HomeScreen(
     onNavigateToEvents: () -> Unit,
-    onNavigateToLiveSale: () -> Unit,
+    onNavigateToLiveSale: (eventId: Int) -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
+
+    val upcomingEvents by viewModel.upcomingEvents.collectAsState()
+    val liveEvent by viewModel.liveEvent.collectAsState()
+
     Scaffold(
         topBar = {
             HomeTopBar(title = "Alleymate")
@@ -41,7 +45,7 @@ fun HomeScreen(
             // ─── UPCOMING EVENTS SECTION ───────────────────────
             item {
                 UpcomingEventsSection(
-                    events = getSampleEvents(),
+                    events = upcomingEvents,
                     onViewAllClick = onNavigateToEvents
                 )
             }
@@ -55,7 +59,15 @@ fun HomeScreen(
                         isSubtle = true
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    CurrentLiveSaleCard(onContinueClick = onNavigateToLiveSale)
+                    if (liveEvent != null) {
+                        CurrentLiveSaleCard(
+                            onContinueClick = {
+                                onNavigateToLiveSale(liveEvent!!.eventId)
+                            }
+                        )
+                    } else {
+                        Text("No live sale currently active.", modifier = Modifier.padding(16.dp))
+                    }
                 }
             }
 
@@ -112,47 +124,3 @@ fun HomeScreen(
         }
     }
 }
-
-// ─────────────────────────────────────────────────────────────
-// Sample event data for preview/testing
-// ─────────────────────────────────────────────────────────────
-private fun getSampleEvents(): List<Event> {
-    return listOf(
-        Event(
-            eventId = 1,
-            title = "KOMIKET ‘25",
-            location = "SMX Convention Center",
-            startDate = 1750876800000, // Oct 25, 2025
-            endDate = 1751049600000    // Oct 27, 2025
-        ),
-        Event(
-            eventId = 2,
-            title = "Sticker Con '25",
-            location = "White Space Manila",
-            startDate = 1752604800000, // Nov 16, 2025
-            endDate = 1752604800000    // Nov 16, 2025 (same day)
-        ),
-        Event(
-            eventId = 3,
-            title = "UP Fair ‘25: Cosmos",
-            location = "UP Diliman Sunken Garden",
-            startDate = 1749936000000, // Oct 20, 2025
-            endDate = 1749946800000    // Oct 20, 2025
-        ),
-        Event(
-            eventId = 4,
-            title = "Indie Arts Fest",
-            location = "Circuit Makati",
-            startDate = 1751654400000, // Nov 3, 2025
-            endDate = 1751740800000    // Nov 4, 2025
-        ),
-        Event(
-            eventId = 5,
-            title = "AlleyMate Launch Party",
-            location = "DLSU Henry Sy Grounds",
-            startDate = 1749244800000, // Oct 13, 2025
-            endDate = 1749252000000    // Oct 13, 2025
-        )
-    )
-}
-
