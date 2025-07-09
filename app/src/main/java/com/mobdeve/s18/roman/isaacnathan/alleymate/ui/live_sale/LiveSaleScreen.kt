@@ -24,8 +24,6 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.TransactionWithItems
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.live_sale.components.TransactionListItem
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.live_sale.components.*
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.*
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
 
 private enum class LiveSaleTab(val title: String) {
@@ -248,7 +246,9 @@ private fun TransactionsContent(
         EmptyStateMessage(
             title = "No Transactions Yet",
             subtitle = "Tap the '+' button to record your first sale.",
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            titleColor = Color.Black,
+            subtitleColor = Color.Gray
         )
     } else {
         LazyColumn(

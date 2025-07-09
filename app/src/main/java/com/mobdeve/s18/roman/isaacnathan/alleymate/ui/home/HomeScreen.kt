@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.HomeTopBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.CurrentLiveSaleCard
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.OverviewGrid
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.UpcomingEventsSection
 import androidx.compose.material3.Button
@@ -19,6 +18,8 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.*
+import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateMessage
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.LiveEventCard
 
 @Composable
 fun HomeScreen(
@@ -45,7 +46,7 @@ fun HomeScreen(
             // ─── UPCOMING EVENTS SECTION ───────────────────────
             item {
                 UpcomingEventsSection(
-                    events = upcomingEvents,
+                    events = upcomingEvents, // Pass the dynamic list
                     onViewAllClick = onNavigateToEvents
                 )
             }
@@ -59,14 +60,22 @@ fun HomeScreen(
                         isSubtle = true
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    if (liveEvent != null) {
-                        CurrentLiveSaleCard(
-                            onContinueClick = {
-                                onNavigateToLiveSale(liveEvent!!.eventId)
+
+                    val currentLiveEvent = liveEvent
+                    if (currentLiveEvent != null) {
+                        LiveEventCard(
+                            event = currentLiveEvent,
+                            onEventClick = { eventId ->
+                                onNavigateToLiveSale(eventId)
                             }
                         )
                     } else {
-                        Text("No live sale currently active.", modifier = Modifier.padding(16.dp))
+                        EmptyStateMessage(
+                            title = "No Live Sale",
+                            subtitle = "Start an event from the Events tab to see it here.",
+                            titleColor = Color.Black,
+                            subtitleColor = Color.Gray
+                        )
                     }
                 }
             }
@@ -81,44 +90,6 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OverviewGrid()
-                }
-            }
-
-            // --- DEBUG SECTION ---
-            item {
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 16.dp) // Add some space above the button
-                ) {
-                    Button(
-                        onClick = {
-                            // Call the ViewModel function
-                            viewModel.deleteAllCatalogueItems()
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error,
-                            contentColor = MaterialTheme.colorScheme.onError
-                        )
-                    ) {
-                        Text(text = "DEBUG: DELETE ALL CATALOGUE ITEMS")
-                    }
-                    Button(
-                        onClick = {
-                            viewModel.restartDatabase()
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Black,
-                            contentColor = MaterialTheme.colorScheme.error
-                        ),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.error)
-                    ) {
-                        Text(text = "!! DEBUG: RESTART ENTIRE DATABASE !!")
-                    }
                 }
             }
         }

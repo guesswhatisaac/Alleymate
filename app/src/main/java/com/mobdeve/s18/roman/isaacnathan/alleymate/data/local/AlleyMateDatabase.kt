@@ -19,7 +19,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.views.EventSummary
         SaleTransactionItem::class
     ],
     views = [EventSummaryView::class],
-    version = 15,
+    version = 16,
     exportSchema = false
 )
 

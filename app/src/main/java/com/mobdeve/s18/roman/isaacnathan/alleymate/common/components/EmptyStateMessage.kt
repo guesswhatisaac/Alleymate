@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -21,7 +20,9 @@ import androidx.compose.ui.unit.sp
 fun EmptyStateMessage(
     title: String,
     subtitle: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    titleColor: Color,
+    subtitleColor: Color
 ) {
     Box(
         modifier = modifier.fillMaxSize().padding(16.dp),
@@ -34,6 +35,7 @@ fun EmptyStateMessage(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
+                color = titleColor,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -41,7 +43,7 @@ fun EmptyStateMessage(
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray,
+                color = subtitleColor,
                 //fontStyle = FontStyle.Italic,
                 textAlign = TextAlign.Center
             )

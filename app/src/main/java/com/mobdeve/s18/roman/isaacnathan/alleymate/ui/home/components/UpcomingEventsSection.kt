@@ -19,6 +19,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Card
 import androidx.compose.ui.text.font.FontWeight
+import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateMessage
 
 @Composable
 fun UpcomingEventsSection(
@@ -26,12 +27,7 @@ fun UpcomingEventsSection(
     events: List<Event>,
     onViewAllClick: () -> Unit
 ) {
-    if (events.isEmpty()) {
-        // TODO: Add empty state
-        return
-    }
 
-    val pagerState = rememberPagerState(pageCount = { events.size })
 
     // ─── Colors ───────────────────────────────────────────────
     val purpleBackgroundColor = Color(0xFF9A31BB)
@@ -69,33 +65,43 @@ fun UpcomingEventsSection(
         }
 
         Spacer(modifier = Modifier.height(20.dp))
+        if (events.isEmpty()) {
+            EmptyStateMessage(
+                title = "No Upcoming Events",
+                subtitle = "Tap '+' button in the Events tab to create one.",
+                titleColor = Color.White,
+                subtitleColor = Color.White.copy(alpha = 0.8f),
+                modifier = Modifier.padding(horizontal = 24.dp)
+            )
+        } else {
+            val pagerState = rememberPagerState(pageCount = { events.size })
 
-        // ─── Events Pager ─────────────────────────────────────
-        HorizontalPager(
-            state = pagerState,
-            contentPadding = PaddingValues(horizontal = 40.dp),
-            pageSpacing = 16.dp
-        ) { page ->
-            EventCard(event = events[page])
-        }
+            // Events Pager
+            HorizontalPager(
+                state = pagerState,
+                contentPadding = PaddingValues(horizontal = 40.dp),
+                pageSpacing = 16.dp
+            ) { page ->
+                EventCard(event = events[page])
+            }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-        // ─── Page Indicators ──────────────────────────────────
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            repeat(pagerState.pageCount) { index ->
-                val color = if (pagerState.currentPage == index) indicatorActiveColor else indicatorInactiveColor
-
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 4.dp)
-                        .clip(MaterialTheme.shapes.extraLarge)
-                        .background(color)
-                        .size(10.dp)
-                )
+            // Page Indicators
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(pagerState.pageCount) { index ->
+                    val color = if (pagerState.currentPage == index) indicatorActiveColor else indicatorInactiveColor
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .clip(MaterialTheme.shapes.extraLarge)
+                            .background(color)
+                            .size(10.dp)
+                    )
+                }
             }
         }
     }

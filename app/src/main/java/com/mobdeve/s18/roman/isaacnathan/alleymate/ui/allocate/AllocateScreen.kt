@@ -80,7 +80,9 @@ fun AllocateScreen(
 
                             EmptyStateMessage(
                                 title = "Nothing to Allocate",
-                                subtitle = "Long-press a catalogue item to allocate your first product."
+                                subtitle = "Long-press a catalogue item to allocate your first product.",
+                                titleColor = Color.Black,
+                                subtitleColor = Color.Gray
                             )
 
                     }

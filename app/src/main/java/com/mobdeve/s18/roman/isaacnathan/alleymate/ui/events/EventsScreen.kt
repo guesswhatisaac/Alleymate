@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppFloatingActionButton
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppTopBar
@@ -112,7 +113,9 @@ fun EventsScreen(
                     EmptyStateMessage(
                         title = "No Live Events",
                         subtitle = "Start an event to see it here",
-                        modifier = Modifier.height(120.dp)
+                        modifier = Modifier.height(120.dp),
+                        titleColor = Color.Black,
+                        subtitleColor = Color.Gray
                     )
                 }
 
@@ -181,7 +184,12 @@ private fun EventList(
                 // MODIFICATION: Use EmptyStateMessage
                 val title = if (isPastEvents) "No Past Events" else "No Upcoming Events"
                 val subtitle = if (isPastEvents) "Completed events will appear here." else "Tap the '+' button to create a new event."
-                EmptyStateMessage(title = title, subtitle = subtitle)
+                EmptyStateMessage(
+                    title = title,
+                    subtitle = subtitle,
+                    titleColor = Color.Black,
+                    subtitleColor = Color.Gray
+                )
             }
         } else {
             items(items = events, key = { it.eventId }) { event ->

@@ -174,7 +174,9 @@ fun CatalogueScreen(
                 item {
                     EmptyStateMessage(
                         title = "Your Catalogue is Empty",
-                        subtitle = "Tap the '+' button to add your first product."
+                        subtitle = "Tap the '+' button to add your first product.",
+                        titleColor = Color.Black,
+                        subtitleColor = Color.Gray
                     )
                 }
             } else {
