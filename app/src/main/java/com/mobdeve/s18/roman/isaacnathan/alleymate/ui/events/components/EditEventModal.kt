@@ -13,6 +13,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.modal.BaseM
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.modal.FormTextField
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -20,7 +21,7 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditEventModal(
-    event: Event,
+    event: EventUiModel,
     onDismissRequest: () -> Unit,
     onConfirmEdit: (Event) -> Unit
 ) {
@@ -169,11 +170,13 @@ fun EditEventModal(
 
             Button(
                 onClick = {
-                    val updatedEvent = event.copy(
+                    val updatedEvent = Event(
+                        eventId = event.eventId,
                         title = eventName,
                         location = eventLocation,
                         startDate = startDatePickerState.selectedDateMillis ?: event.startDate,
-                        endDate = endDatePickerState.selectedDateMillis ?: event.endDate
+                        endDate = endDatePickerState.selectedDateMillis ?: event.endDate,
+                        status = event.status
                     )
                     onConfirmEdit(updatedEvent)
                 },

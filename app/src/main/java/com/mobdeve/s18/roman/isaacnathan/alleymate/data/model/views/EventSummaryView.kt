@@ -2,6 +2,7 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.views
 
 import androidx.room.DatabaseView
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 
 
 @DatabaseView(
@@ -12,6 +13,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
         e.location,
         e.startDate,
         e.endDate,
+        e.status,
         COALESCE(inv.totalItemsAllocated, 0) AS totalItemsAllocated,
         COALESCE(inv.totalItemsSold, 0) AS totalItemsSold,
         COALESCE(inv.totalRevenueInCents, 0) AS totalRevenueInCents,
@@ -19,21 +21,17 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
         COALESCE(inv.catalogueCount, 0) AS catalogueCount
     FROM events AS e
     LEFT JOIN (
-        -- --- THIS ENTIRE SUBQUERY IS REWRITTEN ---
         SELECT
             i.eventId,
             SUM(i.allocatedQuantity) AS totalItemsAllocated,
             SUM(i.soldQuantity) AS totalItemsSold,
             COUNT(i.itemId) AS catalogueCount,
-            -- The calculation is now simpler because we have access to the price via the JOIN
             SUM(i.soldQuantity * (c.price * 100)) AS totalRevenueInCents
         FROM event_inventory AS i
-        -- We explicitly JOIN catalogue_items so Room's tracker can see it
         INNER JOIN catalogue_items AS c ON i.itemId = c.itemId
         GROUP BY i.eventId
     ) AS inv ON e.eventId = inv.eventId
     LEFT JOIN (
-        -- This subquery was already correct
         SELECT
             eventId,
             SUM(amountInCents) AS totalExpensesInCents
@@ -48,6 +46,7 @@ data class EventSummaryView(
     val location: String,
     val startDate: Long,
     val endDate: Long,
+    val status: EventStatus,
     val totalItemsAllocated: Int,
     val totalItemsSold: Int,
     val totalRevenueInCents: Long,

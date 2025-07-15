@@ -15,16 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import androidx.compose.foundation.clickable
-import androidx.compose.material3.Card
-import androidx.compose.ui.text.font.FontWeight
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateMessage
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 
 @Composable
 fun UpcomingEventsSection(
     modifier: Modifier = Modifier,
-    events: List<Event>,
+    events: List<EventUiModel>,
     onViewAllClick: () -> Unit
 ) {
 
@@ -103,28 +101,6 @@ fun UpcomingEventsSection(
                     )
                 }
             }
-        }
-    }
-}
-
-
-@Composable
-private fun EventCard(event: Event, modifier: Modifier = Modifier) {
-    Card(modifier = modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = event.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = event.dateRangeString,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
         }
     }
 }

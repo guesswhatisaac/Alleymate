@@ -12,6 +12,8 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.SaleTransactionIte
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
+import kotlinx.coroutines.flow.map
 
 class EventRepository(
     private val eventDao: EventDao,
@@ -83,33 +85,26 @@ class EventRepository(
         eventDao.deleteEvent(event)
     }
 
-    fun getHydratedEvents(): Flow<List<Event>> {
-
-        val allEventsFlow = eventDao.getAllEvents()
-        val allInventoryFlow = eventDao.getAllInventoryWithDetails()
-        val allExpensesFlow = eventDao.getAllExpenses()
-
-        return combine(allEventsFlow, allInventoryFlow, allExpensesFlow) { events, allInventory, allExpenses ->
-
-            val inventoryByEvent = allInventory.groupBy { it.eventInventoryItem.eventId }
-            val expensesByEvent = allExpenses.groupBy { it.eventId }
-
-            events.map { event ->
-                val eventInventory = inventoryByEvent[event.eventId] ?: emptyList()
-                val eventExpenses = expensesByEvent[event.eventId] ?: emptyList()
-
-                event.apply {
-                    catalogueCount = eventInventory.size
-                    totalItemsAllocated = eventInventory.sumOf { it.eventInventoryItem.allocatedQuantity }
-                    totalItemsSold = eventInventory.sumOf { it.eventInventoryItem.soldQuantity }
-                    totalStockLeft = totalItemsAllocated - totalItemsSold
-                    totalExpensesInCents = eventExpenses.sumOf { it.amountInCents }
-                    totalRevenueInCents = eventInventory.sumOf {
-                        it.eventInventoryItem.soldQuantity * (it.catalogueItem.price * 100).toLong()
-                    }
+    fun getHydratedEvents(): Flow<List<EventUiModel>> {
+        return eventDao.getEventSummaries()
+            .map { summaries ->
+                summaries.map { summary ->
+                    EventUiModel(
+                        eventId = summary.eventId,
+                        title = summary.title,
+                        location = summary.location,
+                        startDate = summary.startDate,
+                        endDate = summary.endDate,
+                        status = summary.status,
+                        totalItemsAllocated = summary.totalItemsAllocated,
+                        totalItemsSold = summary.totalItemsSold,
+                        totalRevenueInCents = summary.totalRevenueInCents,
+                        totalExpensesInCents = summary.totalExpensesInCents,
+                        catalogueCount = summary.catalogueCount,
+                        totalStockLeft = summary.totalItemsAllocated - summary.totalItemsSold
+                    )
                 }
             }
-        }
     }
 
     fun getLiveEvents(): Flow<List<Event>> {

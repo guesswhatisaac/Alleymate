@@ -15,6 +15,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.*
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateMessage
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.LiveEventCard
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 
 @Composable
 fun HomeScreen(

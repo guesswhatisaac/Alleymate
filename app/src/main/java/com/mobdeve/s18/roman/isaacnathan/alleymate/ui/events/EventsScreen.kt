@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppFloatingActionButton
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppTopBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.AddEventModal
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.EventListItem
@@ -22,7 +21,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateM
 private sealed interface EventModalState {
     data object None : EventModalState
     data object AddEvent : EventModalState
-    data class EditEvent(val event: Event) : EventModalState
+    data class EditEvent(val event: EventUiModel) : EventModalState
 }
 
 private enum class EventTab(val title: String) {
@@ -106,10 +105,8 @@ fun EventsScreen(
                         onEventClick = { eventId ->
                             onNavigateToLiveSale(eventId)
                         },
-                        //onEditClick = { modalState = EventModalState.EditEvent(liveEvents.first()) }
                     )
                 } else {
-                    // Show empty state for live events
                     EmptyStateMessage(
                         title = "No Live Events",
                         subtitle = "Start an event to see it here",
@@ -167,7 +164,7 @@ fun EventsScreen(
 
 @Composable
 private fun EventList(
-    events: List<Event>,
+    events: List<EventUiModel>,
     onEventClick: (Int) -> Unit,
     isPastEvents: Boolean
 ) {
@@ -192,7 +189,6 @@ private fun EventList(
                 EventListItem(
                     event = event,
                     onEventClick = { onEventClick(event.eventId) },
-                    //onEditClick = { onEditClick(event) },
                 )
             }
         }

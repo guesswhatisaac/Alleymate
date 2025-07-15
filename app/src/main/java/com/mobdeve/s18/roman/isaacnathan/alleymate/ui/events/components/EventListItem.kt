@@ -11,12 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 
 @Composable
 fun EventListItem(
-    event: Event,
+    event: EventUiModel,
     onEventClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {

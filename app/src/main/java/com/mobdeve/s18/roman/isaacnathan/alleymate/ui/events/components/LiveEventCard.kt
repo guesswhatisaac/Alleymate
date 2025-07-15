@@ -11,13 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 
 private val AlleyMainOrange = Color(0xFFEE7036)
 
 @Composable
 fun LiveEventCard(
-    event: Event,
+    event: EventUiModel,
     onEventClick: (eventId: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {

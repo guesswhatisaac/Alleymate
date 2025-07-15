@@ -81,7 +81,7 @@ fun EventDetailScreen(
         is EventDetailModalState.None -> { /* Show nothing */ }
         is EventDetailModalState.EditEvent -> {
             EditEventModal(
-                event = state.event,
+                event = state.event.toUiModel(),
                 onDismissRequest = { modalState = EventDetailModalState.None },
                 onConfirmEdit = { updatedEvent ->
                     viewModel.updateEvent(updatedEvent)

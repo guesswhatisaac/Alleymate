@@ -16,14 +16,14 @@ class EventViewModel(application: Application) : AndroidViewModel(application) {
 
     private val eventRepository: EventRepository
 
-    val allEvents: StateFlow<List<Event>>
+    val allEvents: StateFlow<List<EventUiModel>>
 
     init {
         val database = AlleyMateDatabase.getDatabase(application)
         eventRepository = EventRepository(database.eventDao(), database.catalogueDao(), database.transactionDao())
 
-        val hydratedEventsFlow = eventRepository.getHydratedEvents()
-        allEvents = hydratedEventsFlow.stateIn(
+        val eventsFlow = eventRepository.getHydratedEvents()
+        allEvents = eventsFlow.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),
             initialValue = emptyList()

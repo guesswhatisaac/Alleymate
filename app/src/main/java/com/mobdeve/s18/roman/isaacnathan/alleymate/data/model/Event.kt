@@ -5,6 +5,7 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.DateConverter
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -53,4 +54,22 @@ data class Event(
             val endDateStr = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(endDate)
             return if (startDate == endDate) endDateStr else "$startDateStr - $endDateStr"
         }
+
+    fun toUiModel(): EventUiModel {
+        return EventUiModel(
+            eventId = this.eventId,
+            title = this.title,
+            location = this.location,
+            startDate = this.startDate,
+            endDate = this.endDate,
+            status = this.status,
+            catalogueCount = this.catalogueCount,
+            totalItemsAllocated = this.totalItemsAllocated,
+            totalItemsSold = this.totalItemsSold,
+            totalStockLeft = this.totalStockLeft,
+            totalExpensesInCents = this.totalExpensesInCents,
+            totalRevenueInCents = this.totalRevenueInCents
+        )
+    }
+
 }

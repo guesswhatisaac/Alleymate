@@ -10,12 +10,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
-fun EventCard(event: Event) {
+fun EventCard(event: EventUiModel) {
 
     val startDateStr = SimpleDateFormat("MMM dd", Locale.getDefault()).format(event.startDate)
     val endDateStr = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(event.endDate)

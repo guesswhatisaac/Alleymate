@@ -4,12 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.AlleyMateDatabase
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.CatalogueRepository
-import kotlinx.coroutines.launch
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.CatalogueRepository
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.EventRepository
-import kotlinx.coroutines.flow.Flow
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -20,12 +18,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val catalogueRepository: CatalogueRepository
     private val eventRepository: EventRepository
 
-    val liveEvent: StateFlow<Event?>
-    val upcomingEvents: StateFlow<List<Event>>
+    val liveEvent: StateFlow<EventUiModel?>
+    val upcomingEvents: StateFlow<List<EventUiModel>>
 
     init {
         val database = AlleyMateDatabase.getDatabase(application)
+
+        catalogueRepository = CatalogueRepository(database.catalogueDao(), database)
         eventRepository = EventRepository(database.eventDao(), database.catalogueDao(), database.transactionDao())
+
         val allHydratedEventsFlow = eventRepository.getHydratedEvents()
 
         liveEvent = allHydratedEventsFlow
@@ -38,7 +39,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 initialValue = null
             )
 
-
         upcomingEvents = allHydratedEventsFlow
             .map { allEvents ->
                 allEvents.filter { it.status == EventStatus.UPCOMING }
@@ -46,24 +46,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5000L),
-                initialValue = emptyList() // Start with an empty list
-            )    }
-
-    init {
-        val database = AlleyMateDatabase.getDatabase(application)
-        catalogueRepository = CatalogueRepository(database.catalogueDao(), database)
+                initialValue = emptyList()
+            )
     }
-
-    fun deleteAllCatalogueItems() {
-        viewModelScope.launch {
-            catalogueRepository.deleteAllItems()
-        }
-    }
-
-    fun restartDatabase() {
-        viewModelScope.launch {
-            catalogueRepository.clearEntireDatabase()
-        }
-    }
-
 }
