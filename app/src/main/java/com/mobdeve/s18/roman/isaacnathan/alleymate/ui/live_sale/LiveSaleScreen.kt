@@ -25,6 +25,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInv
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.TransactionWithItems
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.live_sale.components.TransactionListItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.live_sale.components.AddTransactionModal
 
 private enum class LiveSaleTab(val title: String) {
     TRANSACTIONS("Transactions"),
@@ -46,6 +47,10 @@ fun LiveSaleScreen(
     val inventory by viewModel.inventory.collectAsState()
     val expenses by viewModel.expenses.collectAsState()
     val transactions by viewModel.transactions.collectAsState()
+
+    val addTransactionState by viewModel.addTransactionState.collectAsState()
+    val selectedItemsForTransaction by viewModel.selectedItemsForTransaction.collectAsState()
+    val transactionCart by viewModel.transactionCart.collectAsState()
 
     var selectedTab by remember { mutableStateOf(LiveSaleTab.TRANSACTIONS) }
     var showEndEventDialog by remember { mutableStateOf(false) }
@@ -78,6 +83,21 @@ fun LiveSaleScreen(
         )
     }
 
+    if (addTransactionState != AddTransactionState.Hidden) {
+        AddTransactionModal(
+            inventory = inventory,
+            selectedItemIds = selectedItemsForTransaction,
+            transactionCart = transactionCart,
+            isTransacting = addTransactionState == AddTransactionState.Transacting,
+            onDismiss = viewModel::dismissAddTransaction,
+            onItemSelect = viewModel::toggleItemSelection,
+            onProceed = viewModel::proceedToTransact,
+            onQuantityChange = viewModel::updateTransactionQuantity,
+            onConfirmTransaction = viewModel::recordSale
+        )
+    }
+
+
     Scaffold(
         topBar = {
             LiveSaleTopBar(
@@ -100,7 +120,7 @@ fun LiveSaleScreen(
         floatingActionButton = {
             if (selectedTab == LiveSaleTab.TRANSACTIONS) {
                 AppFloatingActionButton(
-                    onClick = { /* TODO: Open Add Transaction Modal */ }
+                    onClick = viewModel::beginAddTransaction
                 )
             }
         }
@@ -119,7 +139,7 @@ fun LiveSaleScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                // Live Sale Stats Header (always visible)
+                // Live Sale Stats Header
                 LiveSaleStatsHeader(
                     event = currentEvent,
                     expenses = expenses
@@ -151,7 +171,6 @@ fun LiveSaleScreen(
                     when (selectedTab) {
                         LiveSaleTab.TRANSACTIONS -> {
                             TransactionsContent(
-                                event = currentEvent,
                                 transactions = transactions
                             )
                         }
@@ -239,7 +258,6 @@ private fun StatCard(
 
 @Composable
 private fun TransactionsContent(
-    event: Event,
     transactions: List<TransactionWithItems>
 ) {
     if (transactions.isEmpty()) {

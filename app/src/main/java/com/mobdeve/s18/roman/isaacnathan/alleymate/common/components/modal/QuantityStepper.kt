@@ -17,9 +17,11 @@ import androidx.compose.ui.unit.dp
 fun QuantityStepper(
     initialValue: Int = 0,
     onValueChange: (Int) -> Unit,
-    maxValue: Int = Int.MAX_VALUE
+    maxValue: Int = Int.MAX_VALUE,
+    minValue: Int
 ) {
     var count by remember { mutableIntStateOf(initialValue) }
+    var currentValue by remember { mutableIntStateOf(initialValue) }
 
     val shape = MaterialTheme.shapes.extraLarge
 
@@ -32,7 +34,7 @@ fun QuantityStepper(
         // Minus Button
         IconButton(
             onClick = {
-                if (count > 0) {
+                if (count > 0 && count > minValue) {
                     count--
                     onValueChange(count)
                 }

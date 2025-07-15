@@ -115,7 +115,8 @@ fun AllocationItem(
             ) {
                 QuantityStepper(
                     onValueChange = onQuantityChange,
-                    maxValue = item.stock
+                    maxValue = item.stock,
+                    minValue = 0
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
