@@ -221,7 +221,7 @@ fun EventDetailScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                // Event Stats Header (always visible)
+                // Event Stats Header
                 EventStatsHeader(
                     event = currentEvent,
                     expenses = expenses

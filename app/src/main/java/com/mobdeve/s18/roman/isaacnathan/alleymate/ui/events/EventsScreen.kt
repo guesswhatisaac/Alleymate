@@ -33,15 +33,15 @@ private enum class EventTab(val title: String) {
 @Composable
 fun EventsScreen(
     onNavigateToEventDetail: (Int) -> Unit,
-    viewModel: EventViewModel,
-    onNavigateToLiveSale: (eventId: Int) -> Unit
+    onNavigateToLiveSale: (eventId: Int) -> Unit,
+    viewModel: EventViewModel
     ) {
+
     var modalState by remember { mutableStateOf<EventModalState>(EventModalState.None) }
     var selectedTab by remember { mutableStateOf(EventTab.UPCOMING) }
 
-    val events by viewModel.allEventsFlow.collectAsState(initial = emptyList())
+    val events by viewModel.allEvents.collectAsState()
 
-    // Filter events by status - use remember to optimize recomposition
     val (liveEvents, upcomingEvents, pastEvents) = remember(events) {
         val live = events.filter { it.status == EventStatus.LIVE }
         val upcoming = events.filter { it.status == EventStatus.UPCOMING }
@@ -51,7 +51,7 @@ fun EventsScreen(
 
     // Modal handling
     when (val state = modalState) {
-        is EventModalState.None -> { /* Show nothing */ }
+        is EventModalState.None -> { }
         is EventModalState.AddEvent -> {
             AddEventModal(
                 onDismissRequest = { modalState = EventModalState.None },
@@ -181,7 +181,6 @@ private fun EventList(
     ) {
         if (events.isEmpty()) {
             item {
-                // MODIFICATION: Use EmptyStateMessage
                 val title = if (isPastEvents) "No Past Events" else "No Upcoming Events"
                 val subtitle = if (isPastEvents) "Completed events will appear here." else "Tap the '+' button to create a new event."
                 EmptyStateMessage(

@@ -1,6 +1,5 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
@@ -11,10 +10,6 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.HomeTopBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.OverviewGrid
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.UpcomingEventsSection
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.*

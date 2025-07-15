@@ -9,7 +9,6 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventExpense
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventInventoryItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.SaleTransaction
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.SaleTransactionItem
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.TransactionWithItems
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -78,10 +77,6 @@ class EventRepository(
         if (updatedInventory.isNotEmpty()) {
             eventDao.upsertEventInventory(updatedInventory)
         }
-    }
-
-    suspend fun reduceCatalogueStock(itemId: Int, quantityToReduce: Int) {
-        catalogueDao.reduceStock(itemId, quantityToReduce)
     }
 
     suspend fun deleteEvent(event: Event) {
