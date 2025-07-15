@@ -11,11 +11,18 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.Transact
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.EventRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventExpense
 
 sealed interface AddTransactionState {
     data object Hidden : AddTransactionState
     data object Selecting : AddTransactionState
     data object Transacting : AddTransactionState
+}
+
+sealed interface LiveSaleModalState {
+    data object Hidden : LiveSaleModalState
+    data object AddTransaction : LiveSaleModalState
+    data object AddExpense : LiveSaleModalState
 }
 
 class LiveSaleViewModel(
@@ -28,18 +35,19 @@ class LiveSaleViewModel(
     private val expensesFlow: Flow<List<EventExpense>> = eventRepository.getExpensesForEvent(eventId)
     val transactionsFlow: Flow<List<TransactionWithItems>> = eventRepository.getTransactionsForEvent(eventId)
 
+    private val _modalState = MutableStateFlow<LiveSaleModalState>(LiveSaleModalState.Hidden)
+    val modalState: StateFlow<LiveSaleModalState> = _modalState.asStateFlow()
+
     val event: StateFlow<Event?> = combine(
         eventFlow,
         inventoryFlow,
         expensesFlow,
-        transactionsFlow // We must also listen to transaction changes
+        transactionsFlow
     ) { event, inventory, expenses, transactions ->
-        // This block will now re-run whenever a new transaction is added.
         event?.apply {
             catalogueCount = inventory.size
             totalItemsAllocated = inventory.sumOf { it.eventInventoryItem.allocatedQuantity }
 
-            // Recalculate sold items based on persisted transactions
             val soldItemsMap = mutableMapOf<Int, Int>()
             transactions.forEach { trans ->
                 trans.items.forEach { item ->
@@ -81,8 +89,28 @@ class LiveSaleViewModel(
     private val _currentCart = MutableStateFlow<Map<Int, Int>>(emptyMap())
     val currentCart: StateFlow<Map<Int, Int>> = _currentCart.asStateFlow()
 
-    fun beginAddTransaction() { _addTransactionState.value = AddTransactionState.Selecting }
+    fun beginAddTransaction() {
+        _addTransactionState.value = AddTransactionState.Selecting
+    }
+
     fun dismissAddTransaction() {
+        _addTransactionState.value = AddTransactionState.Hidden
+        _selectedItemsForTransaction.value = emptySet()
+        _transactionCart.value = emptyMap()
+    }
+
+    fun showAddTransactionModal() {
+        _modalState.value = LiveSaleModalState.AddTransaction
+        _addTransactionState.value = AddTransactionState.Selecting
+    }
+
+    fun showAddExpenseModal() {
+        _modalState.value = LiveSaleModalState.AddExpense
+    }
+
+    fun dismissAllModals() {
+        _modalState.value = LiveSaleModalState.Hidden
+        // Also reset the internal state of the transaction modal
         _addTransactionState.value = AddTransactionState.Hidden
         _selectedItemsForTransaction.value = emptySet()
         _transactionCart.value = emptyMap()
@@ -94,9 +122,20 @@ class LiveSaleViewModel(
         _selectedItemsForTransaction.value = currentSelection
     }
 
+    fun addExpense(description: String, amount: Double) = viewModelScope.launch {
+        if (description.isNotBlank() && amount > 0) {
+            val newExpense = EventExpense(
+                eventId = eventId,
+                description = description,
+                amountInCents = (amount * 100).toLong()
+            )
+            eventRepository.insertExpense(newExpense)
+        }
+    }
+
     fun proceedToTransact() {
         if (_selectedItemsForTransaction.value.isEmpty()) return
-        _transactionCart.value = _selectedItemsForTransaction.value.associateWith { 1 } // Start with quantity 1
+        _transactionCart.value = _selectedItemsForTransaction.value.associateWith { 1 }
         _addTransactionState.value = AddTransactionState.Transacting
     }
 
@@ -111,13 +150,13 @@ class LiveSaleViewModel(
             return@launch
         }
 
-        // We need the full CatalogueItem details to get the price at time of sale
         val cartItemsWithDetails = inventory.value
             .filter { it.catalogueItem.itemId in cartQuantities.keys }
             .associateBy { it.catalogueItem.itemId }
             .mapValues { it.value.catalogueItem }
 
         eventRepository.recordSaleTransaction(eventId, cartItemsWithDetails, cartQuantities)
+
         dismissAddTransaction()
     }
 

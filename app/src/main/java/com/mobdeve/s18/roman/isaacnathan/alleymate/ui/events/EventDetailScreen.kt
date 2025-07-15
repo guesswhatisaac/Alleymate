@@ -3,6 +3,8 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -19,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppTopBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppFloatingActionButton
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.AlleyMateDatabase
@@ -358,32 +361,26 @@ private fun EventInventorySection(inventory: List<EventInventoryWithDetails>) {
             }
         }
     } else {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-            shape = RoundedCornerShape(12.dp)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            Column {
-                inventory.forEachIndexed { index, inventoryItemWithDetails ->
-                    val catalogueItem = inventoryItemWithDetails.catalogueItem
-                    val eventInventory = inventoryItemWithDetails.eventInventoryItem
+            items(
+                items = inventory,
+                key = { it.eventInventoryItem.itemId }
+            ) { inventoryItemWithDetails ->
 
+                val catalogueItem = inventoryItemWithDetails.catalogueItem
+                val eventInventory = inventoryItemWithDetails.eventInventoryItem
+
+                AppCard {
                     InventoryItem(
                         name = catalogueItem.name,
                         price = catalogueItem.price,
                         allocated = eventInventory.allocatedQuantity,
                         sold = eventInventory.soldQuantity
                     )
-
-                    if (index < inventory.size - 1) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        )
-                    }
                 }
             }
         }
@@ -391,7 +388,7 @@ private fun EventInventorySection(inventory: List<EventInventoryWithDetails>) {
 }
 
 @Composable
-private fun InventoryItem(
+fun InventoryItem(
     name: String,
     price: Double,
     allocated: Int,
@@ -426,59 +423,13 @@ private fun InventoryItem(
 }
 
 @Composable
-private fun EventExpensesSection(expenses: List<EventExpense>) {
+private fun EventExpensesSection(
+    expenses: List<EventExpense>,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Expenses List
-        if (expenses.isEmpty()) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No expenses recorded",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
-                    )
-                }
-            }
-        } else {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Column {
-                    expenses.forEachIndexed { index, expense ->
-                        ExpenseItem(
-                            description = expense.description,
-                            amount = expense.amountInCents / 100.0
-                        )
 
-                        if (index < expenses.size - 1) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant
-                            )
-                        }
-                    }
-                }
-            }
-        }
 
         // Total Expenses Card
         if (expenses.isNotEmpty()) {
@@ -511,6 +462,69 @@ private fun EventExpensesSection(expenses: List<EventExpense>) {
                     )
                 }
             }
+        }
+
+
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ){
+
+            // Expenses List
+            if (expenses.isEmpty()) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No expenses recorded",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                }
+
+            } else {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column {
+                            expenses.forEachIndexed { index, expense ->
+                                ExpenseItem(
+                                    description = expense.description,
+                                    amount = expense.amountInCents / 100.0
+                                )
+
+                                if (index < expenses.size - 1) {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        color = MaterialTheme.colorScheme.outlineVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
         }
     }
 }
