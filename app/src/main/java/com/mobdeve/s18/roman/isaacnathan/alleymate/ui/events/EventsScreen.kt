@@ -149,7 +149,6 @@ fun EventsScreen(
                         EventList(
                             events = upcomingEvents,
                             onEventClick = onNavigateToEventDetail,
-                            onEditClick = { event -> modalState = EventModalState.EditEvent(event) },
                             isPastEvents = false
                         )
                     }
@@ -157,7 +156,6 @@ fun EventsScreen(
                         EventList(
                             events = pastEvents,
                             onEventClick = onNavigateToEventDetail,
-                            onEditClick = { event -> modalState = EventModalState.EditEvent(event) },
                             isPastEvents = true
                         )
                     }
@@ -171,7 +169,6 @@ fun EventsScreen(
 private fun EventList(
     events: List<Event>,
     onEventClick: (Int) -> Unit,
-    onEditClick: (Event) -> Unit,
     isPastEvents: Boolean
 ) {
     LazyColumn(

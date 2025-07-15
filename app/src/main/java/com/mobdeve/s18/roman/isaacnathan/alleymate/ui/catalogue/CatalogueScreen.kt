@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.AllocationStateHolder
 
 private sealed interface ModalState {
     data object None : ModalState
@@ -28,6 +29,8 @@ private sealed interface ModalState {
     data object AddCategory : ModalState
     data class EditProduct(val item: CatalogueItem) : ModalState
     data class RestockProduct(val item: CatalogueItem) : ModalState
+    data class DeleteConfirmation(val item: CatalogueItem) : ModalState
+
 }
 
 @Composable
@@ -39,6 +42,7 @@ fun CatalogueScreen(
 
     val itemCategories by viewModel.itemCategories.collectAsState()
     val selectedItemCategory by viewModel.selectedItemCategory.collectAsState()
+    var navigationTriggered by remember { mutableStateOf(false) }
 
     val lazyListState = rememberSaveable(saver = LazyListState.Saver) {
         LazyListState()
@@ -52,6 +56,9 @@ fun CatalogueScreen(
     val inSelectionMode by viewModel.inSelectionMode.collectAsState()
     val allocationBadgeCount by viewModel.allocationBadgeCount.collectAsState()
 
+    LaunchedEffect(Unit) {
+        navigationTriggered = false
+    }
 
     when (val state = modalState) {
         is ModalState.None -> { /* Do nothing */ }
@@ -95,6 +102,16 @@ fun CatalogueScreen(
                 }
             )
         }
+        is ModalState.DeleteConfirmation -> {
+            DeleteCatalogueItemModal(
+                item = state.item,
+                onDismissRequest = { modalState = ModalState.None },
+                onConfirmDelete = {
+                    viewModel.deleteItem(state.item)
+                    modalState = ModalState.None
+                }
+            )
+        }
     }
 
     Scaffold(
@@ -121,11 +138,14 @@ fun CatalogueScreen(
                         }
                     } else {
                         BadgedIconButton(
-                            badgeCount = allocationBadgeCount,
+                            badgeCount = AllocationStateHolder.getAllocationCount(),
                             icon = Icons.Outlined.Archive,
                             contentDescription = "View Allocations",
                             onClick = {
+                                if(!navigationTriggered){
+                                    navigationTriggered = true
                                     onNavigateToAllocate()
+                                }
                             }
                         )
                     }
@@ -180,7 +200,6 @@ fun CatalogueScreen(
                     )
                 }
             } else {
-                // The grid of items is added directly using items(), not a nested LazyColumn.
                 val chunkedItems = items.chunked(2)
                 items(
                     items = chunkedItems,
@@ -201,8 +220,7 @@ fun CatalogueScreen(
                                 onClick = { if (inSelectionMode) viewModel.toggleSelection(item.itemId) },
                                 onRestockClick = { modalState = ModalState.RestockProduct(item) },
                                 onEditClick = { modalState = ModalState.EditProduct(item) },
-                                onDeleteClick = { viewModel.deleteItem(item) }
-                            )
+                                onDeleteClick = { modalState = ModalState.DeleteConfirmation(item) }                            )
                         }
 
                         // --- Logic for the second card in the row (if it exists) ---
@@ -217,8 +235,8 @@ fun CatalogueScreen(
                                     onClick = { if (inSelectionMode) viewModel.toggleSelection(item.itemId) },
                                     onRestockClick = { modalState = ModalState.RestockProduct(item) },
                                     onEditClick = { modalState = ModalState.EditProduct(item) },
-                                    onDeleteClick = { viewModel.deleteItem(item) }
-                                )
+                                    onDeleteClick = { modalState = ModalState.DeleteConfirmation(item) }                            )
+
                             }
                         }
                     }

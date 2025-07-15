@@ -33,7 +33,8 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
         .map { it.isNotEmpty() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    val allocationBadgeCount: StateFlow<Int> = AllocationStateHolder.allocationCount
+    val allocationBadgeCount: StateFlow<Int> = _selectedItemIds
+        .map { it.size }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     init {
@@ -118,10 +119,10 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
         _selectedItemIds.value = currentSelection
     }
 
-
     fun clearSelection() {
         _selectedItemIds.value = emptySet()
     }
+
 
     fun prepareForAllocation() {
 

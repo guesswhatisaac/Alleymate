@@ -11,6 +11,10 @@ object AllocationStateHolder {
 
     val allocationCount = _itemIdsToAllocate.asStateFlow().map { it.size }
 
+    fun getAllocationCount(): Int {
+        return _itemIdsToAllocate.value.size
+    }
+
     fun addItemIds(itemIds: Set<Int>) {
         val currentIds = _itemIdsToAllocate.value.toMutableSet()
         currentIds.addAll(itemIds)
