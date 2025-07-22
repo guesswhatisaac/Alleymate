@@ -65,4 +65,8 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE status = 'LIVE'")
     fun getLiveEvents(): Flow<List<Event>>
 
+    @Query("SELECT * FROM events WHERE status != 'ENDED' ORDER BY startDate DESC")
+    fun getActiveEvents(): Flow<List<Event>>
+
+
 }

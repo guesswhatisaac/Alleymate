@@ -11,9 +11,11 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.SaleTransaction
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.SaleTransactionItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 import kotlinx.coroutines.flow.map
+import androidx.room.Transaction
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
+import kotlinx.coroutines.flow.first
 
 class EventRepository(
     private val eventDao: EventDao,
@@ -111,9 +113,12 @@ class EventRepository(
         return eventDao.getLiveEvents()
     }
 
-
     fun getTransactionsForEvent(eventId: Int): Flow<List<com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.TransactionWithItems>> {
         return transactionDao.getTransactionsForEvent(eventId)
+    }
+
+    fun getActiveEvents(): Flow<List<Event>> {
+        return eventDao.getActiveEvents()
     }
 
     suspend fun recordSaleTransaction(eventId: Int, cart: Map<Int, CatalogueItem>, quantities: Map<Int, Int>) {
@@ -142,4 +147,23 @@ class EventRepository(
         }
     }
 
+
+    @Transaction
+    suspend fun endSaleAndReturnStock(eventId: Int) {
+        val inventoryForEvent = eventDao.getInventoryForEvent(eventId).first()
+
+        for (inventoryItemWithDetails in inventoryForEvent) {
+            val inventoryItem = inventoryItemWithDetails.eventInventoryItem
+            val unsoldQuantity = inventoryItem.allocatedQuantity - inventoryItem.soldQuantity
+            if (unsoldQuantity > 0) {
+                catalogueDao.returnStock(inventoryItem.itemId, unsoldQuantity)
+            }
+        }
+
+        val eventToUpdate = eventDao.getEventById(eventId).first()
+        eventToUpdate?.let { event ->
+            val updatedEvent = event.copy(status = EventStatus.ENDED)
+            eventDao.updateEvent(updatedEvent)
+        }
+    }
 }

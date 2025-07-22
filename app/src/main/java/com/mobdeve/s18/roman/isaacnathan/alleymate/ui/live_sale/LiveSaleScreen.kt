@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,16 +18,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.*
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventExpense
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInventoryWithDetails
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.TransactionWithItems
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.live_sale.components.TransactionListItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.live_sale.components.AddTransactionModal
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.AddExpenseModal
-
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.live_sale.components.AddTransactionModal
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.live_sale.components.EndLiveSaleModal
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.live_sale.components.TransactionListItem
 
 private enum class LiveSaleTab(val title: String) {
     TRANSACTIONS("Transactions"),
@@ -46,13 +44,11 @@ fun LiveSaleScreen(
         factory = LiveSaleViewModelFactory(context.applicationContext as Application, eventId)
     )
 
+    // --- Collect the single UI state object ---
+    val uiState by viewModel.uiState.collectAsState()
+
+    // --- Collect state for modals and transactions ---
     val modalState by viewModel.modalState.collectAsState()
-
-    val event by viewModel.event.collectAsState()
-    val inventory by viewModel.inventory.collectAsState()
-    val expenses by viewModel.expenses.collectAsState()
-    val transactions by viewModel.transactions.collectAsState()
-
     val addTransactionState by viewModel.addTransactionState.collectAsState()
     val selectedItemsForTransaction by viewModel.selectedItemsForTransaction.collectAsState()
     val transactionCart by viewModel.transactionCart.collectAsState()
@@ -62,39 +58,26 @@ fun LiveSaleScreen(
 
     // End Event Confirmation Dialog
     if (showEndEventDialog) {
-        AlertDialog(
-            onDismissRequest = { showEndEventDialog = false },
-            title = { Text("End Live Sale") },
-            text = { Text("Are you sure you want to end this live sale? This action cannot be undone.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        // TODO: Call viewModel.endLiveSale()
-                        showEndEventDialog = false
-                        onNavigateBack()
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = Color(0xFFF44336)
-                    )
-                ) {
-                    Text("End Sale")
+        uiState.event?.let {
+            EndLiveSaleModal(
+                event = it,
+                onDismissRequest = { showEndEventDialog = false },
+                onConfirmEndSale = {
+                    viewModel.endLiveSale()
+                    showEndEventDialog = false
+                    onNavigateBack()
                 }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEndEventDialog = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
+            )
+        }
     }
 
-
+    // Modal Handling
     when (modalState) {
         LiveSaleModalState.Hidden -> { /* Do nothing */ }
         LiveSaleModalState.AddTransaction -> {
             if (addTransactionState != AddTransactionState.Hidden) {
                 AddTransactionModal(
-                    inventory = inventory,
+                    inventory = uiState.inventory, // Pass data from uiState
                     selectedItemIds = selectedItemsForTransaction,
                     transactionCart = transactionCart,
                     isTransacting = addTransactionState == AddTransactionState.Transacting,
@@ -117,17 +100,13 @@ fun LiveSaleScreen(
         }
     }
 
-
-
-
     Scaffold(
         topBar = {
             LiveSaleTopBar(
-                title = event?.title ?: "Live Sale",
+                title = uiState.event?.title ?: "Live Sale", // Read from uiState
                 onNavigateBack = onNavigateBack,
                 actions = {
-                    // End Event Button in top bar
-                    if (event?.status == EventStatus.LIVE) {
+                    if (uiState.event?.status == EventStatus.LIVE) {
                         IconButton(onClick = { showEndEventDialog = true }) {
                             Icon(
                                 imageVector = Icons.Default.Stop,
@@ -142,38 +121,27 @@ fun LiveSaleScreen(
         floatingActionButton = {
             when (selectedTab) {
                 LiveSaleTab.TRANSACTIONS -> {
-                    AppFloatingActionButton(
-                        onClick = viewModel::showAddTransactionModal
-                    )
+                    AppFloatingActionButton(onClick = viewModel::showAddTransactionModal)
                 }
                 LiveSaleTab.EXPENSES -> {
-                    AppFloatingActionButton(
-                        onClick = viewModel::showAddExpenseModal
-                    )
+                    AppFloatingActionButton(onClick = viewModel::showAddExpenseModal)
                 }
                 else -> { }
             }
-
         }
     ) { innerPadding ->
-        val currentEvent = event
-        if (currentEvent == null) {
-            Box(
-                Modifier.fillMaxSize().padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
+        if (uiState.event == null) {
+            Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                // Live Sale Stats Header
+            Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+                // Pass the calculated values directly from uiState to the header
                 LiveSaleStatsHeader(
-                    event = currentEvent,
-                    expenses = expenses
+                    totalItemsSold = uiState.totalItemsSold,
+                    totalRevenueInCents = uiState.totalRevenueInCents,
+                    totalExpensesInCents = uiState.totalExpensesInCents,
+                    profitInCents = uiState.profitInCents
                 )
 
                 // Three-tab layout
@@ -185,30 +153,22 @@ fun LiveSaleScreen(
                         Tab(
                             selected = selectedTab == tab,
                             onClick = { selectedTab = tab },
-                            text = {
-                                Text(tab.title)
-                            }
+                            text = { Text(tab.title) }
                         )
                     }
                 }
 
                 // Tab Content with consistent padding
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                ) {
+                Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                     when (selectedTab) {
                         LiveSaleTab.TRANSACTIONS -> {
-                            TransactionsContent(
-                                transactions = transactions
-                            )
+                            TransactionsContent(transactions = uiState.transactions)
                         }
                         LiveSaleTab.INVENTORY -> {
-                            EventInventorySection(inventory = inventory)
+                            EventInventorySection(inventory = uiState.inventory, transactions = uiState.transactions)
                         }
                         LiveSaleTab.EXPENSES -> {
-                            EventExpensesSection(expenses = expenses)
+                            EventExpensesSection(expenses = uiState.expenses)
                         }
                     }
                 }
@@ -219,44 +179,22 @@ fun LiveSaleScreen(
 
 @Composable
 private fun LiveSaleStatsHeader(
-    event: Event,
-    expenses: List<EventExpense>
+    totalItemsSold: Int,
+    totalRevenueInCents: Long,
+    totalExpensesInCents: Long,
+    profitInCents: Long
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        ),
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f)),
         shape = RoundedCornerShape(12.dp)
     ) {
-        // Stats grid
-        Row(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            StatCard(
-                modifier = Modifier.weight(1f),
-                value = "${event.totalItemsSold}",
-                label = "Sold"
-            )
-            StatCard(
-                modifier = Modifier.weight(1f),
-                value = "₱${"%.0f".format(event.totalRevenueInCents / 100.0)}",
-                label = "Revenue"
-            )
-            StatCard(
-                modifier = Modifier.weight(1f),
-                value = "₱${"%.0f".format(expenses.sumOf { it.amountInCents } / 100.0)}",
-                label = "Expenses"
-            )
-            StatCard(
-                modifier = Modifier.weight(1f),
-                value = "₱${"%.0f".format(event.profitInCents / 100.0)}",
-                label = "Profit"
-            )
+        Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            StatCard(modifier = Modifier.weight(1f), value = "$totalItemsSold", label = "Sold")
+            StatCard(modifier = Modifier.weight(1f), value = "₱${"%.0f".format(totalRevenueInCents / 100.0)}", label = "Revenue")
+            StatCard(modifier = Modifier.weight(1f), value = "₱${"%.0f".format(totalExpensesInCents / 100.0)}", label = "Expenses")
+            StatCard(modifier = Modifier.weight(1f), value = "₱${"%.0f".format(profitInCents / 100.0)}", label = "Profit")
         }
     }
 }
@@ -316,22 +254,24 @@ private fun TransactionsContent(
 
 
 @Composable
-private fun EventInventorySection(inventory: List<EventInventoryWithDetails>) {
+private fun EventInventorySection(
+    inventory: List<EventInventoryWithDetails>,
+    transactions: List<TransactionWithItems>
+) {
+    val soldItemsMap = remember(transactions) {
+        transactions.flatMap { it.items }
+            .groupBy { it.saleTransactionItem.itemId }
+            .mapValues { entry -> entry.value.sumOf { it.saleTransactionItem.quantity } }
+    }
+
     if (inventory.isEmpty()) {
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(32.dp),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
                 Text(
                     text = "No items allocated to this event",
                     style = MaterialTheme.typography.bodyMedium,
@@ -349,16 +289,16 @@ private fun EventInventorySection(inventory: List<EventInventoryWithDetails>) {
                 items = inventory,
                 key = { it.eventInventoryItem.itemId }
             ) { inventoryItemWithDetails ->
-
                 val catalogueItem = inventoryItemWithDetails.catalogueItem
                 val eventInventory = inventoryItemWithDetails.eventInventoryItem
+                val soldQuantity = soldItemsMap[catalogueItem.itemId] ?: 0
 
                 AppCard {
                     InventoryItem(
                         name = catalogueItem.name,
                         price = catalogueItem.price,
                         allocated = eventInventory.allocatedQuantity,
-                        sold = eventInventory.soldQuantity
+                        sold = soldQuantity
                     )
                 }
             }
@@ -375,9 +315,7 @@ private fun InventoryItem(
     sold: Int
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -406,25 +344,16 @@ private fun InventoryItem(
 private fun EventExpensesSection(
     expenses: List<EventExpense>,
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-
-
-        // Total Expenses Card
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (expenses.isNotEmpty()) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = AlleyMainOrange.copy(alpha = 0.1f)
-                ),
+                colors = CardDefaults.cardColors(containerColor = AlleyMainOrange.copy(alpha = 0.1f)),
                 border = BorderStroke(1.dp, AlleyMainOrange.copy(alpha = 0.3f)),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -444,29 +373,16 @@ private fun EventExpensesSection(
             }
         }
 
-
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ){
-
-            // Expenses List
+        LazyColumn(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (expenses.isEmpty()) {
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
+                        Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
                             Text(
                                 text = "No expenses recorded",
                                 style = MaterialTheme.typography.bodyMedium,
@@ -475,14 +391,11 @@ private fun EventExpensesSection(
                         }
                     }
                 }
-
             } else {
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -492,7 +405,6 @@ private fun EventExpensesSection(
                                     description = expense.description,
                                     amount = expense.amountInCents / 100.0
                                 )
-
                                 if (index < expenses.size - 1) {
                                     HorizontalDivider(
                                         modifier = Modifier.padding(horizontal = 16.dp),
@@ -504,7 +416,6 @@ private fun EventExpensesSection(
                     }
                 }
             }
-
         }
     }
 }
@@ -515,9 +426,7 @@ private fun ExpenseItem(
     amount: Double
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

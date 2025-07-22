@@ -64,7 +64,7 @@ class AllocationViewModel(application: Application) : AndroidViewModel(applicati
             .launchIn(viewModelScope)
 
         viewModelScope.launch {
-            allEvents.value = eventRepository.getAllEvents().first()
+            allEvents.value = eventRepository.getActiveEvents().first()
         }
     }
 

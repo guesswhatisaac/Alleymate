@@ -7,28 +7,29 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.AllocationStateHolder
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.AlleyMateDatabase
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.CatalogueRepository
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.ItemCategory // Import the new model
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.ItemCategoryRepository // Import the new repository
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.ItemCategory
+import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.ItemCategoryRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class CatalogueViewModel(application: Application) : AndroidViewModel(application) {
 
-    // --- REPOSITORIES ---
     private val catalogueRepository: CatalogueRepository
     private val itemCategoryRepository: ItemCategoryRepository
-
-    // --- RAW DATA FLOWS ---
     private val allCatalogueItems: StateFlow<List<CatalogueItem>>
 
-    // --- STATE FOR THE UI ---
     private val _selectedItemCategory = MutableStateFlow("ALL")
     val selectedItemCategory: StateFlow<String> = _selectedItemCategory.asStateFlow()
+
     val itemCategories: StateFlow<List<String>>
     val filteredItems: StateFlow<List<CatalogueItem>>
 
     private val _selectedItemIds = MutableStateFlow<Set<Int>>(emptySet())
     val selectedItemIds: StateFlow<Set<Int>> = _selectedItemIds.asStateFlow()
+
+    private val _categoryItemCount = MutableStateFlow(0)
+    val categoryItemCount: StateFlow<Int> = _categoryItemCount.asStateFlow()
+
     val inSelectionMode: StateFlow<Boolean> = _selectedItemIds
         .map { it.isNotEmpty() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
@@ -39,9 +40,12 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
 
     init {
         val database = AlleyMateDatabase.getDatabase(application)
-
         catalogueRepository = CatalogueRepository(database.catalogueDao(), database)
         itemCategoryRepository = ItemCategoryRepository(database.itemCategoryDao())
+
+        viewModelScope.launch {
+            ensureDefaultCategoryExists()
+        }
 
         allCatalogueItems = catalogueRepository.getAllItems()
             .stateIn(
@@ -52,9 +56,7 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
 
         itemCategories = itemCategoryRepository.getAllItemCategories()
             .map { dbCategories ->
-                val uppercasedNames = dbCategories.map { it.name.uppercase() }
-                val distinctNames = uppercasedNames.distinct()
-                listOf("ALL") + distinctNames
+                listOf("ALL") + dbCategories.map { it.name }.distinct()
             }
             .stateIn(
                 scope = viewModelScope,
@@ -67,7 +69,7 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
                 if (selectedCategory == "ALL") {
                     items
                 } else {
-                    items.filter { it.category.equals(selectedCategory, ignoreCase = true) }
+                    items.filter { it.category == selectedCategory }
                 }
             }
             .stateIn(
@@ -77,28 +79,47 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
             )
     }
 
-    // --- USER ACTIONS ---
+    private suspend fun ensureDefaultCategoryExists() {
+        itemCategoryRepository.addItemCategory(ItemCategory(name = "N/A"))
+    }
+
     fun selectItemCategory(category: String) {
         _selectedItemCategory.value = category
     }
 
     fun addProduct(name: String, category: String, price: Double, stock: Int, imageUri: String?) = viewModelScope.launch {
-        val newItem = CatalogueItem(name = name, category = category, price = price, stock = stock, imageUri = imageUri)
+        val standardizedCategory = if (category.isBlank()) "N/A" else category.trim().uppercase()
+        val newItem = CatalogueItem(name = name, category = standardizedCategory, price = price, stock = stock, imageUri = imageUri)
         catalogueRepository.addItem(newItem)
 
-        val newCategory = ItemCategory(name = category)
+        val newCategory = ItemCategory(name = standardizedCategory)
         itemCategoryRepository.addItemCategory(newCategory)
     }
 
     fun addItemCategory(name: String) = viewModelScope.launch {
         if (name.isNotBlank()) {
-            val newCategory = ItemCategory(name = name.trim())
+            val standardizedCategory = name.trim().uppercase()
+            val newCategory = ItemCategory(name = standardizedCategory)
             itemCategoryRepository.addItemCategory(newCategory)
         }
     }
 
+    fun deleteCategory(categoryName: String) = viewModelScope.launch {
+        itemCategoryRepository.deleteCategoryByName(categoryName)
+
+        if (_selectedItemCategory.value == categoryName) {
+            _selectedItemCategory.value = "ALL"
+        }
+    }
+
+    fun updateCategoryItemCount(category: String) {
+        _categoryItemCount.value = allCatalogueItems.value.count { it.category == category }
+    }
+
     fun editProduct(updatedItem: CatalogueItem) = viewModelScope.launch {
-        catalogueRepository.updateItem(updatedItem)
+        // Standardize category on edit as well
+        val standardizedItem = updatedItem.copy(category = updatedItem.category.trim().uppercase())
+        catalogueRepository.updateItem(standardizedItem)
     }
 
     fun restockProduct(item: CatalogueItem, quantityToAdd: Int) = viewModelScope.launch {
@@ -123,18 +144,12 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
         _selectedItemIds.value = emptySet()
     }
 
-
     fun prepareForAllocation() {
-
         val newlySelectedItems = allCatalogueItems.value
             .filter { it.itemId in _selectedItemIds.value }
-
         if (newlySelectedItems.isNotEmpty()) {
             AllocationStateHolder.addItemIds(_selectedItemIds.value)
         }
-
         clearSelection()
-
     }
-
 }

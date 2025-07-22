@@ -15,4 +15,7 @@ interface ItemCategoryDao {
 
     @Query("SELECT * FROM item_categories ORDER BY name ASC")
     fun getAllItemCategories(): Flow<List<ItemCategory>>
+
+    @Query("DELETE FROM item_categories WHERE name = :categoryName")
+    suspend fun deleteCategoryByName(categoryName: String)
 }

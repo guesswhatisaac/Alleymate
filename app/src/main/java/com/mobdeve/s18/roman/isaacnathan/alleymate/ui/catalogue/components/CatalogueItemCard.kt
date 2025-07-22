@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
@@ -141,7 +142,10 @@ fun CatalogueItemCard(
                         text = item.name,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = Color.Black,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     // Category Tag
@@ -149,13 +153,16 @@ fun CatalogueItemCard(
                         shape = MaterialTheme.shapes.small,
                         border = BorderStroke(1.dp, Color.LightGray),
                         color = Color.Transparent,
+
                     ) {
                         Text(
                             text = item.category.uppercase(),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                     Spacer(modifier = Modifier.height(24.dp))

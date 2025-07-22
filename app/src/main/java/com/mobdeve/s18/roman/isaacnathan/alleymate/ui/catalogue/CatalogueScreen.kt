@@ -22,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.Color
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.AllocationStateHolder
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.components.DeleteCategoryModal
 
 private sealed interface ModalState {
     data object None : ModalState
@@ -30,7 +31,7 @@ private sealed interface ModalState {
     data class EditProduct(val item: CatalogueItem) : ModalState
     data class RestockProduct(val item: CatalogueItem) : ModalState
     data class DeleteConfirmation(val item: CatalogueItem) : ModalState
-
+    data class DeleteCategory(val category: String) : ModalState
 }
 
 @Composable
@@ -52,6 +53,7 @@ fun CatalogueScreen(
     val modalCategories = allItemCategories.filter { it != "ALL" }
 
     val items by viewModel.filteredItems.collectAsState()
+    val categoryItemCount by viewModel.categoryItemCount.collectAsState()
     val selectedItemIds by viewModel.selectedItemIds.collectAsState()
     val inSelectionMode by viewModel.inSelectionMode.collectAsState()
     val allocationBadgeCount by viewModel.allocationBadgeCount.collectAsState()
@@ -108,6 +110,19 @@ fun CatalogueScreen(
                 onDismissRequest = { modalState = ModalState.None },
                 onConfirmDelete = {
                     viewModel.deleteItem(state.item)
+                    modalState = ModalState.None
+                }
+            )
+        }
+        is ModalState.DeleteCategory -> {
+            val isDeletable = categoryItemCount == 0
+            DeleteCategoryModal(
+                categoryName = state.category,
+                isDeletable = isDeletable,
+                itemCount = categoryItemCount,
+                onDismissRequest = { modalState = ModalState.None },
+                onConfirmDelete = {
+                    viewModel.deleteCategory(state.category)
                     modalState = ModalState.None
                 }
             )
@@ -174,8 +189,16 @@ fun CatalogueScreen(
                 CategoryFilters(
                     categories = itemCategories,
                     selectedCategory = selectedItemCategory,
-                    onCategorySelected = viewModel::selectItemCategory,
+                    onCategorySelected = { category ->
+                        viewModel.selectItemCategory(category)
+                        viewModel.updateCategoryItemCount(category)
+                    },
                     onAddCategoryClicked = { modalState = ModalState.AddCategory },
+                    // UPDATED: Use the new long press callback
+                    onCategoryLongPress = { category ->
+                        viewModel.updateCategoryItemCount(category)
+                        modalState = ModalState.DeleteCategory(category)
+                    }
                 )
             }
 

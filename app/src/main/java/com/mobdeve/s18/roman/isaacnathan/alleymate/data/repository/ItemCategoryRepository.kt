@@ -11,4 +11,8 @@ class ItemCategoryRepository(private val itemCategoryDao: ItemCategoryDao) {
     suspend fun addItemCategory(itemCategory: ItemCategory) {
         itemCategoryDao.insert(itemCategory)
     }
+
+    suspend fun deleteCategoryByName(categoryName: String) {
+        itemCategoryDao.deleteCategoryByName(categoryName)
+    }
 }
