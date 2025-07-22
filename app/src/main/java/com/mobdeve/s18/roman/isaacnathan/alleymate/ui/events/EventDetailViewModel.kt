@@ -90,10 +90,18 @@ class EventDetailViewModel(
         _startSaleError.value = null
     }
 
+    private val _startSaleConflictError = MutableStateFlow<String?>(null)
+    val startSaleConflictError: StateFlow<String?> = _startSaleConflictError.asStateFlow()
+
+
+    fun onConflictDialogDismissed() {
+        _startSaleConflictError.value = null
+    }
+
     fun startLiveSale(onSuccess: () -> Unit) = viewModelScope.launch {
         val otherLiveEvents = eventRepository.getLiveEvents().first() // Needs a new DAO function
         if (otherLiveEvents.any { it.eventId != eventId }) {
-            _startSaleError.value = "Another event is already live. Please end it first."
+            _startSaleConflictError.value = otherLiveEvents.first().title
             return@launch
         }
 

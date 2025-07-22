@@ -35,6 +35,8 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.AppDestinations
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.EditEventModal
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.AddExpenseModal
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.DeleteEventModal
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.LiveEventWarningModal
+
 
 private enum class DetailTab(val title: String) {
     INVENTORY("Inventory"),
@@ -118,6 +120,16 @@ fun EventDetailScreen(
 
     val startSaleError by viewModel.startSaleError.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val conflictErrorTitle by viewModel.startSaleConflictError.collectAsState()
+
+    val currentConflictTitle = conflictErrorTitle
+    if (currentConflictTitle != null) {
+        LiveEventWarningModal(
+            existingLiveEventTitle = currentConflictTitle,
+            onDismissRequest = viewModel::onConflictDialogDismissed
+        )
+    }
 
     LaunchedEffect(startSaleError) {
         startSaleError?.let { error ->
