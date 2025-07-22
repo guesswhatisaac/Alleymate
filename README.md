@@ -40,10 +40,10 @@ Managing inventory, tracking sales, and calculating profits during a busy event 
 | **📚 Catalogue Management** | Easily add, edit, and delete products. Organize items with custom categories, upload product images using the camera, and manage master stock levels.                    |
 | **🗓️ Event Management**     | Schedule and manage multiple events. Each event gets its own dashboard to track allocated inventory, sales, expenses, and profitability.                                 |
 | **📦 Inventory Allocation**  | Select items from your main catalogue and allocate specific quantities to an upcoming event. This keeps your event stock separate from your master inventory.             |
-| **🔴 Live Sale Mode**        | A focused UI for processing transactions quickly during an event. Select items, adjust quantities, and confirm sales with just a few taps. Unsold items are returned automatically. |
-| **📊 Comprehensive Reports** | Dive deep into your sales data. Filter by event or time period (last 7 days, this month, etc.). Instantly see total revenue, profit, and your best-selling items. |
-| **💸 Expense Tracking**     | Log event-specific expenses like table fees or travel costs to get a true picture of your net profit for each event.                                                    |
-| **📱 Offline-First**       | Built with a local Room database, the app works entirely offline, ensuring reliability even with poor convention center Wi-Fi.                                         |
+| **🔴 Live Sale Mode**        | A focused UI for processing transactions quickly during an event. Select items, adjust quantities, and confirm sales with just a few taps. |
+| **📊 Comprehensive Reports** | Dive deep into your sales data. Filter by event or time period. Instantly see total revenue, profit, and your best-selling items. |
+| **💸 Expense Tracking**     | Log event-specific expenses like table fees or travel costs to get a picture of your net profit for each event.                                                    |
+| **📱 Offline-First**       | Built with a local Room database, the app works entirely offline.                                        |
 
 ---
 
