@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalConfiguration
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateMessage
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 
@@ -23,16 +24,17 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 fun UpcomingEventsSection(
     modifier: Modifier = Modifier,
     events: List<EventUiModel>,
-    onViewAllClick: () -> Unit
-) {
+    onViewAllClick: () -> Unit,
+    onEventClick: (Int) -> Unit
 
+) {
 
     // ─── Colors ───────────────────────────────────────────────
     val purpleBackgroundColor = Color(0xFF9A31BB)
     val indicatorActiveColor = Color(0xFFff8a65)
     val indicatorInactiveColor = Color(0xFFc4c4c4)
 
-    // ─── Section Container ────────────────────────────────────
+    // ─── Section Container ──────────────────────────────────s──
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -63,6 +65,7 @@ fun UpcomingEventsSection(
         }
 
         Spacer(modifier = Modifier.height(20.dp))
+
         if (events.isEmpty()) {
             EmptyStateMessage(
                 title = "No Upcoming Events",
@@ -77,10 +80,13 @@ fun UpcomingEventsSection(
             // Events Pager
             HorizontalPager(
                 state = pagerState,
-                contentPadding = PaddingValues(horizontal = 40.dp),
+                contentPadding = PaddingValues(horizontal = (LocalConfiguration.current.screenWidthDp.dp - 280.dp) / 2),
                 pageSpacing = 16.dp
             ) { page ->
-                EventCard(event = events[page])
+                HomeEventCard(
+                    event = events[page],
+                    onEventClick = onEventClick
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))

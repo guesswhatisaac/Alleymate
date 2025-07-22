@@ -1,68 +1,71 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainPurple
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @Composable
-fun EventCard(event: EventUiModel) {
-
-    val startDateStr = SimpleDateFormat("MMM dd", Locale.getDefault()).format(event.startDate)
-    val endDateStr = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(event.endDate)
-    val dateRangeString =
-        if (event.startDate == event.endDate) endDateStr else "$startDateStr - $endDateStr"
-
-    // ─── Card Container ─────────────────────────────────────
+fun HomeEventCard(
+    event: EventUiModel,
+    onEventClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .width(280.dp)
-            .height(140.dp),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            .clickable { onEventClick(event.eventId) },
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-
-
-        // ─── Card Content ─────────────────────────────────────
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
+                .fillMaxWidth()
+                .padding(vertical = 24.dp, horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
             // Title
             Text(
                 text = event.title,
                 style = MaterialTheme.typography.titleLarge,
-                color = Color.Black
+                fontWeight = FontWeight.Bold,
+                color = AlleyMainPurple,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Date
+            // Date Range
             Text(
-                text = dateRangeString,
-                style = MaterialTheme.typography.bodyMedium
+                text = event.dateRangeString,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = Color.Gray,
+                textAlign = TextAlign.Center
             )
 
             // Location
             Text(
                 text = event.location,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center
             )
         }
     }

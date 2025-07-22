@@ -43,7 +43,9 @@ fun EventSelectorBar(
         Column(modifier = Modifier.weight(1f)) {
             if (currentEvent != null) {
                 Text(text = currentEvent.title, style = MaterialTheme.typography.titleLarge)
-                Text(text = currentEvent.dateRangeString, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                if (currentEvent.eventId != -1) {
+                    Text(text = currentEvent.dateRangeString, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                }
             } else {
                 Text(text = "Select an Event", style = MaterialTheme.typography.titleLarge)
                 Text(text = "Tap to choose from list", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
@@ -100,11 +102,13 @@ private fun EventDropdownItem(
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold
                 )
-                Text(
-                    text = event.dateRangeString,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
+                if (event.eventId != -1) {
+                    Text(
+                        text = event.dateRangeString,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
             }
         },
         onClick = onClick,

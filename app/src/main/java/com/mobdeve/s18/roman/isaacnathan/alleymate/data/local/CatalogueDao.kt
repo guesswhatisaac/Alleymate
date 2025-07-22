@@ -31,4 +31,7 @@ interface CatalogueDao {
     @Query("UPDATE catalogue_items SET stock = stock + :quantityToAdd WHERE itemId = :itemId")
     suspend fun returnStock(itemId: Int, quantityToAdd: Int)
 
+    @Query("SELECT COUNT(*) FROM catalogue_items WHERE stock <= :threshold")
+    fun getLowStockItemsCount(threshold: Int): Flow<Int>
+
 }

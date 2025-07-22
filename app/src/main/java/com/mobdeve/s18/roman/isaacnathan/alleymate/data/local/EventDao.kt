@@ -68,5 +68,13 @@ interface EventDao {
     @Query("SELECT * FROM events WHERE status != 'ENDED' ORDER BY startDate DESC")
     fun getActiveEvents(): Flow<List<Event>>
 
+    @Query("""
+        SELECT SUM(amountInCents)
+        FROM event_expenses
+        WHERE eventId IN (:eventIds)
+    """)
+    fun getTotalExpensesForEvents(eventIds: List<Int>): Flow<Long?>
+
+
 
 }

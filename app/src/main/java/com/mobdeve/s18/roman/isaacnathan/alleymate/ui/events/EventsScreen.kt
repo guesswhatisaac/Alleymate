@@ -108,7 +108,7 @@ fun EventsScreen(
                     )
                 } else {
                     EmptyStateMessage(
-                        title = "No Live Events",
+                        title = "No Live Event",
                         subtitle = "Start an event to see it here",
                         modifier = Modifier.height(120.dp),
                         titleColor = Color.Black,

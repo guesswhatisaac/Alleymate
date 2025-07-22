@@ -8,24 +8,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.HomeTopBar
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.OverviewGrid
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.UpcomingEventsSection
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.*
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateMessage
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.LiveEventCard
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.OverviewGrid
 
 @Composable
 fun HomeScreen(
     onNavigateToEvents: () -> Unit,
     onNavigateToLiveSale: (eventId: Int) -> Unit,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = viewModel(),
+    onNavigateToEventDetail: (eventId: Int) -> Unit,
 ) {
-
+    // --- OBSERVE STATE FROM THE NEW VIEWMODEL ---
     val upcomingEvents by viewModel.upcomingEvents.collectAsState()
     val liveEvent by viewModel.liveEvent.collectAsState()
+    val overviewStats by viewModel.overviewStats.collectAsState()
+    //val chartData by viewModel.chartData.collectAsState()
 
     Scaffold(
         topBar = {
@@ -36,18 +38,17 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentPadding = PaddingValues(bottom = 16.dp),
+            contentPadding = PaddingValues(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // ─── UPCOMING EVENTS SECTION ───────────────────────
             item {
                 UpcomingEventsSection(
-                    events = upcomingEvents, // Pass the dynamic list
-                    onViewAllClick = onNavigateToEvents
+                    events = upcomingEvents,
+                    onViewAllClick = onNavigateToEvents,
+                    onEventClick = onNavigateToEventDetail
                 )
             }
 
-            // ─── CURRENT LIVE SALE SECTION ─────────────────────
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     SectionHeader(
@@ -55,7 +56,7 @@ fun HomeScreen(
                         showDivider = true,
                         isSubtle = true
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     val currentLiveEvent = liveEvent
                     if (currentLiveEvent != null) {
@@ -76,16 +77,17 @@ fun HomeScreen(
                 }
             }
 
-            // ─── OVERVIEW SECTION ──────────────────────────────
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     SectionHeader(
-                        title = "Overview",
+                        title = "Performance Snapshot",
                         showDivider = true,
                         isSubtle = true
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OverviewGrid()
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OverviewGrid(stats = overviewStats)
+
                 }
             }
         }

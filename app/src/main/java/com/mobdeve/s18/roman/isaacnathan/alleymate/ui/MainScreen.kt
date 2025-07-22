@@ -21,6 +21,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.reports.ReportsScreen
 import androidx.navigation.NavHostController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventViewModel
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.AppDestinations
 
 @Composable
 fun MainScreen(
@@ -74,7 +75,10 @@ fun MainScreen(
             composable(AppDestinations.HOME_ROUTE) {
                 HomeScreen(
                     onNavigateToEvents = { navigateToTab(AppDestinations.EVENTS_ROUTE) },
-                    onNavigateToLiveSale = onNavigateToLiveSale
+                    onNavigateToLiveSale = onNavigateToLiveSale,
+                    onNavigateToEventDetail = { eventId ->
+                        navController.navigate("${AppDestinations.EVENT_DETAIL_ROUTE}/$eventId")
+                    }
                 )
             }
             composable(AppDestinations.CATALOGUE_ROUTE) {

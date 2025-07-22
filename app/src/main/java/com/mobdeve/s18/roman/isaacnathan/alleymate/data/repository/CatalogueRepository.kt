@@ -29,16 +29,12 @@ class CatalogueRepository(
         catalogueDao.delete(item)
     }
 
-    suspend fun deleteAllItems() {
-        catalogueDao.deleteAllItems()
-    }
-
-    fun clearEntireDatabase() {
-        database.clearAllData()
-    }
-
     fun getItemsByIds(itemIds: List<Int>): Flow<List<CatalogueItem>> {
         return catalogueDao.getItemsByIds(itemIds)
+    }
+
+    fun getLowStockItemsCount(threshold: Int): Flow<Int> {
+        return catalogueDao.getLowStockItemsCount(threshold)
     }
 
 }
