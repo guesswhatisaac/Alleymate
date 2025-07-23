@@ -31,7 +31,7 @@ Managing inventory, tracking sales, and calculating profits during a busy event 
 
 ---
 
-## ✨ Key Features
+## ✨ Features
 
 | Feature                  | Description                                                                                                                                                             |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -40,7 +40,7 @@ Managing inventory, tracking sales, and calculating profits during a busy event 
 | **🗓️ Event Management**     | Schedule and manage multiple events. Each event gets its own dashboard to track allocated inventory, sales, expenses, and profitability.                                 |
 | **📦 Inventory Allocation**  | Select items from your main catalogue and allocate specific quantities to an upcoming event. This keeps your event stock separate from your master inventory.             |
 | **🔴 Live Sale Mode**        | A focused UI for processing transactions quickly during an event. Select items, adjust quantities, and confirm sales with just a few taps. |
-| **📊 Comprehensive Reports** | Dive deep into your sales data. Filter by event or time period. Instantly see total revenue, profit, and your best-selling items. |
+| **📊 Reports** | Dive deep into your sales data. Filter by event or time period. Instantly see total revenue, profit, and your best-selling items. |
 | **💸 Expense Tracking**     | Log event-specific expenses like table fees or travel costs to get a picture of your net profit for each event.                                                    |
 | **📱 Offline-First**       | Built with a local Room database, the app works entirely offline.                                        |
 
@@ -64,9 +64,6 @@ This project showcases a modern, robust, and scalable Android architecture.
 -   **State Management:** **[StateFlow](https://developer.android.com/kotlin/flow/stateflow-and-sharedflow)** and **ViewModel** to manage and expose UI state reactively.
 -   **Navigation:** **[Navigation Compose](https://developer.android.com/jetpack/compose/navigation)** for navigating between screens.
 -   **Database:** **[Room](https://developer.android.com/jetpack/androidx/releases/room)** for robust, offline-first data persistence.
--   **Asynchronous Programming:** **[Kotlin Coroutines](https://kotlinlang.org/docs/coroutines-overview.html)** for managing background threads and asynchronous operations.
--   **Image Loading:** **[Coil](https://coil-kt.github.io/coil/)** for efficient loading and display of images from the device.
--   **Dependency Management:** Manual dependency injection using ViewModel Factories for simplicity and control.
 
 ---
 
