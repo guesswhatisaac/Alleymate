@@ -28,7 +28,7 @@ fun AllocationItem(
     onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    AppCard(modifier = modifier, content = {
+    AppCard(modifier = modifier) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -36,7 +36,7 @@ fun AllocationItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            // --- Delete ---
+            // Remove item button
             IconButton(onClick = onRemoveClick) {
                 Icon(
                     imageVector = Icons.Default.Delete,
@@ -44,7 +44,8 @@ fun AllocationItem(
                     tint = MaterialTheme.colorScheme.error
                 )
             }
-            // --- Image Placeholder ---
+
+            // Item image or placeholder
             Box(
                 modifier = Modifier
                     .size(72.dp)
@@ -57,27 +58,22 @@ fun AllocationItem(
                         contentDescription = "Image Placeholder",
                         modifier = Modifier.size(64.dp),
                         tint = Color(0xFFC9C3CD),
-
                     )
-                }
-                else {
+                } else {
                     AsyncImage(
                         model = item.imageUri.toUri(),
                         contentDescription = "${item.name} image",
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(MaterialTheme.shapes.medium),
-                    contentScale = ContentScale.Crop,
-
+                        contentScale = ContentScale.Crop,
                     )
                 }
-
-
             }
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // --- Details Column ---
+            // Item details: name, category, and price
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -108,7 +104,7 @@ fun AllocationItem(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // --- Quantity Stepper Column ---
+            // Quantity selector and stock display
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.width(120.dp)
@@ -127,5 +123,4 @@ fun AllocationItem(
             }
         }
     }
-    )
 }

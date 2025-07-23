@@ -17,7 +17,6 @@ fun OverviewStatCard(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    // UPDATED: Use a fixed height for a cleaner grid alignment
     AppCard(
         modifier = modifier.height(100.dp),
         content = {
@@ -26,21 +25,23 @@ fun OverviewStatCard(
                     .fillMaxSize()
                     .padding(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                // UPDATED: Use SpaceEvenly for better vertical balance
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                // The main content (e.g., the number or item name)
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                // Displays the main statistic or info
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
                     this@Column.content()
                 }
 
-                // The label at the bottom
+                // Displays the label below the main content
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.labelMedium, // Slightly larger label
+                    style = MaterialTheme.typography.labelMedium,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,
-                    maxLines = 2 // Allow label to wrap if needed
+                    maxLines = 2
                 )
             }
         }

@@ -6,8 +6,3 @@ data class HomeOverviewStats(
     val lowStockItemsCount: Int = 0,
     val catalogueItemsCount: Int = 0
 )
-
-data class ChartData(
-    val label: String,
-    val value: Float
-)

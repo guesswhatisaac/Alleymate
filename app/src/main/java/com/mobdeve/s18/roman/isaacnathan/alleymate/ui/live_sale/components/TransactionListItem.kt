@@ -23,38 +23,45 @@ fun TransactionListItem(
     transactionWithItems: TransactionWithItems,
     modifier: Modifier = Modifier
 ) {
-
     val transaction = transactionWithItems.transaction
     val itemsWithDetails = transactionWithItems.items
 
+    // Compute total quantity and total cost from all items in the transaction
     val totalQuantity = itemsWithDetails.sumOf { it.saleTransactionItem.quantity }
-    val totalPriceInCents = itemsWithDetails.sumOf { it.saleTransactionItem.quantity * it.saleTransactionItem.priceInCents }
+    val totalPriceInCents = itemsWithDetails.sumOf {
+        it.saleTransactionItem.quantity * it.saleTransactionItem.priceInCents
+    }
+
+    // Format transaction timestamp to display time only
     val timestamp = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date(transaction.timestamp))
 
     AppCard(modifier = modifier) {
         Column {
+            // Header row: quantity and time on the left, price on the right
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(horizontalAlignment = Alignment.Start) {
                     Text(
-                        text = "$totalQuantity items", // Use calculated total
+                        text = "$totalQuantity items",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = timestamp, // Use formatted timestamp
+                        text = timestamp,
                         style = MaterialTheme.typography.labelSmall,
                         color = Color.Gray
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(1f)) // Push price column to the end
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "₱${"%.2f".format(totalPriceInCents / 100.0)}", // Use calculated total
+                        text = "₱${"%.2f".format(totalPriceInCents / 100.0)}",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -66,13 +73,17 @@ fun TransactionListItem(
                 }
             }
 
+            // Divider between header and item list
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
+            // Item details
             Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Iterate over the detailed items list
+                // Display each item in the transaction
                 itemsWithDetails.forEach { itemDetail ->
                     TransactionItemRow(item = itemDetail)
                 }
@@ -85,7 +96,6 @@ fun TransactionListItem(
 private fun TransactionItemRow(
     item: TransactionItemWithDetails
 ) {
-
     val catalogueItem = item.catalogueItem
     val saleItem = item.saleTransactionItem
 
@@ -94,7 +104,14 @@ private fun TransactionItemRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = catalogueItem.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+            // Show item name
+            Text(
+                text = catalogueItem.name,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            // Display category tag with border
             Surface(
                 shape = MaterialTheme.shapes.extraSmall,
                 border = BorderStroke(1.dp, Color.LightGray),
@@ -110,6 +127,7 @@ private fun TransactionItemRow(
             }
         }
 
+        // Show item price and quantity on the right
         Text(
             text = "₱${"%.2f".format(saleItem.priceInCents / 100.0)} x ${saleItem.quantity}",
             style = MaterialTheme.typography.bodyMedium,
@@ -118,4 +136,3 @@ private fun TransactionItemRow(
         )
     }
 }
-

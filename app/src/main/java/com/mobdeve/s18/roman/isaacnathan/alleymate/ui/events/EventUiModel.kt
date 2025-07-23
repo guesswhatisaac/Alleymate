@@ -4,6 +4,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 import java.text.SimpleDateFormat
 import java.util.Locale
 
+// UI-friendly representation of an event with extra computed values
 data class EventUiModel(
     val eventId: Int,
     val title: String,
@@ -18,9 +19,8 @@ data class EventUiModel(
     val totalStockLeft: Int,
     val catalogueCount: Int
 ) {
-    val profitInCents: Long
-        get() = totalRevenueInCents - totalExpensesInCents
 
+    // Readable date range for display
     val dateRangeString: String
         get() {
             val startDateStr = SimpleDateFormat("MMM dd", Locale.getDefault()).format(startDate)

@@ -19,7 +19,6 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEventModal(
@@ -30,9 +29,11 @@ fun AddEventModal(
         onDismissRequest = onDismissRequest,
         headerTitle = "Add Event"
     ) {
+        // Form input states
         var eventName by remember { mutableStateOf("") }
         var eventLocation by remember { mutableStateOf("") }
 
+        // Date picker states
         val startDatePickerState = rememberDatePickerState()
         var showStartDatePicker by remember { mutableStateOf(false) }
 
@@ -41,6 +42,7 @@ fun AddEventModal(
 
         val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
 
+        // Format selected dates or fallback to label
         val selectedStartDate = startDatePickerState.selectedDateMillis?.let {
             dateFormatter.format(Date(it))
         } ?: "Select Start Date"
@@ -49,7 +51,7 @@ fun AddEventModal(
             dateFormatter.format(Date(it))
         } ?: "Select End Date"
 
-        // Allow same dates, only prevent end date being before start date
+        // Validate end date
         val isEndDateInvalid = startDatePickerState.selectedDateMillis != null &&
                 endDatePickerState.selectedDateMillis != null &&
                 endDatePickerState.selectedDateMillis!! < startDatePickerState.selectedDateMillis!!
@@ -58,22 +60,22 @@ fun AddEventModal(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Event name input
             FormTextField(
                 label = "Event Name",
                 value = eventName,
                 onValueChange = { eventName = it }
             )
 
+            // Location input
             FormTextField(
                 label = "Location & Table",
                 value = eventLocation,
                 onValueChange = { eventLocation = it }
             )
 
-            // Date Selection Cards
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            // Start/End date selectors
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DateSelectionCard(
                     modifier = Modifier.weight(1f),
                     label = "Start Date",
@@ -92,7 +94,7 @@ fun AddEventModal(
                 )
             }
 
-            // Error message for invalid date range
+            // Show error if date range is invalid
             if (isEndDateInvalid) {
                 Text(
                     text = "End date cannot be before start date",
@@ -102,7 +104,7 @@ fun AddEventModal(
                 )
             }
 
-            // Date Picker Dialogs
+            // Start date picker dialog
             if (showStartDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { showStartDatePicker = false },
@@ -110,28 +112,19 @@ fun AddEventModal(
                         TextButton(
                             onClick = {
                                 showStartDatePicker = false
-                                // Reset end date if it becomes invalid after changing start date
+                                // Clear end date if now invalid
                                 if (startDatePickerState.selectedDateMillis != null &&
                                     endDatePickerState.selectedDateMillis != null &&
                                     endDatePickerState.selectedDateMillis!! < startDatePickerState.selectedDateMillis!!) {
                                     endDatePickerState.selectedDateMillis = null
                                 }
-                            },
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            Text("OK")
-                        }
+                            }
+                        ) { Text("OK") }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showStartDatePicker = false }) {
-                            Text("Cancel")
-                        }
+                        TextButton(onClick = { showStartDatePicker = false }) { Text("Cancel") }
                     },
-                    colors = DatePickerDefaults.colors(
-                        containerColor = Color.White
-                    )
+                    colors = DatePickerDefaults.colors(containerColor = Color.White)
                 ) {
                     DatePicker(
                         state = startDatePickerState,
@@ -146,23 +139,17 @@ fun AddEventModal(
                 }
             }
 
+            // End date picker dialog
             if (showEndDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { showEndDatePicker = false },
                     confirmButton = {
-                        TextButton(
-                            onClick = { showEndDatePicker = false },
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary
-                            )
-                        ) { Text("OK") }
+                        TextButton(onClick = { showEndDatePicker = false }) { Text("OK") }
                     },
                     dismissButton = {
                         TextButton(onClick = { showEndDatePicker = false }) { Text("Cancel") }
                     },
-                    colors = DatePickerDefaults.colors(
-                        containerColor = Color.White
-                    )
+                    colors = DatePickerDefaults.colors(containerColor = Color.White)
                 ) {
                     DatePicker(
                         state = endDatePickerState,
@@ -177,6 +164,7 @@ fun AddEventModal(
                 }
             }
 
+            // Add button
             Button(
                 onClick = {
                     val startMillis = startDatePickerState.selectedDateMillis ?: 0L
@@ -184,7 +172,8 @@ fun AddEventModal(
                     onAddEvent(eventName, eventLocation, startMillis, endMillis)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = eventName.isNotBlank() && eventLocation.isNotBlank() &&
+                enabled = eventName.isNotBlank() &&
+                        eventLocation.isNotBlank() &&
                         startDatePickerState.selectedDateMillis != null &&
                         endDatePickerState.selectedDateMillis != null &&
                         !isEndDateInvalid,
@@ -214,16 +203,11 @@ fun DateSelectionCard(
     Card(
         modifier = modifier.clickable { onClick() },
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         border = BorderStroke(
             width = 1.dp,
-            color = if (isError) {
-                MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
-            } else {
-                Color.Gray.copy(alpha = 0.5f)
-            }
+            color = if (isError) MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+            else Color.Gray.copy(alpha = 0.5f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -231,6 +215,7 @@ fun DateSelectionCard(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
+            // Label row with icon
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -249,14 +234,12 @@ fun DateSelectionCard(
                 )
             }
 
+            // Selected date display
             Text(
                 text = selectedDate,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (isError) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
+                color = if (isError) MaterialTheme.colorScheme.error
+                else MaterialTheme.colorScheme.onSurface,
                 fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal
             )
         }

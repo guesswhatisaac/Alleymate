@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 
+// Cross-reference table that connects Events and CatalogueItems with allocation and sales data
 @Entity(
     tableName = "event_inventory",
     primaryKeys = ["eventId", "itemId"],
@@ -22,12 +23,11 @@ import androidx.room.Index
         )
     ],
     indices = [Index(value = ["itemId"])]
-
 )
 data class EventInventoryItem(
+
     val eventId: Int,
     val itemId: Int,
-
     val allocatedQuantity: Int,
     val soldQuantity: Int = 0
 )

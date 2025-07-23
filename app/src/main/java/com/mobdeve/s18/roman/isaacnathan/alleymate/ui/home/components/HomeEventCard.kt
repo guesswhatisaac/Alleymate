@@ -21,6 +21,7 @@ fun HomeEventCard(
     onEventClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Clickable card representing a single event
     Card(
         modifier = modifier
             .width(280.dp)
@@ -37,7 +38,7 @@ fun HomeEventCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Title
+            // Event name
             Text(
                 text = event.title,
                 style = MaterialTheme.typography.titleLarge,
@@ -48,7 +49,7 @@ fun HomeEventCard(
                 textAlign = TextAlign.Center
             )
 
-            // Date Range
+            // Date range (formatted)
             Text(
                 text = event.dateRangeString,
                 style = MaterialTheme.typography.bodyMedium,
@@ -57,7 +58,7 @@ fun HomeEventCard(
                 textAlign = TextAlign.Center
             )
 
-            // Location
+            // Event location
             Text(
                 text = event.location,
                 style = MaterialTheme.typography.labelSmall,

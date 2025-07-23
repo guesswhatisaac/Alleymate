@@ -29,7 +29,6 @@ import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppCard
-
 @Composable
 fun CatalogueItemCard(
     item: CatalogueItem,
@@ -49,7 +48,7 @@ fun CatalogueItemCard(
             ),
         content = {
             Column {
-                // --- Image Placeholder with Action Button ---
+                // --- Image Area with Selection Overlay and Dropdown ---
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -72,6 +71,8 @@ fun CatalogueItemCard(
                             contentScale = ContentScale.Crop
                         )
                     }
+
+                    // Highlight overlay and icon if selected
                     if (isSelected) {
                         Box(
                             modifier = Modifier
@@ -85,10 +86,12 @@ fun CatalogueItemCard(
                             modifier = Modifier.align(Alignment.Center).size(48.dp)
                         )
                     }
-                    // --- Dropdown Menu for all actions ---
+
+                    // Action menu (Edit, Restock, Delete)
                     if (!isSelected) {
                         Box(modifier = Modifier.align(Alignment.TopEnd)) {
                             var menuExpanded by remember { mutableStateOf(false) }
+
                             IconButton(onClick = { menuExpanded = true }) {
                                 Icon(
                                     Icons.Default.MoreVert,
@@ -96,6 +99,7 @@ fun CatalogueItemCard(
                                     tint = Color.Gray
                                 )
                             }
+
                             DropdownMenu(
                                 expanded = menuExpanded,
                                 onDismissRequest = { menuExpanded = false },
@@ -135,9 +139,10 @@ fun CatalogueItemCard(
                         }
                     }
                 }
-                // --- Item Details Section ---
+
+                // --- Item Details: Name, Category, Price, Stock ---
                 Column(modifier = Modifier.padding(12.dp)) {
-                    // Item Name
+                    // Product name
                     Text(
                         text = item.name,
                         style = MaterialTheme.typography.bodyMedium,
@@ -145,15 +150,15 @@ fun CatalogueItemCard(
                         color = Color.Black,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
-
                     )
+
                     Spacer(modifier = Modifier.height(4.dp))
-                    // Category Tag
+
+                    // Category label
                     Surface(
                         shape = MaterialTheme.shapes.small,
                         border = BorderStroke(1.dp, Color.LightGray),
-                        color = Color.Transparent,
-
+                        color = Color.Transparent
                     ) {
                         Text(
                             text = item.category.uppercase(),
@@ -165,21 +170,21 @@ fun CatalogueItemCard(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
+
                     Spacer(modifier = Modifier.height(24.dp))
-                    // --- Bottom Info Row: Price & Stock ---
+
+                    // Price and stock information
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.Bottom
                     ) {
-                        // Price
                         Text(
                             text = "₱${item.price}",
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = Color.Gray
                         )
-                        // Stock Count
                         Text(
                             text = buildAnnotatedString {
                                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {

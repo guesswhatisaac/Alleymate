@@ -21,7 +21,6 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.reports.ReportsScreen
 import androidx.navigation.NavHostController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventViewModel
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.AppDestinations
 
 @Composable
 fun MainScreen(
@@ -35,19 +34,15 @@ fun MainScreen(
 
     val eventViewModel: EventViewModel = viewModel()
 
-
+    // Avoids re-navigating to the same tab
     val navigateToTab = { route: String ->
-        // prevent navigating to the same tab if it's already selected
         if (route != currentRoute) {
             tabNavController.navigate(route) {
-                // pop up to the start destination, saving the state of all screens on the back stack
                 popUpTo(tabNavController.graph.startDestinationId) {
-                    saveState = true
+                    saveState = true // preserve screen state on back stack
                 }
-                // avoid multiple copies of the same destination
-                launchSingleTop = true
-                // restore the state of the destination when re-navigating to it
-                restoreState = true
+                launchSingleTop = true // avoid duplicate destinations
+                restoreState = true // reload previously saved state
             }
         }
     }
@@ -56,9 +51,7 @@ fun MainScreen(
         bottomBar = {
             BottomNavBar(
                 currentRoute = currentRoute,
-                onItemSelected = { route ->
-                    navigateToTab(route)
-                }
+                onItemSelected = { route -> navigateToTab(route) }
             )
         },
         contentWindowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
@@ -72,6 +65,7 @@ fun MainScreen(
             popEnterTransition = { EnterTransition.None },
             popExitTransition = { ExitTransition.None }
         ) {
+            // Main screen showing overview and navigation to events or specific event
             composable(AppDestinations.HOME_ROUTE) {
                 HomeScreen(
                     onNavigateToEvents = { navigateToTab(AppDestinations.EVENTS_ROUTE) },
@@ -81,11 +75,13 @@ fun MainScreen(
                     }
                 )
             }
+
+            // Catalogue tab
             composable(AppDestinations.CATALOGUE_ROUTE) {
-                CatalogueScreen(
-                    onNavigateToAllocate = onNavigateToAllocate
-                )
+                CatalogueScreen(onNavigateToAllocate = onNavigateToAllocate)
             }
+
+            // Events tab with shared ViewModel
             composable(AppDestinations.EVENTS_ROUTE) {
                 EventsScreen(
                     onNavigateToEventDetail = { eventId ->
@@ -95,9 +91,11 @@ fun MainScreen(
                     viewModel = eventViewModel
                 )
             }
-            composable(AppDestinations.REPORTS_ROUTE) { ReportsScreen() }
 
-
+            // Reports tab
+            composable(AppDestinations.REPORTS_ROUTE) {
+                ReportsScreen()
+            }
         }
     }
 }

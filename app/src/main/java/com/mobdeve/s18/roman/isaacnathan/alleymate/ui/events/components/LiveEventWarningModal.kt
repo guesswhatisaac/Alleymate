@@ -1,8 +1,6 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -12,12 +10,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.modal.BaseModal
-import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
+
 @Composable
 fun LiveEventWarningModal(
     existingLiveEventTitle: String,
     onDismissRequest: () -> Unit
 ) {
+    // Modal with a title, dismissible via external click or OK button
     BaseModal(
         onDismissRequest = onDismissRequest,
         headerTitle = "Live Event in Progress"
@@ -26,7 +25,7 @@ fun LiveEventWarningModal(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Initial confirmation question
+            // Notice about inability to start a new event
             Text(
                 text = "Cannot start a new live sale.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -34,7 +33,7 @@ fun LiveEventWarningModal(
                 textAlign = TextAlign.Center
             )
 
-            // Event details card
+            // Card displaying the active event details
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -65,21 +64,21 @@ fun LiveEventWarningModal(
                 }
             }
 
-            // Warning message
+            // Warning message prompting user action
             Text(
                 text = "Please end the current sale before starting a new one.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFFF44336), // same red as DeleteEventModal
+                color = Color(0xFFF44336),
                 textAlign = TextAlign.Center
             )
 
-            // Dismiss button
+            // Confirmation button to dismiss modal
             Button(
                 onClick = onDismissRequest,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFF44336) // same red for consistency
+                    containerColor = Color(0xFFF44336)
                 )
             ) {
                 Text(

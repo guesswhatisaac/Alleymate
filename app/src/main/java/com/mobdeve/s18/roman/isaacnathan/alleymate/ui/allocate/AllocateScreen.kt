@@ -10,15 +10,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.AppTopBar
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateMessage
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EventSelectorBar
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
+import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.*
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
-import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMateTheme
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.allocate.components.AllocationItem
 
 @Composable
@@ -26,6 +21,7 @@ fun AllocateScreen(
     onNavigateBack: () -> Unit,
     viewModel: AllocationViewModel = viewModel()
 ) {
+    // --- State Observers ---
     val allEvents by viewModel.allEvents.collectAsState()
     val selectedEvent by viewModel.selectedEvent.collectAsState()
     val itemsToAllocate by viewModel.itemsToAllocate.collectAsState()
@@ -37,7 +33,11 @@ fun AllocateScreen(
                 title = "Allocate",
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
                     }
                 }
             )
@@ -48,13 +48,14 @@ fun AllocateScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // --- SCROLLING CONTENT SECTION ---
+
+            // --- Item List Section ---
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(top = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Event Selector Logic
+                // Event selector bar
                 item {
                     EventSelectorBar(
                         currentEvent = selectedEvent,
@@ -64,7 +65,7 @@ fun AllocateScreen(
                     )
                 }
 
-
+                // --- Empty State or Item List ---
                 if (itemsToAllocate.isEmpty()) {
                     item {
                         SectionHeader(
@@ -74,20 +75,17 @@ fun AllocateScreen(
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
 
-                        Spacer(
-                            Modifier.height(16.dp)
+                        Spacer(Modifier.height(16.dp))
+
+                        EmptyStateMessage(
+                            title = "Nothing to Allocate",
+                            subtitle = "Long-press a catalogue item to allocate your first product.",
+                            titleColor = Color.Black,
+                            subtitleColor = Color.Gray
                         )
-
-                            EmptyStateMessage(
-                                title = "Nothing to Allocate",
-                                subtitle = "Long-press a catalogue item to allocate your first product.",
-                                titleColor = Color.Black,
-                                subtitleColor = Color.Gray
-                            )
-
                     }
                 } else {
-                    // Header
+                    // Items header
                     item {
                         SectionHeader(
                             title = "${itemsToAllocate.size} Items Selected",
@@ -97,6 +95,7 @@ fun AllocateScreen(
                         )
                     }
 
+                    // Item cards
                     items(itemsToAllocate, key = { it.itemId }) { item ->
                         AllocationItem(
                             item = item,
@@ -112,7 +111,7 @@ fun AllocateScreen(
                 }
             }
 
-
+            // --- Validation Message ---
             if (itemsToAllocate.isNotEmpty() && !isAllocationValid) {
                 Text(
                     text = "All items must have a quantity greater than '0'.",
@@ -126,7 +125,7 @@ fun AllocateScreen(
                 )
             }
 
-            // The "Allocate" Button
+            // --- Allocate Button ---
             Button(
                 onClick = {
                     viewModel.performAllocation(onSuccess = onNavigateBack)
@@ -144,14 +143,6 @@ fun AllocateScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-        } // End of Column
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AllocateScreenPreview() {
-    AlleyMateTheme {
-        AllocateScreen(onNavigateBack = {})
+        }
     }
 }

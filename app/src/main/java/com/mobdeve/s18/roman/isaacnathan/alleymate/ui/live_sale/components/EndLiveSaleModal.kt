@@ -18,6 +18,7 @@ fun EndLiveSaleModal(
     onDismissRequest: () -> Unit,
     onConfirmEndSale: () -> Unit
 ) {
+    // Reusable modal wrapper
     BaseModal(
         onDismissRequest = onDismissRequest,
         headerTitle = "End Live Sale"
@@ -26,7 +27,7 @@ fun EndLiveSaleModal(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Confirmation text
+            // Intro confirmation text
             Text(
                 text = "Are you sure you want to end this live sale?",
                 style = MaterialTheme.typography.bodyMedium,
@@ -34,7 +35,7 @@ fun EndLiveSaleModal(
                 textAlign = TextAlign.Center
             )
 
-            // Event details card
+            // Card showing event stats
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -50,6 +51,7 @@ fun EndLiveSaleModal(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // Event title
                     Text(
                         text = event.title,
                         style = MaterialTheme.typography.bodyMedium,
@@ -57,6 +59,8 @@ fun EndLiveSaleModal(
                         color = Color.Black,
                         textAlign = TextAlign.Center
                     )
+
+                    // Event statistics
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
@@ -67,7 +71,7 @@ fun EndLiveSaleModal(
                 }
             }
 
-            // Warning message
+            // Warning notice
             Text(
                 text = "Unsold products will be returned to your main catalogue. This action cannot be undone.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -75,11 +79,12 @@ fun EndLiveSaleModal(
                 textAlign = TextAlign.Center
             )
 
-            // Action buttons
+            // Action buttons row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                // Cancel button
                 OutlinedButton(
                     onClick = onDismissRequest,
                     modifier = Modifier.weight(1f),
@@ -88,6 +93,7 @@ fun EndLiveSaleModal(
                     Text("CANCEL")
                 }
 
+                // Confirm end sale button
                 Button(
                     onClick = onConfirmEndSale,
                     modifier = Modifier.weight(1f),

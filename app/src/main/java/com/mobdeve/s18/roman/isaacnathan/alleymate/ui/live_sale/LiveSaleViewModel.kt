@@ -6,19 +6,19 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.AlleyMateDatabase
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.*
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.*
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.TransactionWithItems
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.repository.EventRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 // --- UI State Classes ---
+// Transaction interaction phases
 sealed interface AddTransactionState {
     data object Hidden : AddTransactionState
     data object Selecting : AddTransactionState
     data object Transacting : AddTransactionState
 }
 
+// Modal types for the live sale screen
 sealed interface LiveSaleModalState {
     data object Hidden : LiveSaleModalState
     data object AddTransaction : LiveSaleModalState
@@ -31,10 +31,10 @@ class LiveSaleViewModel(
 ) : ViewModel() {
 
     // --- Raw Data Flows ---
-    private val eventFlow: Flow<Event?> = eventRepository.getEventById(eventId)
-    private val inventoryFlow: Flow<List<EventInventoryWithDetails>> = eventRepository.getInventoryForEvent(eventId)
-    private val expensesFlow: Flow<List<EventExpense>> = eventRepository.getExpensesForEvent(eventId)
-    private val transactionsFlow: Flow<List<TransactionWithItems>> = eventRepository.getTransactionsForEvent(eventId)
+    private val eventFlow = eventRepository.getEventById(eventId)
+    private val inventoryFlow = eventRepository.getInventoryForEvent(eventId)
+    private val expensesFlow = eventRepository.getExpensesForEvent(eventId)
+    private val transactionsFlow = eventRepository.getTransactionsForEvent(eventId)
 
     // --- UI State Flow ---
     val uiState: StateFlow<LiveSaleUiState> = combine(
@@ -43,6 +43,8 @@ class LiveSaleViewModel(
         expensesFlow,
         transactionsFlow
     ) { event, inventory, expenses, transactions ->
+
+        // Aggregate stats
         val totalItemsAllocated = inventory.sumOf { it.eventInventoryItem.allocatedQuantity }
         val totalItemsSold = transactions.sumOf { t -> t.items.sumOf { i -> i.saleTransactionItem.quantity } }
         val totalRevenue = transactions.sumOf { t -> t.items.sumOf { i -> i.saleTransactionItem.quantity * i.saleTransactionItem.priceInCents } }
@@ -61,27 +63,21 @@ class LiveSaleViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, LiveSaleUiState())
 
-    // --- Modal State ---
+    // --- Modal States ---
     private val _modalState = MutableStateFlow<LiveSaleModalState>(LiveSaleModalState.Hidden)
-    val modalState: StateFlow<LiveSaleModalState> = _modalState.asStateFlow()
+    val modalState = _modalState.asStateFlow()
 
     private val _addTransactionState = MutableStateFlow<AddTransactionState>(AddTransactionState.Hidden)
-    val addTransactionState: StateFlow<AddTransactionState> = _addTransactionState.asStateFlow()
+    val addTransactionState = _addTransactionState.asStateFlow()
 
     // --- Transaction Cart State ---
     private val _selectedItemsForTransaction = MutableStateFlow<Set<Int>>(emptySet())
-    val selectedItemsForTransaction: StateFlow<Set<Int>> = _selectedItemsForTransaction.asStateFlow()
+    val selectedItemsForTransaction = _selectedItemsForTransaction.asStateFlow()
 
     private val _transactionCart = MutableStateFlow<Map<Int, Int>>(emptyMap())
-    val transactionCart: StateFlow<Map<Int, Int>> = _transactionCart.asStateFlow()
-
-    //private val _currentCart = MutableStateFlow<Map<Int, Int>>(emptyMap())
-    //val currentCart: StateFlow<Map<Int, Int>> = _currentCart.asStateFlow()
+    val transactionCart = _transactionCart.asStateFlow()
 
     // --- UI Actions ---
-    /*fun beginAddTransaction() {
-        _addTransactionState.value = AddTransactionState.Selecting
-    }*/
 
     fun dismissAddTransaction() {
         _addTransactionState.value = AddTransactionState.Hidden
@@ -105,16 +101,14 @@ class LiveSaleViewModel(
         _transactionCart.value = emptyMap()
     }
 
+    // Selects/deselects an item for transaction
     fun toggleItemSelection(itemId: Int) {
         val currentSelection = _selectedItemsForTransaction.value.toMutableSet()
-        if (currentSelection.contains(itemId)) {
-            currentSelection.remove(itemId)
-        } else {
-            currentSelection.add(itemId)
-        }
+        if (!currentSelection.add(itemId)) currentSelection.remove(itemId)
         _selectedItemsForTransaction.value = currentSelection
     }
 
+    // Moves from selecting items → quantity input
     fun proceedToTransact() {
         if (_selectedItemsForTransaction.value.isEmpty()) return
         _transactionCart.value = _selectedItemsForTransaction.value.associateWith { 1 }
@@ -127,6 +121,7 @@ class LiveSaleViewModel(
         }
     }
 
+    // Adds a new expense to the event
     fun addExpense(description: String, amount: Double) = viewModelScope.launch {
         if (description.isNotBlank() && amount > 0) {
             val newExpense = EventExpense(
@@ -138,6 +133,7 @@ class LiveSaleViewModel(
         }
     }
 
+    // Finalizes and records a new transaction
     fun recordSale() = viewModelScope.launch {
         val cartQuantities = _transactionCart.value.filter { it.value > 0 }
         if (cartQuantities.isEmpty()) {
@@ -145,6 +141,7 @@ class LiveSaleViewModel(
             return@launch
         }
 
+        // Match selected items with their catalogue details
         val currentInventory = uiState.value.inventory
         val cartItemsWithDetails = currentInventory
             .filter { it.catalogueItem.itemId in cartQuantities.keys }
@@ -156,6 +153,7 @@ class LiveSaleViewModel(
         dismissAddTransaction()
     }
 
+    // Ends the event and returns unsold stock
     fun endLiveSale() = viewModelScope.launch {
         uiState.value.event?.let { currentEvent ->
             eventRepository.endSaleAndReturnStock(currentEvent.eventId)
@@ -163,7 +161,7 @@ class LiveSaleViewModel(
     }
 }
 
-// --- ViewModel Factory ---
+// Factory to construct LiveSaleViewModel with event ID and database dependency
 class LiveSaleViewModelFactory(
     private val application: Application,
     private val eventId: Int
@@ -171,7 +169,11 @@ class LiveSaleViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LiveSaleViewModel::class.java)) {
             val db = AlleyMateDatabase.getDatabase(application)
-            val repository = EventRepository(db.eventDao(), db.catalogueDao(), db.transactionDao())
+            val repository = EventRepository(
+                db.eventDao(),
+                db.catalogueDao(),
+                db.transactionDao()
+            )
             @Suppress("UNCHECKED_CAST")
             return LiveSaleViewModel(repository, eventId) as T
         }

@@ -27,15 +27,18 @@ fun RestockProductModal(
         var restockQuantity by remember { mutableIntStateOf(0) }
 
         Row(
-            modifier = Modifier.padding(vertical = 16.dp).height(IntrinsicSize.Min),
+            modifier = Modifier
+                .padding(vertical = 16.dp)
+                .height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // --- Left Side: Product Info ---
+            // Product details
             Column(
-                modifier = Modifier.weight(1f).fillMaxHeight(),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Top content group
                 Column {
                     Text(
                         text = item.name,
@@ -45,7 +48,7 @@ fun RestockProductModal(
                     Surface(
                         shape = MaterialTheme.shapes.small,
                         border = BorderStroke(1.dp, Color.LightGray),
-                        color = Color.Transparent,
+                        color = Color.Transparent
                     ) {
                         Text(
                             text = item.category.uppercase(),
@@ -61,7 +64,6 @@ fun RestockProductModal(
                     )
                 }
 
-                // Bottom content
                 Text(
                     text = "${item.stock} in Stock",
                     style = MaterialTheme.typography.labelSmall,
@@ -69,10 +71,14 @@ fun RestockProductModal(
                 )
             }
 
-            // Vertical Divider
-            VerticalDivider(modifier = Modifier.fillMaxHeight().padding(horizontal = 8.dp))
+            // Separator
+            VerticalDivider(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(horizontal = 8.dp)
+            )
 
-            // --- Right Side: Actions ---
+            // Restock controls
             Column(
                 modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -101,5 +107,3 @@ fun RestockProductModal(
         }
     }
 }
-
-

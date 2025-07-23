@@ -3,17 +3,26 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
-
-private val AlleyMainOrange = Color(0xFFEE7036)
 
 @Composable
 fun LiveEventCard(
@@ -21,6 +30,7 @@ fun LiveEventCard(
     onEventClick: (eventId: Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Main card that navigates on click
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -31,7 +41,8 @@ fun LiveEventCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // --- HEADER: Title ---
+
+            // Event title header with colored background
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -47,13 +58,13 @@ fun LiveEventCard(
                 )
             }
 
-            // --- BODY: Details and Stats ---
+            // Main content section with date, location, status, and stats
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                // Top Section: Date and Location
+                // Event date and location
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = event.dateRangeString,
@@ -72,15 +83,14 @@ fun LiveEventCard(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Bottom Section
+                // Bottom section: Live tag and stats
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 
-
-                    // Live Status Tag - Bottom Left
+                    // "LIVE" status tag
                     Surface(
                         shape = MaterialTheme.shapes.small,
                         border = BorderStroke(1.dp, color = AlleyMainOrange.copy(alpha = 0.5f)),
@@ -95,7 +105,7 @@ fun LiveEventCard(
                         )
                     }
 
-                    // Stats - Bottom Right
+                    // Catalogue and stock stats
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(24.dp),
                         verticalAlignment = Alignment.Bottom

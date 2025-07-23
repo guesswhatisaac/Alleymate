@@ -5,9 +5,8 @@ import androidx.room.*
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.*
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.views.EventSummaryView
 
-// vv  TODO: A CERTAIN FUNCTION MUST BE REMOVED IN PRODUCTION; CREATE MIGRATION SYSTEM
-
-@TypeConverters(DateConverter::class, EventStatusConverter::class)
+// TODO: Remove fallbackToDestructiveMigration in production and implement a migration system
+@TypeConverters(EventStatusConverter::class)
 @Database(
     entities = [
         CatalogueItem::class,
@@ -19,20 +18,15 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.views.EventSummary
         SaleTransactionItem::class
     ],
     views = [EventSummaryView::class],
-    version = 18,
+    version = 19,
     exportSchema = false
 )
-
 abstract class AlleyMateDatabase : RoomDatabase() {
 
     abstract fun catalogueDao(): CatalogueDao
     abstract fun itemCategoryDao(): ItemCategoryDao
     abstract fun eventDao(): EventDao
     abstract fun transactionDao(): TransactionDao
-
-    fun clearAllData() {
-        clearAllTables()
-    }
 
     companion object {
         @Volatile
@@ -45,7 +39,7 @@ abstract class AlleyMateDatabase : RoomDatabase() {
                     AlleyMateDatabase::class.java,
                     "alleymate_database"
                 )
-                    .fallbackToDestructiveMigration(true) // TODO: MUST BE REMOVED IN PRODUCTION; CREATE MIGRATION SYSTEM
+                    .fallbackToDestructiveMigration(true) // TODO: Remove in production
                     .build()
                     .also { INSTANCE = it }
             }

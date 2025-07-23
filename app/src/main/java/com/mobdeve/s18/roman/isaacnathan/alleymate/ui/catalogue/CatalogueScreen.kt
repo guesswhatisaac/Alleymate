@@ -39,81 +39,72 @@ fun CatalogueScreen(
     onNavigateToAllocate: () -> Unit,
     viewModel: CatalogueViewModel = viewModel()
 ) {
+    // --- UI state ---
     var modalState by remember { mutableStateOf<ModalState>(ModalState.None) }
-
-    val itemCategories by viewModel.itemCategories.collectAsState()
-    val selectedItemCategory by viewModel.selectedItemCategory.collectAsState()
     var navigationTriggered by remember { mutableStateOf(false) }
 
-    val lazyListState = rememberSaveable(saver = LazyListState.Saver) {
-        LazyListState()
-    }
-
-    val allItemCategories by viewModel.itemCategories.collectAsState()
-    val modalCategories = allItemCategories.filter { it != "ALL" }
-
+    // --- ViewModel state ---
+    val itemCategories by viewModel.itemCategories.collectAsState()
+    val selectedItemCategory by viewModel.selectedItemCategory.collectAsState()
     val items by viewModel.filteredItems.collectAsState()
     val categoryItemCount by viewModel.categoryItemCount.collectAsState()
     val selectedItemIds by viewModel.selectedItemIds.collectAsState()
     val inSelectionMode by viewModel.inSelectionMode.collectAsState()
     val allocationBadgeCount by viewModel.allocationBadgeCount.collectAsState()
 
+    val lazyListState = rememberSaveable(saver = LazyListState.Saver) {
+        LazyListState()
+    }
+
+    val modalCategories = itemCategories.filter { it != "ALL" }
+
     LaunchedEffect(Unit) {
         navigationTriggered = false
     }
 
+    // --- Modal handling ---
     when (val state = modalState) {
-        is ModalState.None -> { /* Do nothing */ }
-        is ModalState.AddProduct -> {
-            AddProductModal(
-                itemCategories = modalCategories,
-                onDismissRequest = { modalState = ModalState.None },
-                onAddProduct = { name, category, price, stock, imageUri ->
-                    viewModel.addProduct(name, category, price, stock, imageUri)
-                    modalState = ModalState.None
-                }
-            )
-        }
-        is ModalState.AddCategory -> {
-            AddCategoryModal(
-                onDismissRequest = { modalState = ModalState.None },
-                onAddCategory = { categoryName ->
-                    viewModel.addItemCategory(categoryName)
-                    modalState = ModalState.None
-                }
-            )
-        }
-        is ModalState.EditProduct -> {
-            EditProductModal(
-                item = state.item,
-                itemCategories = modalCategories,
-                onDismissRequest = { modalState = ModalState.None },
-                onConfirmEdit = { updatedItem ->
-                    viewModel.editProduct(updatedItem)
-                    modalState = ModalState.None
-                }
-            )
-        }
-        is ModalState.RestockProduct -> {
-            RestockProductModal(
-                item = state.item,
-                onDismissRequest = { modalState = ModalState.None },
-                onConfirmRestock = { quantity ->
-                    viewModel.restockProduct(state.item, quantity)
-                    modalState = ModalState.None
-                }
-            )
-        }
-        is ModalState.DeleteConfirmation -> {
-            DeleteCatalogueItemModal(
-                item = state.item,
-                onDismissRequest = { modalState = ModalState.None },
-                onConfirmDelete = {
-                    viewModel.deleteItem(state.item)
-                    modalState = ModalState.None
-                }
-            )
-        }
+        ModalState.None -> Unit
+        ModalState.AddProduct -> AddProductModal(
+            itemCategories = modalCategories,
+            onDismissRequest = { modalState = ModalState.None },
+            onAddProduct = { name, category, price, stock, imageUri ->
+                viewModel.addProduct(name, category, price, stock, imageUri)
+                modalState = ModalState.None
+            }
+        )
+        ModalState.AddCategory -> AddCategoryModal(
+            onDismissRequest = { modalState = ModalState.None },
+            onAddCategory = { categoryName ->
+                viewModel.addItemCategory(categoryName)
+                modalState = ModalState.None
+            }
+        )
+        is ModalState.EditProduct -> EditProductModal(
+            item = state.item,
+            itemCategories = modalCategories,
+            onDismissRequest = { modalState = ModalState.None },
+            onConfirmEdit = { updatedItem ->
+                viewModel.editProduct(updatedItem)
+                modalState = ModalState.None
+            }
+        )
+        is ModalState.RestockProduct -> RestockProductModal(
+            item = state.item,
+            onDismissRequest = { modalState = ModalState.None },
+            onConfirmRestock = { quantity ->
+                viewModel.restockProduct(state.item, quantity)
+                modalState = ModalState.None
+            }
+        )
+        is ModalState.DeleteConfirmation -> DeleteCatalogueItemModal(
+            item = state.item,
+            onDismissRequest = { modalState = ModalState.None },
+            onConfirmDelete = {
+                viewModel.deleteItem(state.item)
+                modalState = ModalState.None
+            }
+        )
         is ModalState.DeleteCategory -> {
             val isDeletable = categoryItemCount == 0
             DeleteCategoryModal(
@@ -129,14 +120,11 @@ fun CatalogueScreen(
         }
     }
 
+    // --- Main screen layout ---
     Scaffold(
         topBar = {
             AppTopBar(
-                title = if (inSelectionMode) {
-                    "$allocationBadgeCount Selected"
-                } else {
-                    "Catalogue"
-                },
+                title = if (inSelectionMode) "$allocationBadgeCount Selected" else "Catalogue",
                 navigationIcon = {
                     if (inSelectionMode) {
                         IconButton(onClick = viewModel::clearSelection) {
@@ -146,9 +134,7 @@ fun CatalogueScreen(
                 },
                 actions = {
                     if (inSelectionMode) {
-                        IconButton(onClick = {
-                            viewModel.prepareForAllocation()
-                        }) {
+                        IconButton(onClick = viewModel::prepareForAllocation) {
                             Icon(Icons.Default.Check, contentDescription = "Confirm Selection")
                         }
                     } else {
@@ -157,7 +143,7 @@ fun CatalogueScreen(
                             icon = Icons.Outlined.Archive,
                             contentDescription = "View Allocations",
                             onClick = {
-                                if(!navigationTriggered){
+                                if (!navigationTriggered) {
                                     navigationTriggered = true
                                     onNavigateToAllocate()
                                 }
@@ -176,6 +162,7 @@ fun CatalogueScreen(
         }
     ) { innerPadding ->
 
+        // --- List content ---
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -184,25 +171,24 @@ fun CatalogueScreen(
             contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Header 1: Category Filters
+            // Category filter chips
             item {
                 CategoryFilters(
                     categories = itemCategories,
                     selectedCategory = selectedItemCategory,
-                    onCategorySelected = { category ->
-                        viewModel.selectItemCategory(category)
-                        viewModel.updateCategoryItemCount(category)
+                    onCategorySelected = {
+                        viewModel.selectItemCategory(it)
+                        viewModel.updateCategoryItemCount(it)
                     },
                     onAddCategoryClicked = { modalState = ModalState.AddCategory },
-                    // UPDATED: Use the new long press callback
-                    onCategoryLongPress = { category ->
-                        viewModel.updateCategoryItemCount(category)
-                        modalState = ModalState.DeleteCategory(category)
+                    onCategoryLongPress = {
+                        viewModel.updateCategoryItemCount(it)
+                        modalState = ModalState.DeleteCategory(it)
                     }
                 )
             }
 
-            // Header 2: Section Header
+            // Section header
             item {
                 SectionHeader(
                     title = "${items.size} Total Designs",
@@ -212,7 +198,7 @@ fun CatalogueScreen(
                 )
             }
 
-            // Conditional Content: Either the empty message OR the grid of items.
+            // Show message or catalogue items
             if (items.isEmpty()) {
                 item {
                     EmptyStateMessage(
@@ -232,7 +218,7 @@ fun CatalogueScreen(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        // --- Logic for the first card in the row ---
+                        // First card
                         Box(modifier = Modifier.weight(1f)) {
                             val item = rowItems[0]
                             val isSelected = item.itemId in selectedItemIds
@@ -240,13 +226,16 @@ fun CatalogueScreen(
                                 item = item,
                                 isSelected = isSelected,
                                 onLongClick = { viewModel.toggleSelection(item.itemId) },
-                                onClick = { if (inSelectionMode) viewModel.toggleSelection(item.itemId) },
+                                onClick = {
+                                    if (inSelectionMode) viewModel.toggleSelection(item.itemId)
+                                },
                                 onRestockClick = { modalState = ModalState.RestockProduct(item) },
                                 onEditClick = { modalState = ModalState.EditProduct(item) },
-                                onDeleteClick = { modalState = ModalState.DeleteConfirmation(item) }                            )
+                                onDeleteClick = { modalState = ModalState.DeleteConfirmation(item) }
+                            )
                         }
 
-                        // --- Logic for the second card in the row (if it exists) ---
+                        // Second card (if any)
                         Box(modifier = Modifier.weight(1f)) {
                             if (rowItems.size > 1) {
                                 val item = rowItems[1]
@@ -255,11 +244,13 @@ fun CatalogueScreen(
                                     item = item,
                                     isSelected = isSelected,
                                     onLongClick = { viewModel.toggleSelection(item.itemId) },
-                                    onClick = { if (inSelectionMode) viewModel.toggleSelection(item.itemId) },
+                                    onClick = {
+                                        if (inSelectionMode) viewModel.toggleSelection(item.itemId)
+                                    },
                                     onRestockClick = { modalState = ModalState.RestockProduct(item) },
                                     onEditClick = { modalState = ModalState.EditProduct(item) },
-                                    onDeleteClick = { modalState = ModalState.DeleteConfirmation(item) }                            )
-
+                                    onDeleteClick = { modalState = ModalState.DeleteConfirmation(item) }
+                                )
                             }
                         }
                     }

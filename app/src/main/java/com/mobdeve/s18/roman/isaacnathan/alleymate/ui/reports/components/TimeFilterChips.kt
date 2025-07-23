@@ -29,7 +29,6 @@ fun ReportFilters(
     val isAllEventsSelected = selectedEvent.eventId == -1
 
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        // Event Selector
         EventSelectorBar(
             currentEvent = selectedEvent,
             events = events,
@@ -37,7 +36,6 @@ fun ReportFilters(
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
-        // Time Filter Chips
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 16.dp),
@@ -53,7 +51,6 @@ fun ReportFilters(
                     filter.displayName
                 }
 
-                // Use the custom chip component, passing the enabled state
                 CustomReportFilterChip(
                     text = chipText,
                     isSelected = isSelected,
@@ -65,7 +62,6 @@ fun ReportFilters(
     }
 }
 
-
 @Composable
 private fun CustomReportFilterChip(
     text: String,
@@ -75,16 +71,17 @@ private fun CustomReportFilterChip(
 ) {
     val selectedColor = AlleyMainOrange
 
-    // Define colors based on both selected and enabled states
     val backgroundColor = when {
         isSelected -> selectedColor
         else -> Color.Transparent
     }
+
     val textColor = when {
         !enabled -> Color.LightGray
         isSelected -> Color.White
         else -> Color.DarkGray
     }
+
     val border = when {
         isSelected -> null
         !enabled -> BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))

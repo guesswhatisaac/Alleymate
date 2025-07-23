@@ -15,6 +15,7 @@ fun AddExpenseModal(
     onDismissRequest: () -> Unit,
     onAddExpense: (description: String, amount: Double) -> Unit
 ) {
+    // State variables to hold input values and error flag
     var expenseDesc by remember { mutableStateOf("") }
     var expenseAmount by remember { mutableStateOf("") }
     var showError by remember { mutableStateOf(false) }
@@ -26,6 +27,7 @@ fun AddExpenseModal(
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Input for expense description
             FormTextField(
                 label = "Expense Description",
                 value = expenseDesc,
@@ -37,6 +39,7 @@ fun AddExpenseModal(
                 errorMessage = "Description is required"
             )
 
+            // Input for expense amount with validation
             FormTextField(
                 label = "Amount (₱)",
                 value = expenseAmount,
@@ -51,6 +54,7 @@ fun AddExpenseModal(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Action buttons: Cancel and Add Expense
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)

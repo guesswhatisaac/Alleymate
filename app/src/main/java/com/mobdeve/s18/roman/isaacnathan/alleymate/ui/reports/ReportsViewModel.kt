@@ -14,33 +14,45 @@ import java.util.Calendar
 @OptIn(ExperimentalCoroutinesApi::class)
 class ReportsViewModel(application: Application) : AndroidViewModel(application) {
 
+    // Initialize repositories
     private val reportsRepository: ReportsRepository
     private val eventRepository: EventRepository
 
+    // Backing state for current filter selection
     private val _filterState = MutableStateFlow(ReportsFilterState(selectedEvent = null))
     val filterState: StateFlow<ReportsFilterState> = _filterState.asStateFlow()
 
+    // List of all events for filter dropdown
     val allEvents: StateFlow<List<Event>>
+
+    // Summary report values (e.g., revenue, profit, sold count)
     val reportStats: StateFlow<ReportStats>
+
+    // List of best-selling items
     val bestSellers: StateFlow<List<BestSeller>>
 
     init {
+        // Initialize database and repositories
         val database = AlleyMateDatabase.getDatabase(application)
         reportsRepository = ReportsRepository(database.transactionDao(), database.eventDao())
         eventRepository = EventRepository(database.eventDao(), database.catalogueDao(), database.transactionDao())
 
+        // Load all events and expose them as a StateFlow
         allEvents = eventRepository.getAllEvents()
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+        // Reactively build a combined data stream for sales and expenses
         val reportsDataFlow = _filterState.flatMapLatest { filters ->
             val eventIds = filters.selectedEvent?.eventId?.let { listOf(it) }
                 ?: allEvents.value.map { it.eventId }
 
             val startTime = getStartTimeForFilter(filters.selectedTimeFilter)
 
+            // If no event is selected, return empty flow
             if (eventIds.isEmpty()) {
                 flowOf(Pair(emptyList(), 0L))
             } else {
+                // Combine both revenue and expense flows
                 combine(
                     reportsRepository.getSalesData(eventIds, startTime),
                     reportsRepository.getTotalExpenses(eventIds)
@@ -50,6 +62,7 @@ class ReportsViewModel(application: Application) : AndroidViewModel(application)
             }
         }
 
+        // Map the combined flow into a single ReportStats object
         reportStats = reportsDataFlow.map { (salesData, totalExpenses) ->
             val totalRevenue = salesData.sumOf { it.totalRevenueInCents }
             ReportStats(
@@ -60,6 +73,7 @@ class ReportsViewModel(application: Application) : AndroidViewModel(application)
             )
         }.stateIn(viewModelScope, SharingStarted.Eagerly, ReportStats())
 
+        // Generate ranked best sellers based on quantity sold
         bestSellers = reportsDataFlow.map { (salesData, _) ->
             salesData.mapIndexed { index, data ->
                 BestSeller(
@@ -72,6 +86,7 @@ class ReportsViewModel(application: Application) : AndroidViewModel(application)
         }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     }
 
+    // Updates the selected event and resets the time filter to ALL_TIME
     fun selectEvent(event: Event?) {
         _filterState.value = _filterState.value.copy(
             selectedEvent = event,
@@ -79,10 +94,12 @@ class ReportsViewModel(application: Application) : AndroidViewModel(application)
         )
     }
 
+    // Updates only the selected time filter
     fun selectTimeFilter(timeFilter: TimeFilter) {
         _filterState.value = _filterState.value.copy(selectedTimeFilter = timeFilter)
     }
 
+    // Converts a time filter enum into a Unix timestamp for querying
     private fun getStartTimeForFilter(timeFilter: TimeFilter): Long {
         val calendar = Calendar.getInstance()
         return when (timeFilter) {

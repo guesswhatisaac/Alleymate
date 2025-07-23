@@ -18,12 +18,14 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.EditEven
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.LiveEventCard
 import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateMessage
 
+// Defines possible modal states for adding or editing events
 private sealed interface EventModalState {
     data object None : EventModalState
     data object AddEvent : EventModalState
     data class EditEvent(val event: EventUiModel) : EventModalState
 }
 
+// Defines tabs for upcoming and past events
 private enum class EventTab(val title: String) {
     UPCOMING("Upcoming"),
     PAST("Past")
@@ -34,13 +36,16 @@ fun EventsScreen(
     onNavigateToEventDetail: (Int) -> Unit,
     onNavigateToLiveSale: (eventId: Int) -> Unit,
     viewModel: EventViewModel
-    ) {
-
+) {
+    // Holds current modal being shown
     var modalState by remember { mutableStateOf<EventModalState>(EventModalState.None) }
+    // Holds currently selected tab
     var selectedTab by remember { mutableStateOf(EventTab.UPCOMING) }
 
+    // Observes event list from ViewModel
     val events by viewModel.allEvents.collectAsState()
 
+    // Categorize events by status
     val (liveEvents, upcomingEvents, pastEvents) = remember(events) {
         val live = events.filter { it.status == EventStatus.LIVE }
         val upcoming = events.filter { it.status == EventStatus.UPCOMING }
@@ -48,9 +53,9 @@ fun EventsScreen(
         Triple(live, upcoming, past)
     }
 
-    // Modal handling
+    // Render modal based on current state
     when (val state = modalState) {
-        is EventModalState.None -> { }
+        is EventModalState.None -> Unit
         is EventModalState.AddEvent -> {
             AddEventModal(
                 onDismissRequest = { modalState = EventModalState.None },
@@ -72,6 +77,7 @@ fun EventsScreen(
         }
     }
 
+    // Scaffold layout with top bar and FAB
     Scaffold(
         topBar = {
             AppTopBar(title = "Events")
@@ -87,10 +93,8 @@ fun EventsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Live Event Section
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) {
+            // Section for currently live event
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 Spacer(modifier = Modifier.height(16.dp))
                 SectionHeader(
                     title = "Currently Live",
@@ -102,9 +106,7 @@ fun EventsScreen(
                 if (liveEvents.isNotEmpty()) {
                     LiveEventCard(
                         event = liveEvents.first(),
-                        onEventClick = { eventId ->
-                            onNavigateToLiveSale(eventId)
-                        },
+                        onEventClick = { eventId -> onNavigateToLiveSale(eventId) },
                     )
                 } else {
                     EmptyStateMessage(
@@ -120,44 +122,43 @@ fun EventsScreen(
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             }
 
-            // Tabs Section
-                TabRow(
-                    selectedTabIndex = selectedTab.ordinal,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    EventTab.entries.forEach { tab ->
-                        Tab(
-                            selected = selectedTab == tab,
-                            onClick = { selectedTab = tab },
-                            text = {
-                                val count = when (tab) {
-                                    EventTab.UPCOMING -> upcomingEvents.size
-                                    EventTab.PAST -> pastEvents.size
-                                }
-                                Text("${tab.title} ($count)")
+            // Tab row for switching between upcoming and past events
+            TabRow(
+                selectedTabIndex = selectedTab.ordinal,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                EventTab.entries.forEach { tab ->
+                    Tab(
+                        selected = selectedTab == tab,
+                        onClick = { selectedTab = tab },
+                        text = {
+                            val count = when (tab) {
+                                EventTab.UPCOMING -> upcomingEvents.size
+                                EventTab.PAST -> pastEvents.size
                             }
-                        )
-                    }
+                            Text("${tab.title} ($count)")
+                        }
+                    )
                 }
+            }
 
-                // Tab Content
-                when (selectedTab) {
-                    EventTab.UPCOMING -> {
-                        EventList(
-                            events = upcomingEvents,
-                            onEventClick = onNavigateToEventDetail,
-                            isPastEvents = false
-                        )
-                    }
-                    EventTab.PAST -> {
-                        EventList(
-                            events = pastEvents,
-                            onEventClick = onNavigateToEventDetail,
-                            isPastEvents = true
-                        )
-                    }
+            // Show event list depending on selected tab
+            when (selectedTab) {
+                EventTab.UPCOMING -> {
+                    EventList(
+                        events = upcomingEvents,
+                        onEventClick = onNavigateToEventDetail,
+                        isPastEvents = false
+                    )
                 }
-
+                EventTab.PAST -> {
+                    EventList(
+                        events = pastEvents,
+                        onEventClick = onNavigateToEventDetail,
+                        isPastEvents = true
+                    )
+                }
+            }
         }
     }
 }
@@ -174,9 +175,13 @@ private fun EventList(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         if (events.isEmpty()) {
+            // Show message if no events exist
             item {
                 val title = if (isPastEvents) "No Past Events" else "No Upcoming Events"
-                val subtitle = if (isPastEvents) "Completed events will appear here." else "Tap the '+' button to create a new event."
+                val subtitle = if (isPastEvents)
+                    "Completed events will appear here."
+                else
+                    "Tap the '+' button to create a new event."
                 EmptyStateMessage(
                     title = title,
                     subtitle = subtitle,
@@ -185,6 +190,7 @@ private fun EventList(
                 )
             }
         } else {
+            // Render each event item
             items(items = events, key = { it.eventId }) { event ->
                 EventListItem(
                     event = event,

@@ -1,10 +1,11 @@
 package com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.views
 
 import androidx.room.DatabaseView
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
 
-
+/**
+ * Database view that summarizes key metrics per event, including inventory stats and financials.
+ */
 @DatabaseView(
     """
     SELECT
@@ -14,12 +15,19 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
         e.startDate,
         e.endDate,
         e.status,
+
+        -- Inventory summary
         COALESCE(inv.totalItemsAllocated, 0) AS totalItemsAllocated,
         COALESCE(inv.totalItemsSold, 0) AS totalItemsSold,
         COALESCE(inv.totalRevenueInCents, 0) AS totalRevenueInCents,
-        COALESCE(exp.totalExpensesInCents, 0) AS totalExpensesInCents,
-        COALESCE(inv.catalogueCount, 0) AS catalogueCount
+        COALESCE(inv.catalogueCount, 0) AS catalogueCount,
+
+        -- Expense summary
+        COALESCE(exp.totalExpensesInCents, 0) AS totalExpensesInCents
+
     FROM events AS e
+
+    -- Join with inventory summary per event
     LEFT JOIN (
         SELECT
             i.eventId,
@@ -31,6 +39,8 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.EventStatus
         INNER JOIN catalogue_items AS c ON i.itemId = c.itemId
         GROUP BY i.eventId
     ) AS inv ON e.eventId = inv.eventId
+
+    -- Join with expenses summary per event
     LEFT JOIN (
         SELECT
             eventId,
@@ -52,21 +62,4 @@ data class EventSummaryView(
     val totalRevenueInCents: Long,
     val totalExpensesInCents: Long,
     val catalogueCount: Int
-) {
-    fun toEvent(): Event {
-        return Event(
-            eventId = this.eventId,
-            title = this.title,
-            location = this.location,
-            startDate = this.startDate,
-            endDate = this.endDate
-        ).apply {
-            this.totalItemsAllocated = this@EventSummaryView.totalItemsAllocated
-            this.totalItemsSold = this@EventSummaryView.totalItemsSold
-            this.totalRevenueInCents = this@EventSummaryView.totalRevenueInCents
-            this.totalExpensesInCents = this@EventSummaryView.totalExpensesInCents
-            this.catalogueCount = this@EventSummaryView.catalogueCount
-            this.totalStockLeft = this@EventSummaryView.totalItemsAllocated - this@EventSummaryView.totalItemsSold
-        }
-    }
-}
+)

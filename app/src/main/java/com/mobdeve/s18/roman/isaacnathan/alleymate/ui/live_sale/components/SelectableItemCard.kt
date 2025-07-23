@@ -31,25 +31,27 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.relations.EventInv
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
 
 @Composable
- fun SelectableItemCard(
+fun SelectableItemCard(
     inventoryItem: EventInventoryWithDetails,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Compute remaining stock
     val stockLeft = inventoryItem.eventInventoryItem.allocatedQuantity - inventoryItem.eventInventoryItem.soldQuantity
     val isEnabled = stockLeft > 0
 
     AppCard(
         modifier = modifier.clickable(enabled = isEnabled, onClick = onClick),
     ) {
+        // Dim card background if out of stock
         Column(modifier = Modifier.background(if (!isEnabled) Color.LightGray.copy(alpha = 0.3f) else Color.Transparent)) {
+
             Box(
                 modifier = Modifier.fillMaxWidth().height(120.dp),
                 contentAlignment = Alignment.Center
             ) {
-
-
+                // Show placeholder if no image, else load image
                 if (inventoryItem.catalogueItem.imageUri.isNullOrBlank()) {
                     Icon(
                         imageVector = Icons.Outlined.Image,
@@ -66,6 +68,7 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
                     )
                 }
 
+                // Overlay selection indicator
                 if (isSelected) {
                     Box(
                         modifier = Modifier
@@ -80,6 +83,8 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
                     )
                 }
             }
+
+            // Item name, price, and stock count
             Column(
                 modifier = Modifier.padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)

@@ -3,18 +3,14 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.HomeTopBar
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.SectionHeader
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.UpcomingEventsSection
-import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.*
-import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.EmptyStateMessage
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mobdeve.s18.roman.isaacnathan.alleymate.common.components.*
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.components.LiveEventCard
-import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.OverviewGrid
+import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.home.components.*
 
 @Composable
 fun HomeScreen(
@@ -23,16 +19,13 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
     onNavigateToEventDetail: (eventId: Int) -> Unit,
 ) {
-    // --- OBSERVE STATE FROM THE NEW VIEWMODEL ---
+    // --- Observe UI State ---
     val upcomingEvents by viewModel.upcomingEvents.collectAsState()
     val liveEvent by viewModel.liveEvent.collectAsState()
     val overviewStats by viewModel.overviewStats.collectAsState()
-    //val chartData by viewModel.chartData.collectAsState()
 
     Scaffold(
-        topBar = {
-            HomeTopBar(title = "Alleymate")
-        }
+        topBar = { HomeTopBar(title = "Alleymate") }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -41,6 +34,7 @@ fun HomeScreen(
             contentPadding = PaddingValues(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            // --- Upcoming Events Section ---
             item {
                 UpcomingEventsSection(
                     events = upcomingEvents,
@@ -49,6 +43,7 @@ fun HomeScreen(
                 )
             }
 
+            // --- Live Sale Section ---
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     SectionHeader(
@@ -58,13 +53,10 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    val currentLiveEvent = liveEvent
-                    if (currentLiveEvent != null) {
+                    if (liveEvent != null) {
                         LiveEventCard(
-                            event = currentLiveEvent,
-                            onEventClick = { eventId ->
-                                onNavigateToLiveSale(eventId)
-                            }
+                            event = liveEvent!!,
+                            onEventClick = onNavigateToLiveSale
                         )
                     } else {
                         EmptyStateMessage(
@@ -77,6 +69,7 @@ fun HomeScreen(
                 }
             }
 
+            // --- Performance Snapshot Section ---
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     SectionHeader(
@@ -85,9 +78,7 @@ fun HomeScreen(
                         isSubtle = true
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-
                     OverviewGrid(stats = overviewStats)
-
                 }
             }
         }

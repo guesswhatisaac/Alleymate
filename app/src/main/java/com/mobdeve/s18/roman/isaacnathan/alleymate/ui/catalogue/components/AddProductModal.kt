@@ -17,11 +17,11 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
 import java.io.File
 
+// Utility function to create a temporary image file
 fun createImageFile(context: Context): File {
     val timeStamp = System.currentTimeMillis()
     val storageDir: File? = context.cacheDir
@@ -38,6 +38,7 @@ fun AddProductModal(
         onDismissRequest = onDismissRequest,
         headerTitle = "Add Product"
     ) {
+        // Form state
         var productName by remember { mutableStateOf("") }
         var productTag by remember { mutableStateOf(itemCategories.firstOrNull() ?: "N/A") }
         var retailPrice by remember { mutableStateOf("") }
@@ -45,12 +46,13 @@ fun AddProductModal(
         var isPriceError by remember { mutableStateOf(false) }
         var isStockError by remember { mutableStateOf(false) }
 
+        // Camera-related state
         val context = LocalContext.current
         var hasCameraPermission by remember { mutableStateOf(false) }
         var imageUri by remember { mutableStateOf<Uri?>(null) }
         var tempImageFile by remember { mutableStateOf<File?>(null) }
 
-        // --- Camera Launcher ---
+        // Handles launching the camera and storing the image URI
         val cameraLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.TakePicture()
         ) { success ->
@@ -63,7 +65,7 @@ fun AddProductModal(
             }
         }
 
-        // --- Permission Launcher ---
+        // Requests camera permission and triggers camera if granted
         val permissionLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
         ) { isGranted ->
@@ -80,9 +82,7 @@ fun AddProductModal(
             }
         }
 
-        // Check for permission on compose start
-        LaunchedEffect(Unit) {}
-
+        // Derived form validation state
         val isFormValid by remember(productName, retailPrice, initialStock) {
             derivedStateOf {
                 productName.isNotBlank() &&
@@ -91,22 +91,27 @@ fun AddProductModal(
             }
         }
 
+        // --- Form Layout ---
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Image picker triggers permission + camera flow
             FormImagePicker(
                 imageUri = imageUri,
                 onImagePickerClick = {
                     permissionLauncher.launch(Manifest.permission.CAMERA)
                 }
             )
+
+            // Product name input
             FormTextField(
                 label = "Product Name",
                 value = productName,
                 onValueChange = { productName = it }
             )
 
+            // Dropdown for selecting category/tag
             FormDropdown(
                 label = "Product Tag",
                 selectedValue = productTag,
@@ -114,6 +119,7 @@ fun AddProductModal(
                 onValueChange = { productTag = it }
             )
 
+            // Retail price and stock fields with basic error handling
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 FormTextField(
                     label = "Retail Price",
@@ -139,6 +145,7 @@ fun AddProductModal(
                 )
             }
 
+            // Submission button triggers callback if form is valid
             Button(
                 onClick = {
                     onAddProduct(
@@ -163,4 +170,3 @@ fun AddProductModal(
         }
     }
 }
-

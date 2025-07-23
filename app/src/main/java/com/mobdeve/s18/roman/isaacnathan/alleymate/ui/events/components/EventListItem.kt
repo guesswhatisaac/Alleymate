@@ -20,6 +20,7 @@ fun EventListItem(
     onEventClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Main event card container
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -30,7 +31,8 @@ fun EventListItem(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            // --- HEADER: Title ---
+
+            // Event title header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -46,14 +48,14 @@ fun EventListItem(
                 )
             }
 
-            // --- BODY: Details and Stats ---
+            // Body: Date, location, status, and stats
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                // Top Section: Date and Location
-                Column(modifier = Modifier.fillMaxWidth()) {
+                // Date and location
+                Column {
                     Text(
                         text = event.dateRangeString,
                         style = MaterialTheme.typography.bodyMedium,
@@ -71,16 +73,14 @@ fun EventListItem(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Bottom Section: Status Tag (left) and Stats (right)
+                // Bottom row: Status on left, stats on right
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.Bottom,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    // Status Tag - Bottom Left
                     StatusTag(status = event.status)
 
-                    // Stats - Bottom Right
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(24.dp),
                         verticalAlignment = Alignment.Bottom
@@ -100,7 +100,7 @@ fun EventListItem(
     }
 }
 
-// --- Helper Composables ---
+// Reusable UI for displaying a value-label pair (e.g., "5 Catalogue")
 @Composable
 private fun StatColumn(
     value: String,
@@ -126,6 +126,7 @@ private fun StatColumn(
     }
 }
 
+// Status badge with dynamic color depending on event state
 @Composable
 private fun StatusTag(status: EventStatus) {
     val tagBackgroundColor = when (status) {

@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CatalogueDao {
 
+    // Insert / Update / Delete
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: CatalogueItem)
 
@@ -16,22 +18,27 @@ interface CatalogueDao {
     @Delete
     suspend fun delete(item: CatalogueItem)
 
-    @Query("SELECT * FROM catalogue_items ORDER BY name ASC")
-    fun getAllItems(): Flow<List<CatalogueItem>>
-
     @Query("DELETE FROM catalogue_items")
     suspend fun deleteAllItems()
 
-    @Query("UPDATE catalogue_items SET stock = stock - :quantityToReduce WHERE itemId = :itemId")
-    suspend fun reduceStock(itemId: Int, quantityToReduce: Int)
+
+    // Queries
+
+    @Query("SELECT * FROM catalogue_items ORDER BY name ASC")
+    fun getAllItems(): Flow<List<CatalogueItem>>
 
     @Query("SELECT * FROM catalogue_items WHERE itemId IN (:itemIds)")
     fun getItemsByIds(itemIds: List<Int>): Flow<List<CatalogueItem>>
 
-    @Query("UPDATE catalogue_items SET stock = stock + :quantityToAdd WHERE itemId = :itemId")
-    suspend fun returnStock(itemId: Int, quantityToAdd: Int)
-
     @Query("SELECT COUNT(*) FROM catalogue_items WHERE stock <= :threshold")
     fun getLowStockItemsCount(threshold: Int): Flow<Int>
 
+
+    // Stock adjustments
+
+    @Query("UPDATE catalogue_items SET stock = stock - :quantityToReduce WHERE itemId = :itemId")
+    suspend fun reduceStock(itemId: Int, quantityToReduce: Int)
+
+    @Query("UPDATE catalogue_items SET stock = stock + :quantityToAdd WHERE itemId = :itemId")
+    suspend fun returnStock(itemId: Int, quantityToAdd: Int)
 }

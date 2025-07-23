@@ -16,11 +16,12 @@ class EventDetailViewModel(
     private val eventId: Int
 ) : ViewModel() {
 
+    // --- Flows from Repository ---
     private val eventFlow: Flow<Event?> = eventRepository.getEventById(eventId)
     private val inventoryFlow: Flow<List<EventInventoryWithDetails>> = eventRepository.getInventoryForEvent(eventId)
     val expensesFlow: Flow<List<EventExpense>> = eventRepository.getExpensesForEvent(eventId)
 
-
+    // --- Combined Event Flow with Calculated Fields ---
     val event: StateFlow<Event?> = combine(
         eventFlow,
         inventoryFlow,
@@ -40,20 +41,14 @@ class EventDetailViewModel(
         initialValue = null
     )
 
+    // --- StateFlows for Inventory and Expenses ---
     val inventory: StateFlow<List<EventInventoryWithDetails>> = inventoryFlow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     val expenses: StateFlow<List<EventExpense>> = expensesFlow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    // --- Add Expense ---
     fun addExpense(description: String, amount: Double) = viewModelScope.launch {
         if (description.isNotBlank() && amount > 0) {
             val newExpense = EventExpense(
@@ -65,24 +60,20 @@ class EventDetailViewModel(
         }
     }
 
-
+    // --- Update Event ---
     fun updateEvent(event: Event) = viewModelScope.launch {
         eventRepository.updateEvent(event)
     }
 
+    // --- Delete Event ---
     fun deleteEvent() = viewModelScope.launch {
         event.value?.let { currentEvent ->
             eventRepository.deleteEvent(currentEvent)
         }
     }
 
-    fun endLiveSale() = viewModelScope.launch {
-        event.value?.let { currentEvent ->
-            val updatedEvent = currentEvent.copy(status = EventStatus.ENDED)
-            eventRepository.updateEvent(updatedEvent)
-        }
-    }
 
+    // --- Error States for Live Sale Start ---
     private val _startSaleError = MutableStateFlow<String?>(null)
     val startSaleError: StateFlow<String?> = _startSaleError.asStateFlow()
 
@@ -93,13 +84,13 @@ class EventDetailViewModel(
     private val _startSaleConflictError = MutableStateFlow<String?>(null)
     val startSaleConflictError: StateFlow<String?> = _startSaleConflictError.asStateFlow()
 
-
     fun onConflictDialogDismissed() {
         _startSaleConflictError.value = null
     }
 
+    // --- Start Live Sale with Conflict Check ---
     fun startLiveSale(onSuccess: () -> Unit) = viewModelScope.launch {
-        val otherLiveEvents = eventRepository.getLiveEvents().first() // Needs a new DAO function
+        val otherLiveEvents = eventRepository.getLiveEvents().first()
         if (otherLiveEvents.any { it.eventId != eventId }) {
             _startSaleConflictError.value = otherLiveEvents.first().title
             return@launch
@@ -111,16 +102,13 @@ class EventDetailViewModel(
             onSuccess()
         }
     }
-
-
 }
 
-
+// --- ViewModel Factory ---
 class EventDetailViewModelFactory(
     private val eventRepository: EventRepository,
     private val eventId: Int
 ) : ViewModelProvider.Factory {
-
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EventDetailViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")

@@ -26,13 +26,13 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.Event
 fun ReportsScreen(
     viewModel: ReportsViewModel = viewModel()
 ) {
-    // --- STATE OBSERVATION ---
+    // Observe reactive state from the ViewModel
     val allEvents by viewModel.allEvents.collectAsState()
     val filterState by viewModel.filterState.collectAsState()
     val stats by viewModel.reportStats.collectAsState()
     val bestSellers by viewModel.bestSellers.collectAsState()
 
-    // Create a special "All Events" object for the dropdown
+    // Create a custom "All Events" option for the dropdown menu
     val allEventsOption = remember { Event(eventId = -1, title = "All Events", location = "", startDate = 0, endDate = 0) }
     val eventsForSelector = listOf(allEventsOption) + allEvents
 
@@ -48,13 +48,13 @@ fun ReportsScreen(
             contentPadding = PaddingValues(vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // --- FILTER CONTROLS ---
+            // Filter dropdowns and time range selection
             item {
                 ReportFilters(
                     events = eventsForSelector,
                     selectedEvent = filterState.selectedEvent ?: allEventsOption,
                     onEventSelected = { event ->
-                        // If "All Events" is selected, pass null to the ViewModel
+                        // Convert "All Events" selection to null
                         viewModel.selectEvent(if (event.eventId == -1) null else event)
                     },
                     selectedTimeFilter = filterState.selectedTimeFilter,
@@ -64,6 +64,7 @@ fun ReportsScreen(
                 )
             }
 
+            // Divider line between filters and stats
             item {
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = 16.dp),
@@ -71,7 +72,7 @@ fun ReportsScreen(
                 )
             }
 
-            // --- DYNAMIC HEADER AND STATS GRID ---
+            // Stats section with dynamic title based on filters
             item {
                 Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     val eventName = filterState.selectedEvent?.title ?: "All Events"
@@ -85,7 +86,7 @@ fun ReportsScreen(
                 }
             }
 
-            // --- BEST SELLERS SECTION ---
+            // Header for best sellers
             item {
                 SectionHeader(
                     title = "Best Sellers",
@@ -95,7 +96,7 @@ fun ReportsScreen(
                 )
             }
 
-            // Show best sellers list or an empty state message
+            // Show empty state if no data; otherwise render list of best sellers
             if (bestSellers.isEmpty()) {
                 item {
                     EmptyStateMessage(

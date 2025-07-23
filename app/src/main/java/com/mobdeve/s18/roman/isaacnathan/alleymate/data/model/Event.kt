@@ -3,8 +3,6 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.data.model
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.mobdeve.s18.roman.isaacnathan.alleymate.data.local.DateConverter
 import com.mobdeve.s18.roman.isaacnathan.alleymate.ui.events.EventUiModel
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -13,36 +11,34 @@ enum class EventStatus {
     LIVE, UPCOMING, ENDED
 }
 
+// Represents a single event and its related metrics.
 @Entity(tableName = "events")
-@TypeConverters(DateConverter::class)
 data class Event(
+
+    // Identification
     @PrimaryKey(autoGenerate = true)
     val eventId: Int = 0,
+
+    // Basic details
     val title: String,
     val location: String,
+
+    // Timing
     val startDate: Long,
     val endDate: Long,
     val status: EventStatus = EventStatus.UPCOMING
+
 ) {
 
-    @Ignore
-    var totalItemsAllocated: Int = 0
+    // Runtime-only metrics
+    @Ignore var totalItemsAllocated: Int = 0
+    @Ignore var totalItemsSold: Int = 0
+    @Ignore var totalExpensesInCents: Long = 0
+    @Ignore var totalRevenueInCents: Long = 0
+    @Ignore var totalStockLeft: Int = 0
+    @Ignore var catalogueCount: Int = 0
 
-    @Ignore
-    var totalItemsSold: Int = 0
-
-    @Ignore
-    var totalExpensesInCents: Long = 0
-
-    @Ignore
-    var totalRevenueInCents: Long = 0
-
-    @Ignore
-    var totalStockLeft: Int = 0
-
-    @Ignore
-    var catalogueCount: Int = 0
-
+    // Derived values
     @get:Ignore
     val profitInCents: Long
         get() = totalRevenueInCents - totalExpensesInCents
@@ -55,6 +51,7 @@ data class Event(
             return if (startDate == endDate) endDateStr else "$startDateStr - $endDateStr"
         }
 
+    // Mapping
     fun toUiModel(): EventUiModel {
         return EventUiModel(
             eventId = this.eventId,
@@ -71,5 +68,4 @@ data class Event(
             totalRevenueInCents = this.totalRevenueInCents
         )
     }
-
 }

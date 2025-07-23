@@ -18,12 +18,12 @@ fun OverviewGrid(
     stats: HomeOverviewStats,
     modifier: Modifier = Modifier
 ) {
-    // UPDATED: Layout is now a Column of Rows, creating a 2x2 grid
+    // Arranges stats into a 2x2 grid using two rows
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // --- First Row ---
+        // Row 1: revenue + total catalogue items
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             OverviewStatCard(
                 label = "Last 30 Days Revenue",
@@ -35,6 +35,7 @@ fun OverviewGrid(
                     fontWeight = FontWeight.Bold
                 )
             }
+
             OverviewStatCard(
                 label = "Total Items in Catalogue",
                 modifier = Modifier.weight(1f)
@@ -47,7 +48,7 @@ fun OverviewGrid(
             }
         }
 
-        // --- Second Row ---
+        // Row 2: best seller name + count of low stock items
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             OverviewStatCard(
                 label = "Best Seller (All Time)",
@@ -61,6 +62,7 @@ fun OverviewGrid(
                     overflow = TextOverflow.Ellipsis
                 )
             }
+
             OverviewStatCard(
                 label = "Low Stock Items",
                 modifier = Modifier.weight(1f)

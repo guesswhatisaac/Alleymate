@@ -2,6 +2,10 @@ package com.mobdeve.s18.roman.isaacnathan.alleymate.data.model
 
 import androidx.room.*
 
+/**
+ * Represents a single transaction that took place during an event.
+ * Automatically deletes the transaction if the parent event is deleted.
+ */
 @Entity(
     tableName = "transactions",
     foreignKeys = [ForeignKey(entity = Event::class, parentColumns = ["eventId"], childColumns = ["eventId"], onDelete = ForeignKey.CASCADE)],
@@ -25,11 +29,3 @@ data class SaleTransactionItem(
     val priceInCents: Long
 )
 
-data class TransactionWithItems(
-    @Embedded val transaction: SaleTransaction,
-    @Relation(
-        parentColumn = "transactionId",
-        entityColumn = "transactionId"
-    )
-    val items: List<SaleTransactionItem>
-)

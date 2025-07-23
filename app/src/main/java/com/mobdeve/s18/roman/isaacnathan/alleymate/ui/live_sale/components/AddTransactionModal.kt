@@ -62,14 +62,15 @@ fun AddTransactionModal(
         ) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding)) {
                 if (isTransacting) {
+                    // Shows cart for review and quantity adjustment
                     TransactStep(
                         inventory = inventory,
                         cart = transactionCart,
                         onQuantityChange = onQuantityChange,
-                        onConfirm = onConfirmTransaction,
-
+                        onConfirm = onConfirmTransaction
                     )
                 } else {
+                    // Shows product selection grid
                     SelectStep(
                         inventory = inventory,
                         selectedIds = selectedItemIds,
@@ -82,7 +83,6 @@ fun AddTransactionModal(
     }
 }
 
-
 @Composable
 private fun SelectStep(
     inventory: List<EventInventoryWithDetails>,
@@ -91,6 +91,7 @@ private fun SelectStep(
     onProceed: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        // Grid of selectable item cards
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -106,6 +107,7 @@ private fun SelectStep(
             }
         }
 
+        // Proceed button at bottom
         Button(
             onClick = onProceed,
             enabled = selectedIds.isNotEmpty(),
@@ -119,7 +121,6 @@ private fun SelectStep(
     }
 }
 
-
 @Composable
 private fun TransactStep(
     inventory: List<EventInventoryWithDetails>,
@@ -130,13 +131,13 @@ private fun TransactStep(
     Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         val itemsInCart = inventory.filter { it.catalogueItem.itemId in cart.keys }
 
+        // List of cart items
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(bottom = 120.dp)
         ) {
             items(items = itemsInCart, key = { it.eventInventoryItem.itemId }) { item ->
-
                 val currentQuantity = cart[item.catalogueItem.itemId] ?: 0
 
                 TransactReviewCard(
@@ -149,6 +150,7 @@ private fun TransactStep(
             }
         }
 
+        // Bottom area: total and confirm
         Column(modifier = Modifier.align(Alignment.BottomCenter)) {
             val total = itemsInCart.sumOf {
                 (cart[it.catalogueItem.itemId] ?: 0) * it.catalogueItem.price
@@ -156,9 +158,7 @@ private fun TransactStep(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = AlleyMainOrange.copy(alpha = 0.1f)
-                ),
+                colors = CardDefaults.cardColors(containerColor = AlleyMainOrange.copy(alpha = 0.1f)),
                 border = BorderStroke(1.dp, AlleyMainOrange.copy(alpha = 0.3f)),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -181,12 +181,6 @@ private fun TransactStep(
     }
 }
 
-
-// ====================================================================================
-//  NEW AND MODIFIED HELPER COMPOSABLE
-// ====================================================================================
-
-
 @Composable
 private fun TransactReviewCard(
     item: EventInventoryWithDetails,
@@ -202,7 +196,7 @@ private fun TransactReviewCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
+            // Item image or placeholder
             if (catalogueItem.imageUri.isNullOrBlank()) {
                 Icon(
                     imageVector = Icons.Outlined.Image,
@@ -219,9 +213,10 @@ private fun TransactReviewCard(
                 )
             }
 
-
+            // Item details
             Column(Modifier.weight(1f)) {
                 Text(catalogueItem.name, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+
                 Surface(
                     shape = MaterialTheme.shapes.small,
                     border = BorderStroke(1.dp, Color.LightGray),
@@ -235,9 +230,16 @@ private fun TransactReviewCard(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                     )
                 }
-                Text("₱${"%.2f".format(catalogueItem.price)}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.Gray)
+
+                Text(
+                    "₱${"%.2f".format(catalogueItem.price)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray
+                )
             }
 
+            // Quantity selector + stock info
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.width(120.dp)
@@ -257,9 +259,7 @@ private fun TransactReviewCard(
 @Composable
 private fun TransactionTotalRow(totalAmount: Double) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

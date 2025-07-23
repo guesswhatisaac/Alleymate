@@ -20,7 +20,6 @@ import com.mobdeve.s18.roman.isaacnathan.alleymate.data.model.CatalogueItem
 import com.mobdeve.s18.roman.isaacnathan.alleymate.theme.AlleyMainOrange
 import java.io.File
 import androidx.core.net.toUri
-
 @Composable
 fun EditProductModal(
     item: CatalogueItem,
@@ -28,6 +27,7 @@ fun EditProductModal(
     onDismissRequest: () -> Unit,
     onConfirmEdit: (CatalogueItem) -> Unit
 ) {
+    // Wrapper modal layout with header
     BaseModal(
         onDismissRequest = onDismissRequest,
         headerTitle = "Edit Product"
@@ -35,13 +35,14 @@ fun EditProductModal(
         val context = LocalContext.current
         var tempImageFile by remember { mutableStateOf<File?>(null) }
 
-        // --- FORM STATE ---
+        // --- Form State Variables ---
         var productName by remember { mutableStateOf(item.name) }
         var productTag by remember { mutableStateOf(item.category) }
         var retailPrice by remember { mutableStateOf(item.price.toString()) }
         var imageUri by remember { mutableStateOf(item.imageUri?.toUri()) }
 
-        // --- CAMERA AND PERMISSION LAUNCHERS ---
+        // --- Camera Launcher ---
+        // Handles result after taking a picture using the camera
         val cameraLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.TakePicture()
         ) { success ->
@@ -54,6 +55,8 @@ fun EditProductModal(
             }
         }
 
+        // --- Permission Launcher ---
+        // Requests camera permission and initiates camera capture if granted
         val permissionLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
         ) { isGranted ->
@@ -69,21 +72,25 @@ fun EditProductModal(
             }
         }
 
+        // --- Modal Form UI ---
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Image picker field
             FormImagePicker(
                 onImagePickerClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
                 imageUri = imageUri
             )
 
+            // Input for product name
             FormTextField(
                 label = "Product Name",
                 value = productName,
                 onValueChange = { productName = it }
             )
 
+            // Dropdown for selecting product category/tag
             FormDropdown(
                 label = "Product Tag",
                 selectedValue = productTag,
@@ -91,6 +98,7 @@ fun EditProductModal(
                 onValueChange = { productTag = it }
             )
 
+            // Input for retail price (numeric only)
             FormTextField(
                 label = "Retail Price",
                 value = retailPrice,
@@ -98,6 +106,7 @@ fun EditProductModal(
                 keyboardType = KeyboardType.Number
             )
 
+            // Submit button to save changes
             Button(
                 onClick = {
                     val updatedItem = item.copy(

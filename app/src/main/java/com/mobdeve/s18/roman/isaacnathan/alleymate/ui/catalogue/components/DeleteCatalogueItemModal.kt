@@ -1,4 +1,3 @@
-
 package com.mobdeve.s18.roman.isaacnathan.alleymate.ui.catalogue.components
 
 import androidx.compose.foundation.layout.*
@@ -19,6 +18,7 @@ fun DeleteCatalogueItemModal(
     onDismissRequest: () -> Unit,
     onConfirmDelete: () -> Unit
 ) {
+    // Modal wrapper with header
     BaseModal(
         onDismissRequest = onDismissRequest,
         headerTitle = "Delete Product"
@@ -27,7 +27,8 @@ fun DeleteCatalogueItemModal(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Confirmation text
+
+            // Prompt confirmation text
             Text(
                 text = "Are you sure you want to delete this product?",
                 style = MaterialTheme.typography.bodyMedium,
@@ -35,7 +36,7 @@ fun DeleteCatalogueItemModal(
                 textAlign = TextAlign.Center
             )
 
-            // Item details card
+            // Display product info in a styled card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -66,7 +67,7 @@ fun DeleteCatalogueItemModal(
                 }
             }
 
-            // Warning message
+            // Irreversible action warning
             Text(
                 text = "This action cannot be undone.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -74,7 +75,7 @@ fun DeleteCatalogueItemModal(
                 textAlign = TextAlign.Center
             )
 
-            // Action buttons
+            // Cancel and confirm delete buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -85,7 +86,7 @@ fun DeleteCatalogueItemModal(
                     shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = Color.Gray
-                    ),
+                    )
                 ) {
                     Text(
                         text = "CANCEL",

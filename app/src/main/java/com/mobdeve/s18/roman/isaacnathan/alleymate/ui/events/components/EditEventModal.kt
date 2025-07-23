@@ -29,28 +29,22 @@ fun EditEventModal(
         onDismissRequest = onDismissRequest,
         headerTitle = "Edit Event"
     ) {
-        // --- State initialized with existing event data ---
+        // Form state: initialized with existing event values
         var eventName by remember { mutableStateOf(event.title) }
         var eventLocation by remember { mutableStateOf(event.location) }
 
-        // --- Date picker state initialized with existing event dates ---
+        // Date pickers: initialized to existing event dates
         val startDatePickerState = rememberDatePickerState(initialSelectedDateMillis = event.startDate)
-        var showStartDatePicker by remember { mutableStateOf(false) }
-
         val endDatePickerState = rememberDatePickerState(initialSelectedDateMillis = event.endDate)
+        var showStartDatePicker by remember { mutableStateOf(false) }
         var showEndDatePicker by remember { mutableStateOf(false) }
 
-        // --- Date formatting and validation logic ---
+        // Date formatting for display
         val dateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+        val selectedStartDate = startDatePickerState.selectedDateMillis?.let { dateFormatter.format(Date(it)) } ?: "Select Start Date"
+        val selectedEndDate = endDatePickerState.selectedDateMillis?.let { dateFormatter.format(Date(it)) } ?: "Select End Date"
 
-        val selectedStartDate = startDatePickerState.selectedDateMillis?.let {
-            dateFormatter.format(Date(it))
-        } ?: "Select Start Date"
-
-        val selectedEndDate = endDatePickerState.selectedDateMillis?.let {
-            dateFormatter.format(Date(it))
-        } ?: "Select End Date"
-
+        // Validate if end date is before start date
         val isEndDateInvalid = startDatePickerState.selectedDateMillis != null &&
                 endDatePickerState.selectedDateMillis != null &&
                 endDatePickerState.selectedDateMillis!! < startDatePickerState.selectedDateMillis!!
@@ -59,6 +53,7 @@ fun EditEventModal(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Event name and location fields
             FormTextField(
                 label = "Event Name",
                 value = eventName,
@@ -70,7 +65,7 @@ fun EditEventModal(
                 onValueChange = { eventLocation = it }
             )
 
-            // --- Date Selection Cards ---
+            // Start and end date pickers
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 DateSelectionCard(
                     modifier = Modifier.weight(1f),
@@ -90,7 +85,7 @@ fun EditEventModal(
                 )
             }
 
-            // --- Error message for invalid date range ---
+            // Show validation error if end date is invalid
             if (isEndDateInvalid) {
                 Text(
                     text = "End date cannot be before start date",
@@ -100,7 +95,7 @@ fun EditEventModal(
                 )
             }
 
-            // --- Start Date Picker Dialog ---
+            // Start date picker dialog
             if (showStartDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { showStartDatePicker = false },
@@ -108,7 +103,7 @@ fun EditEventModal(
                         TextButton(
                             onClick = {
                                 showStartDatePicker = false
-                                // Reset end date if it becomes invalid after changing start date
+                                // Clear end date if it becomes invalid
                                 if (startDatePickerState.selectedDateMillis != null &&
                                     endDatePickerState.selectedDateMillis != null &&
                                     endDatePickerState.selectedDateMillis!! < startDatePickerState.selectedDateMillis!!) {
@@ -138,7 +133,7 @@ fun EditEventModal(
                 }
             }
 
-            // --- End Date Picker Dialog (FIXED: Added complete color configuration) ---
+            // End date picker dialog
             if (showEndDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { showEndDatePicker = false },
@@ -168,6 +163,7 @@ fun EditEventModal(
                 }
             }
 
+            // Confirm edit button
             Button(
                 onClick = {
                     val updatedEvent = Event(

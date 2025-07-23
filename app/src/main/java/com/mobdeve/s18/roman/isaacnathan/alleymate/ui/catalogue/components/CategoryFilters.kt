@@ -39,6 +39,7 @@ fun CategoryFilters(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Render a chip for each category
         items(items = categories, key = { it }) { category ->
             val isSelected = selectedCategory == category
 
@@ -46,7 +47,7 @@ fun CategoryFilters(
                 text = category,
                 isSelected = isSelected,
                 onClick = { onCategorySelected(category) },
-                // UPDATED: Disable long press for "ALL" AND "N/A"
+                // Prevent long press for special categories
                 onLongClick = if (category != "ALL" && category != "N/A") {
                     { onCategoryLongPress(category) }
                 } else {
@@ -55,6 +56,7 @@ fun CategoryFilters(
             )
         }
 
+        // Button for adding a new category
         item {
             OutlinedButton(
                 onClick = onAddCategoryClicked,
@@ -92,6 +94,7 @@ private fun CustomFilterChip(
                 onLongClick = onLongClick
             )
     ) {
+        // Category label
         Text(
             text = text,
             color = textColor,

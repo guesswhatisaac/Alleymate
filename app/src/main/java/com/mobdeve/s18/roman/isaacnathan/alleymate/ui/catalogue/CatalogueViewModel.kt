@@ -18,35 +18,42 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
     private val itemCategoryRepository: ItemCategoryRepository
     private val allCatalogueItems: StateFlow<List<CatalogueItem>>
 
+    // Selected category name (e.g. "ALL" or a specific category)
     private val _selectedItemCategory = MutableStateFlow("ALL")
     val selectedItemCategory: StateFlow<String> = _selectedItemCategory.asStateFlow()
 
+    // All categories and filtered items by category
     val itemCategories: StateFlow<List<String>>
     val filteredItems: StateFlow<List<CatalogueItem>>
 
+    // Multi-selection state
     private val _selectedItemIds = MutableStateFlow<Set<Int>>(emptySet())
     val selectedItemIds: StateFlow<Set<Int>> = _selectedItemIds.asStateFlow()
 
+    // Holds the number of items in the current category
     private val _categoryItemCount = MutableStateFlow(0)
     val categoryItemCount: StateFlow<Int> = _categoryItemCount.asStateFlow()
 
+    // Selection mode flag
     val inSelectionMode: StateFlow<Boolean> = _selectedItemIds
         .map { it.isNotEmpty() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    // Number of items selected for allocation
     val allocationBadgeCount: StateFlow<Int> = _selectedItemIds
         .map { it.size }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     init {
         val database = AlleyMateDatabase.getDatabase(application)
-        catalogueRepository = CatalogueRepository(database.catalogueDao(), database)
+        catalogueRepository = CatalogueRepository(database.catalogueDao())
         itemCategoryRepository = ItemCategoryRepository(database.itemCategoryDao())
 
         viewModelScope.launch {
             ensureDefaultCategoryExists()
         }
 
+        // Full catalogue stream
         allCatalogueItems = catalogueRepository.getAllItems()
             .stateIn(
                 scope = viewModelScope,
@@ -54,6 +61,7 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
                 initialValue = emptyList()
             )
 
+        // All categories, prefixed with "ALL"
         itemCategories = itemCategoryRepository.getAllItemCategories()
             .map { dbCategories ->
                 listOf("ALL") + dbCategories.map { it.name }.distinct()
@@ -64,13 +72,11 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
                 initialValue = listOf("ALL")
             )
 
+        // Filter items by currently selected category
         filteredItems = allCatalogueItems
             .combine(_selectedItemCategory) { items, selectedCategory ->
-                if (selectedCategory == "ALL") {
-                    items
-                } else {
-                    items.filter { it.category == selectedCategory }
-                }
+                if (selectedCategory == "ALL") items
+                else items.filter { it.category == selectedCategory }
             }
             .stateIn(
                 scope = viewModelScope,
@@ -92,6 +98,7 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
         val newItem = CatalogueItem(name = name, category = standardizedCategory, price = price, stock = stock, imageUri = imageUri)
         catalogueRepository.addItem(newItem)
 
+        // Ensure the category is added to the list
         val newCategory = ItemCategory(name = standardizedCategory)
         itemCategoryRepository.addItemCategory(newCategory)
     }
@@ -107,6 +114,7 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
     fun deleteCategory(categoryName: String) = viewModelScope.launch {
         itemCategoryRepository.deleteCategoryByName(categoryName)
 
+        // Reset to "ALL" if deleted category was selected
         if (_selectedItemCategory.value == categoryName) {
             _selectedItemCategory.value = "ALL"
         }
@@ -117,7 +125,6 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun editProduct(updatedItem: CatalogueItem) = viewModelScope.launch {
-        // Standardize category on edit as well
         val standardizedItem = updatedItem.copy(category = updatedItem.category.trim().uppercase())
         catalogueRepository.updateItem(standardizedItem)
     }
@@ -132,10 +139,8 @@ class CatalogueViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun toggleSelection(itemId: Int) {
         val currentSelection = _selectedItemIds.value.toMutableSet()
-        if (itemId in currentSelection) {
+        if (!currentSelection.add(itemId)) {
             currentSelection.remove(itemId)
-        } else {
-            currentSelection.add(itemId)
         }
         _selectedItemIds.value = currentSelection
     }

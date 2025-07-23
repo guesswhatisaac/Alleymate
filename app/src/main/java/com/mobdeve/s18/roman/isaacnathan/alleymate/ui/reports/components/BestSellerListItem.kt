@@ -16,6 +16,7 @@ fun BestSellerListItem(
     bestSeller: BestSeller,
     modifier: Modifier = Modifier
 ) {
+    // Wrapper card for each best seller item
     AppCard(modifier = modifier) {
         Row(
             modifier = Modifier
@@ -24,7 +25,7 @@ fun BestSellerListItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Rank
+            // Display rank number (e.g., #1)
             Text(
                 text = "#${bestSeller.rank}",
                 style = MaterialTheme.typography.titleMedium,
@@ -32,7 +33,7 @@ fun BestSellerListItem(
                 color = MaterialTheme.colorScheme.primary
             )
 
-            // Item Name
+            // Item name with flexible width to avoid overflow
             Text(
                 text = bestSeller.name,
                 style = MaterialTheme.typography.bodyLarge,
@@ -40,7 +41,7 @@ fun BestSellerListItem(
                 fontWeight = FontWeight.Medium
             )
 
-            // Sales Stats
+            // Show sales statistics (quantity + total revenue)
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = "${bestSeller.quantitySold} sold",

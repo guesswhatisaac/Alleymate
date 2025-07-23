@@ -9,29 +9,35 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDao {
+
+    // Transaction inserts
+
     @Insert
     suspend fun insertTransaction(transaction: SaleTransaction): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTransactionItems(items: List<SaleTransactionItem>)
 
+
+    // Queries
+
     @Transaction
     @Query("SELECT * FROM transactions WHERE eventId = :eventId ORDER BY timestamp DESC")
     fun getTransactionsForEvent(eventId: Int): Flow<List<TransactionWithItems>>
 
     @Query("""
-            SELECT
-                ti.itemId,
-                ci.name, -- THIS WAS THE MISSING PIECE
-                SUM(ti.quantity) as quantitySold,
-                SUM(ti.quantity * ti.priceInCents) as totalRevenueInCents
-            FROM transaction_items ti
-            JOIN transactions t ON ti.transactionId = t.transactionId
-            JOIN catalogue_items ci ON ti.itemId = ci.itemId
-            WHERE t.eventId IN (:eventIds) AND t.timestamp >= :startDate
-            GROUP BY ti.itemId, ci.name
-            ORDER BY quantitySold DESC
-        """)
+        SELECT
+            ti.itemId,
+            ci.name,
+            SUM(ti.quantity) as quantitySold,
+            SUM(ti.quantity * ti.priceInCents) as totalRevenueInCents
+        FROM transaction_items ti
+        JOIN transactions t ON ti.transactionId = t.transactionId
+        JOIN catalogue_items ci ON ti.itemId = ci.itemId
+        WHERE t.eventId IN (:eventIds) AND t.timestamp >= :startDate
+        GROUP BY ti.itemId, ci.name
+        ORDER BY quantitySold DESC
+    """)
     fun getSalesData(eventIds: List<Int>, startDate: Long): Flow<List<SalesData>>
 
     @Query("""
@@ -46,6 +52,4 @@ interface TransactionDao {
         ORDER BY year, month ASC
     """)
     fun getMonthlyRevenue(startTime: Long): Flow<List<MonthlyRevenue>>
-
-
 }

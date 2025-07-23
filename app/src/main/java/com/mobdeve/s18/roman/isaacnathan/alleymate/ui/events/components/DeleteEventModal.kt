@@ -26,7 +26,8 @@ fun DeleteEventModal(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Initial confirmation question
+
+            // Prompt asking for delete confirmation
             Text(
                 text = "Are you sure you want to delete this event?",
                 style = MaterialTheme.typography.bodyMedium,
@@ -34,7 +35,7 @@ fun DeleteEventModal(
                 textAlign = TextAlign.Center
             )
 
-            // Event details card (centered content)
+            // Card displaying the event's title and date
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -65,7 +66,7 @@ fun DeleteEventModal(
                 }
             }
 
-            // Warning message
+            // Warning about action being irreversible
             Text(
                 text = "This action cannot be undone.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -73,7 +74,7 @@ fun DeleteEventModal(
                 textAlign = TextAlign.Center
             )
 
-            // Action buttons
+            // Cancel and delete buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -84,9 +85,8 @@ fun DeleteEventModal(
                     shape = MaterialTheme.shapes.medium,
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = Color.Gray
-                    ),
-
-                ){
+                    )
+                ) {
                     Text(
                         text = "CANCEL",
                         modifier = Modifier.padding(vertical = 8.dp),
