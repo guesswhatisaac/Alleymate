@@ -13,7 +13,6 @@ An all-in-one inventory, sales, and event management solution for independent ar
 - [Key Features](#-key-features)
 - [Screenshots](#-screenshots)
 - [Tech Stack & Architecture](#️-tech-stack--architecture)
-- [Project Structure](#-project-structure)
 - [Getting Started](#-getting-started)
 - [Author](#-author)
 
