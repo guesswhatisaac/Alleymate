@@ -24,6 +24,7 @@ import coil.compose.AsyncImage
 @Composable
 fun AllocationItem(
     item: CatalogueItem,
+    quantity: Int,
     onQuantityChange: (Int) -> Unit,
     onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -112,7 +113,8 @@ fun AllocationItem(
                 QuantityStepper(
                     onValueChange = onQuantityChange,
                     maxValue = item.stock,
-                    minValue = 0
+                    minValue = 0,
+                    value = quantity
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(

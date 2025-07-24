@@ -90,7 +90,7 @@ fun RestockProductModal(
                     color = Color.Gray
                 )
                 QuantityStepper(
-                    initialValue = restockQuantity,
+                    value = restockQuantity,
                     onValueChange = { restockQuantity = it },
                     minValue = 0
                 )

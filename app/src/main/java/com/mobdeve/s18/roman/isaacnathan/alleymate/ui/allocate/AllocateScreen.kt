@@ -27,6 +27,9 @@ fun AllocateScreen(
     val itemsToAllocate by viewModel.itemsToAllocate.collectAsState()
     val isAllocationValid by viewModel.isAllocationValid.collectAsState()
 
+    val allocationQuantities by viewModel.allocationQuantities.collectAsState()
+
+
     Scaffold(
         topBar = {
             AppTopBar(
@@ -97,8 +100,13 @@ fun AllocateScreen(
 
                     // Item cards
                     items(itemsToAllocate, key = { it.itemId }) { item ->
+
+                        val quantity = allocationQuantities[item.itemId] ?: 0
+
+
                         AllocationItem(
                             item = item,
+                            quantity = quantity,
                             onQuantityChange = { newQuantity ->
                                 viewModel.updateAllocationQuantity(item.itemId, newQuantity)
                             },

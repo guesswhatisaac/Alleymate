@@ -15,14 +15,11 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun QuantityStepper(
-    initialValue: Int = 0,
+    value: Int,
     onValueChange: (Int) -> Unit,
     maxValue: Int = Int.MAX_VALUE,
     minValue: Int
 ) {
-    var count by remember { mutableIntStateOf(initialValue) }
-    var currentValue by remember { mutableIntStateOf(initialValue) }
-
     val shape = MaterialTheme.shapes.extraLarge
 
     Row(
@@ -34,9 +31,8 @@ fun QuantityStepper(
         // Minus Button
         IconButton(
             onClick = {
-                if (count > 0 && count > minValue) {
-                    count--
-                    onValueChange(count)
+                if (value > minValue) {
+                    onValueChange(value - 1)
                 }
             },
             modifier = Modifier.weight(1f)
@@ -49,7 +45,7 @@ fun QuantityStepper(
 
         // Count Text
         Text(
-            text = count.toString(),
+            text = value.toString(),
             modifier = Modifier.weight(1.5f),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge
@@ -60,8 +56,12 @@ fun QuantityStepper(
 
         // Plus Button
         IconButton(
-            onClick = { if (count < maxValue) count++ ; onValueChange(count) },
-            enabled = count < maxValue,
+            onClick = {
+                if (value < maxValue) {
+                    onValueChange(value + 1)
+                }
+            },
+            enabled = value < maxValue,
             modifier = Modifier.weight(1f)
         ) {
             Icon(Icons.Default.Add, contentDescription = "Increase quantity")

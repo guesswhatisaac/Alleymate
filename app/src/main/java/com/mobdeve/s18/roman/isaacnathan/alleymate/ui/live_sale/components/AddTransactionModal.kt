@@ -245,7 +245,7 @@ private fun TransactReviewCard(
                 modifier = Modifier.width(120.dp)
             ) {
                 QuantityStepper(
-                    initialValue = initialQuantity,
+                    value = initialQuantity,
                     minValue = 0,
                     maxValue = stockLeft,
                     onValueChange = onQuantityChange
